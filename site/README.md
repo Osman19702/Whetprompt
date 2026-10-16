@@ -4,6 +4,6 @@ This folder is the public landing page for PromptFixer, published at https://osm
 
 It is deployed by `.github/workflows/pages.yml`, which runs on a push to `master` that touches `site/` and again whenever a release is published, so the page catches up with a new installer without anyone editing it.
 
-`site/releases.json` is written at deploy time by `node scripts/site-releases.mjs` from the GitHub Releases API and is git-ignored; the page reads it for the download card and the release notes. Without it (a fresh checkout, a page opened from the file system) the download button falls back to the releases page on GitHub.
+`site/releases.json` is written at deploy time by `node scripts/site-releases.mjs` from the GitHub Releases API and is git-ignored; the page reads it for the download card (the Windows installer and, from 0.4.0, the two macOS images) and the release notes. Without it (a fresh checkout, a page opened from the file system) the download button falls back to the releases page on GitHub.
 
 To preview it, serve this folder over HTTP rather than opening the file, since a page on `file://` cannot read `releases.json`: for example `python -m http.server 8000 --directory site`, then open http://localhost:8000/. The `releases.json` in a checkout is whatever the script last wrote, or a hand-written fixture in the same shape; the deploy always regenerates it.

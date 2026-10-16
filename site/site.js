@@ -1,4 +1,5 @@
-/* The page's only script. It fills the download card and the release list from ./releases.json,
+/* The page's only script. It fills the download card (the Windows installer and the macOS images)
+   and the release list from ./releases.json,
    which scripts/site-releases.mjs writes from the GitHub Releases API at deploy time. Everything
    here degrades: with no file, a broken file or no network the download button still points at
    the releases page on GitHub, and no field on the page is ever shown half filled. The release
@@ -133,19 +134,39 @@
 
   /* --- the download card -------------------------------------------------- */
 
-  function installerOf(release) {
-    const installer = release.installer;
-    if (!installer || typeof installer !== 'object') return null;
-    const sha = typeof installer.sha256 === 'string' && /^[0-9a-f]{64}$/i.test(installer.sha256)
-      ? installer.sha256.toLowerCase()
+  // One file as releases.json describes it, the Windows installer or a macOS image: each field is
+  // used only when it is the string or number it is supposed to be.
+  function fileOf(raw) {
+    if (!raw || typeof raw !== 'object') return null;
+    const sha = typeof raw.sha256 === 'string' && /^[0-9a-f]{64}$/i.test(raw.sha256)
+      ? raw.sha256.toLowerCase()
       : null;
     return {
-      name: text(installer.name),
-      url: httpUrl(installer.url),
-      size: formatBytes(installer.bytes),
+      name: text(raw.name),
+      url: httpUrl(raw.url),
+      size: formatBytes(raw.bytes),
       sha,
-      sumsUrl: httpUrl(installer.sumsUrl),
+      sumsUrl: httpUrl(raw.sumsUrl),
     };
+  }
+
+  function installerOf(release) {
+    return fileOf(release.installer);
+  }
+
+  // The two macOS images, in the order they are shown, with the name a visitor knows their Mac by.
+  const MAC = [['arm64', 'Apple Silicon'], ['x64', 'Intel']];
+
+  // The macOS images of a release by architecture; one that is not there, or has no link, is null,
+  // so a release in the middle of an upload offers what it has.
+  function macImagesOf(release) {
+    const mac = release.mac && typeof release.mac === 'object' ? release.mac : {};
+    const out = {};
+    for (const [arch] of MAC) {
+      const file = fileOf(mac[arch]);
+      out[arch] = file && file.url ? file : null;
+    }
+    return out;
   }
 
   function versionOf(release) {
@@ -249,7 +270,48 @@
       ? 'Download for Windows' + (size ? ' (' + size + ')' : '')
       : 'Open the release page on GitHub';
 
+    fillMac(release);
     byId('download-card').dataset.state = 'ready';
+  }
+
+  // The macOS part of the card and the line under the hero button. A release without an image
+  // (every one before 0.4.0) shows neither, and a single image is shown alone.
+  function fillMac(release) {
+    const images = macImagesOf(release);
+    const present = MAC.filter(([arch]) => images[arch]);
+    for (const [arch, label] of MAC) {
+      const file = images[arch];
+      setHidden(byId('dl-mac-' + arch), !file);
+      if (!file) continue;
+      const link = byId('dl-mac-' + arch + '-link');
+      link.href = file.url;
+      link.textContent = label + (file.size ? ' (' + file.size + ')' : '');
+      const name = byId('dl-mac-' + arch + '-file');
+      name.textContent = file.name || '';
+      setHidden(name.closest('.fact'), !file.name);
+      const sha = byId('dl-mac-' + arch + '-sha');
+      sha.textContent = file.sha || '';
+      setHidden(sha.closest('.fact'), !file.sha);
+    }
+    setHidden(byId('dl-mac'), present.length === 0);
+
+    const hero = byId('dl-hero-mac');
+    hero.textContent = '';
+    if (present.length > 0) {
+      hero.append('Also for macOS 13 or later: ');
+      present.forEach(([arch, label], index) => {
+        if (index > 0) hero.append(' \u00b7 ');
+        const a = element('a', null, label + (images[arch].size ? ' (' + images[arch].size + ')' : ''));
+        a.href = images[arch].url;
+        hero.append(a);
+      });
+      hero.append('.');
+    }
+    setHidden(hero, present.length === 0);
+
+    // The command names one image; for the other only the file name differs.
+    const first = present.length > 0 ? images[present[0][0]] : null;
+    if (first && first.name) byId('dl-verify-mac').textContent = 'shasum -a 256 ~/Downloads/' + first.name;
   }
 
   /* --- the release list --------------------------------------------------- */
@@ -294,8 +356,16 @@
     // The version is in each link's own text: three releases open at once are three "Download"
     // links otherwise, and a screen reader's list of links could not tell them apart.
     if (installer && installer.url) {
-      const download = element('a', null, 'Download ' + version + (installer.size ? ' (' + installer.size + ')' : ''));
+      const download = element('a', null, 'Download ' + version + ' for Windows' + (installer.size ? ' (' + installer.size + ')' : ''));
       download.href = installer.url;
+      meta.append(download);
+    }
+    const images = macImagesOf(release);
+    for (const [arch, label] of MAC) {
+      const file = images[arch];
+      if (!file) continue;
+      const download = element('a', null, 'Download ' + version + ' for macOS, ' + label + (file.size ? ' (' + file.size + ')' : ''));
+      download.href = file.url;
       meta.append(download);
     }
     if (pageUrl) {
@@ -341,13 +411,15 @@
     return { latest: text(data.latest), releases };
   }
 
-  // The card describes the release the file names as latest, provided it has an installer to
-  // offer; failing that, the newest release that has one and is not a pre-release; failing
-  // that, the latest, or the newest that is not a pre-release, or whatever comes first.
+  // The card describes the release the file names as latest, provided it has a file to offer;
+  // failing that, the newest release that has one and is not a pre-release; failing that, the
+  // latest, or the newest that is not a pre-release, or whatever comes first.
   function chooseRelease(data) {
     const hasFile = (release) => {
       const installer = installerOf(release);
-      return !!(installer && installer.url);
+      if (installer && installer.url) return true;
+      const images = macImagesOf(release);
+      return MAC.some(([arch]) => images[arch]);
     };
     const latest = data.releases.find((release) => release.tag === data.latest);
     if (latest && hasFile(latest)) return latest;
@@ -362,6 +434,8 @@
     heroButton.href = LATEST_URL;
     heroButton.textContent = 'Download the latest release from GitHub';
     byId('dl-hero-size').textContent = '';
+    setHidden(byId('dl-hero-mac'), true);
+    setHidden(byId('dl-mac'), true);
     byId('download-card').dataset.state = 'fallback';
     byId('dl-title').textContent = 'Latest release';
     const link = byId('dl-link');

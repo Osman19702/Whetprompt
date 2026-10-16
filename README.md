@@ -1,7 +1,7 @@
 # PromptFixer
 
-A desktop app that lints, scores and rewrites LLM prompts — with a **built-in local model**, so it
-works offline and nothing you type leaves your machine. That last claim is checked on every push,
+A desktop app for Windows and macOS that lints, scores and rewrites LLM prompts — with a
+**built-in local model**, so it works offline and nothing you type leaves your machine. That last claim is checked on every push,
 not just asserted: see [docs/PRIVACY.md](docs/PRIVACY.md) for what does and does not leave, and how
 the check works.
 
@@ -34,6 +34,23 @@ downloads on first run; after that the app works offline.
 - The installer is not code-signed yet, so SmartScreen shows "Windows protected your PC": click
   **More info**, then **Run anyway**, once the hash matches.
 - Full guide: [docs/INSTALL.md](docs/INSTALL.md).
+
+## Download (macOS)
+
+Two disk images on the same [v0.4.0 release](https://github.com/Osman19702/PromptFixer/releases/tag/v0.4.0),
+for macOS 13 or later. Pick the one for your Mac (Apple menu, About This Mac):
+
+- **[PromptFixer-0.4.0-mac-arm64.dmg](https://github.com/Osman19702/PromptFixer/releases/download/v0.4.0/PromptFixer-0.4.0-mac-arm64.dmg)** (138.9 MiB) for Apple Silicon.
+  SHA-256: `5950705c72d5e19e6b2abd7d8d334db50dabcee3c595b3248488303c814c17fa`.
+- **[PromptFixer-0.4.0-mac-x64.dmg](https://github.com/Osman19702/PromptFixer/releases/download/v0.4.0/PromptFixer-0.4.0-mac-x64.dmg)** (144.1 MiB) for an Intel Mac.
+  SHA-256: `6a5d3963ee807391be127626bee786bddf24a403a65de8546bf4feb4e7ea4b0c`.
+
+Both hashes are in the release's [`SHA256SUMS.txt`](https://github.com/Osman19702/PromptFixer/releases/download/v0.4.0/SHA256SUMS.txt); check one in Terminal
+with `shasum -a 256 ~/Downloads/PromptFixer-0.4.0-mac-arm64.dmg`. The app is ad-hoc signed and not
+notarized, so macOS refuses the first launch: click **Done**, then **System Settings → Privacy &
+Security → Open Anyway**. [docs/INSTALL.md](docs/INSTALL.md#macos) walks through it. The model
+downloads on first run as on Windows; on Apple Silicon it runs on the GPU through Metal, on an
+Intel Mac on the CPU.
 
 ## Quick start (desktop)
 
@@ -549,7 +566,8 @@ place, whatever that original happens to contain.
   directly (`npx elastishot …`), the second that `PROMPTFIXER_VISUAL_URL` points at a server you are
   using, whose library the check will not empty. Go through `npm run visual`, which starts a
   throwaway server for it.
-- **Packaging** — `npm run dist:win` produces an NSIS installer under `release/`. The model is
+- **Packaging** — `npm run dist:win` produces an NSIS installer under `release/`, and
+  `npm run dist:mac` (on a Mac) a `.dmg` for each of Apple Silicon and Intel. The model is
   *not* bundled (it's per-user in `~/.promptfixer`); the installer is still ~350 MB because it
   ships the prebuilt CPU, Vulkan and CUDA llama.cpp backends so the right one is picked at runtime.
   Binaries for other CPU architectures and llama.cpp's build-from-source bundle are excluded.

@@ -12,6 +12,8 @@ import {
   fetchReleases,
   hashFromBody,
   installerOf,
+  macImagesOf,
+  hasDownload,
   parseArgs,
   parseSums,
   repoFromPackage,
@@ -29,7 +31,16 @@ const SHA_030 = '39dde4aaf5e9ac4b059d256280002211d5e78a89ffc65dc375e7965c5d71b0d
 const SHA_020 = '0388c49399efb895036f2f75e8a7b09803d613bb56850d9644ed17c7c0b9853e'
 const SHA_010 = '4f49a75fa3b01cbf98cee56100e2afdc14b42b56b1eef3853e47afc010194c2e'
 const BLOCKMAP_030 = 'cceb5d24df78baa274d6802e7defe61abe8188a30d0137b2893c873e37c13259'
-const SUMS_030 = `${SHA_030}  PromptFixer-0.3.0-win-x64.exe\n${BLOCKMAP_030}  PromptFixer-0.3.0-win-x64.exe.blockmap\n`
+// The macOS images, uploaded by hand next to the installer (0.4.0 was the first release to carry them).
+const SHA_030_ARM64 = '441e944305a4a7cc6f57b64faddb9f199e5d7a8ac3b481c435d9d74f826a949b'
+const SHA_030_X64 = '6c59759bb0132024b56dd092ea73166ed3773f70e150ff7dbb61a285d444f09d'
+const SUMS_030 = [
+  `${SHA_030_ARM64}  PromptFixer-0.3.0-mac-arm64.dmg`,
+  `${SHA_030_X64}  PromptFixer-0.3.0-mac-x64.dmg`,
+  `${SHA_030}  PromptFixer-0.3.0-win-x64.exe`,
+  `${BLOCKMAP_030}  PromptFixer-0.3.0-win-x64.exe.blockmap`,
+  '',
+].join('\n')
 
 /** The notes of 0.3.0 as the site should show them: what the changelog said, and nothing of the download block. */
 const NOTES_030 = [
@@ -90,6 +101,12 @@ function apiFixture(base = `${GH}/releases/download`) {
     asset(tag, `PromptFixer-${version}-win-x64.exe.blockmap`, 371803),
     asset(tag, 'SHA256SUMS.txt', 201),
   ]
+  const mac = (tag, version) => [
+    asset(tag, `PromptFixer-${version}-mac-arm64.dmg`, 145626867),
+    asset(tag, `PromptFixer-${version}-mac-arm64.dmg.blockmap`, 153141),
+    asset(tag, `PromptFixer-${version}-mac-x64.dmg`, 151112779),
+    asset(tag, `PromptFixer-${version}-mac-x64.dmg.blockmap`, 160485),
+  ]
   let id = 393123329
   const release = (tag, fields) => ({
     id: id++,
@@ -119,7 +136,8 @@ function apiFixture(base = `${GH}/releases/download`) {
       created_at: '2026-09-21T16:33:25Z',
       published_at: '2026-09-21T16:39:55Z',
       body: BODY_030,
-      assets: windows('v0.3.0', '0.3.0', 355614523),
+      // The installer, then the images: the order they are uploaded in.
+      assets: [...windows('v0.3.0', '0.3.0', 355614523), ...mac('v0.3.0', '0.3.0')],
     }),
     release('v0.4.0', {
       draft: true,
@@ -155,7 +173,26 @@ const expected030 = (base = `${GH}/releases/download`) => ({
     sha256: SHA_030,
     sumsUrl: `${base}/v0.3.0/SHA256SUMS.txt`,
   },
+  mac: {
+    arm64: {
+      name: 'PromptFixer-0.3.0-mac-arm64.dmg',
+      url: `${base}/v0.3.0/PromptFixer-0.3.0-mac-arm64.dmg`,
+      bytes: 145626867,
+      sha256: SHA_030_ARM64,
+      sumsUrl: `${base}/v0.3.0/SHA256SUMS.txt`,
+    },
+    x64: {
+      name: 'PromptFixer-0.3.0-mac-x64.dmg',
+      url: `${base}/v0.3.0/PromptFixer-0.3.0-mac-x64.dmg`,
+      bytes: 151112779,
+      sha256: SHA_030_X64,
+      sumsUrl: `${base}/v0.3.0/SHA256SUMS.txt`,
+    },
+  },
 })
+
+/** A release with the Windows installer and nothing for macOS. */
+const NO_MAC = { arm64: null, x64: null }
 
 /** A fetch that answers from a table of URL -> { status, body } and records what it was asked. */
 function fakeFetch(table, calls = []) {
@@ -254,6 +291,8 @@ test('repoFromPackage reads owner/name out of every spelling package.json may ho
 test('parseSums maps each listed file to its hash, lowercase, and skips lines that are not one', () => {
   const sums = parseSums(SUMS_030)
   assert.deepEqual([...sums], [
+    ['PromptFixer-0.3.0-mac-arm64.dmg', SHA_030_ARM64],
+    ['PromptFixer-0.3.0-mac-x64.dmg', SHA_030_X64],
     ['PromptFixer-0.3.0-win-x64.exe', SHA_030],
     ['PromptFixer-0.3.0-win-x64.exe.blockmap', BLOCKMAP_030],
   ])
@@ -298,6 +337,27 @@ test('installerOf takes the uploaded win-x64 installer and nothing else', () => 
   assert.equal(sumsAssetOf([{ ...sums, state: 'open' }]), null)
 })
 
+test('macImagesOf takes the uploaded disk image of each architecture, and the blockmaps are not images', () => {
+  const [v020, , v030] = apiFixture()
+  const [, , , arm64, , x64] = v030.assets
+  assert.deepEqual(macImagesOf(v030.assets), {
+    arm64: { name: 'PromptFixer-0.3.0-mac-arm64.dmg', url: `${GH}/releases/download/v0.3.0/PromptFixer-0.3.0-mac-arm64.dmg`, bytes: 145626867 },
+    x64: { name: 'PromptFixer-0.3.0-mac-x64.dmg', url: `${GH}/releases/download/v0.3.0/PromptFixer-0.3.0-mac-x64.dmg`, bytes: 151112779 },
+  })
+  // One image without the other is a release in the middle of an upload, and is shown as it is.
+  assert.deepEqual(macImagesOf([x64]), { arm64: null, x64: macImagesOf(v030.assets).x64 })
+  assert.deepEqual(macImagesOf([{ ...arm64, state: 'open' }]), NO_MAC, 'an upload that broke off is not an image')
+  assert.deepEqual(macImagesOf(v020.assets), NO_MAC)
+  assert.deepEqual(macImagesOf([]), NO_MAC)
+  assert.deepEqual(macImagesOf(undefined), NO_MAC)
+  // Anything to download is enough for the sums to be fetched; a release with only a blockmap has nothing.
+  assert.equal(hasDownload(v030.assets), true)
+  assert.equal(hasDownload(v020.assets), true)
+  assert.equal(hasDownload([arm64]), true)
+  assert.equal(hasDownload([v030.assets[1], v030.assets[2]]), false)
+  assert.equal(hasDownload(undefined), false)
+})
+
 test('toSiteReleases drops drafts, orders newest first and never makes a pre-release "latest"', () => {
   const sumsByTag = new Map([['v0.3.0', SUMS_030]])
   const { latest, releases } = toSiteReleases(apiFixture(), { sumsByTag })
@@ -312,8 +372,11 @@ test('toSiteReleases drops drafts, orders newest first and never makes a pre-rel
     ]
   )
   assert.deepEqual(releases[1], expected030())
-  // No installer at all: the field is there, and null.
+  // No installer at all: the fields are there, and null.
   assert.equal(releases[0].installer, null)
+  assert.deepEqual(releases[0].mac, NO_MAC)
+  // Windows only, as every release before 0.4.0 was.
+  assert.deepEqual(releases[2].mac, NO_MAC)
   assert.equal(releases[0].notes, '### Added\n\n- A rehearsal of the next release.')
   // A plain object works as well as a Map.
   assert.deepEqual(toSiteReleases(apiFixture(), { sumsByTag: { 'v0.3.0': SUMS_030 } }).releases[1], expected030())
@@ -327,6 +390,11 @@ test('toSiteReleases prefers the hash in SHA256SUMS.txt and falls back to the no
   const of = (tag) => releases.find((r) => r.tag === tag).installer
   // The sums say one thing and the notes another: the sums win, they are what sha256sum -c checks against.
   assert.equal(of('v0.3.0').sha256, other)
+  // The sums lack the images' lines, and the notes name no hash for an image: null, never the installer's.
+  const mac = releases.find((r) => r.tag === 'v0.3.0').mac
+  assert.equal(mac.arm64.sha256, null)
+  assert.equal(mac.x64.sha256, null)
+  assert.equal(mac.arm64.sumsUrl, `${GH}/releases/download/v0.3.0/SHA256SUMS.txt`)
   // The sums are for another file: the notes.
   assert.equal(of('v0.2.0').sha256, SHA_020)
   assert.equal(of('v0.2.0').sumsUrl, `${GH}/releases/download/v0.2.0/SHA256SUMS.txt`)
@@ -462,8 +530,8 @@ test('CLI: writes the contract shape, two-space indented with a trailing newline
     assert.equal(ok.stdout, `wrote ${path.relative(process.cwd(), file)}: 4 release(s) of ${REPO}, latest v0.3.0\n`)
     const lines = ok.stderr.trimEnd().split('\n')
     assert.deepEqual(lines, [
-      'v0.4.0-rc.1 (pre-release): no Windows installer',
-      `v0.3.0: PromptFixer-0.3.0-win-x64.exe, 355614523 bytes, sha256 ${SHA_030}`,
+      'v0.4.0-rc.1 (pre-release): no download',
+      `v0.3.0: PromptFixer-0.3.0-win-x64.exe, 355614523 bytes, sha256 ${SHA_030}; PromptFixer-0.3.0-mac-arm64.dmg, 145626867 bytes, sha256 ${SHA_030_ARM64}; PromptFixer-0.3.0-mac-x64.dmg, 151112779 bytes, sha256 ${SHA_030_X64}`,
       `v0.2.0: PromptFixer-0.2.0-win-x64.exe, 355607044 bytes, sha256 ${SHA_020}`,
       `v0.1.0: PromptFixer-0.1.0-win-x64.exe, 355597508 bytes, sha256 ${SHA_010}`,
     ])
@@ -476,8 +544,11 @@ test('CLI: writes the contract shape, two-space indented with a trailing newline
     assert.equal(data.repo, REPO)
     assert.equal(data.latest, 'v0.3.0')
     assert.deepEqual(data.releases[1], expected030(`${apiBase}/download`))
-    assert.deepEqual(Object.keys(data.releases[1]), ['tag', 'version', 'name', 'publishedAt', 'prerelease', 'url', 'notes', 'installer'])
+    assert.deepEqual(Object.keys(data.releases[1]), ['tag', 'version', 'name', 'publishedAt', 'prerelease', 'url', 'notes', 'installer', 'mac'])
     assert.deepEqual(Object.keys(data.releases[1].installer), ['name', 'url', 'bytes', 'sha256', 'sumsUrl'])
+    assert.deepEqual(Object.keys(data.releases[1].mac), ['arm64', 'x64'])
+    assert.deepEqual(Object.keys(data.releases[1].mac.arm64), ['name', 'url', 'bytes', 'sha256', 'sumsUrl'])
+    assert.deepEqual(data.releases[2].mac, NO_MAC)
     assert.equal(data.releases[3].installer.sumsUrl, null)
     assert.equal(data.releases[3].installer.sha256, SHA_010)
     assert.ok(!data.releases.some((r) => r.tag === 'v0.4.0'), 'the draft is not listed')

@@ -8,6 +8,29 @@ minor or a breaking change while the version starts with 0, is in
 
 ## [Unreleased]
 
+### Added
+
+- **A macOS build.** `npm run dist:mac` writes two disk images into `release/`,
+  `PromptFixer-<version>-mac-arm64.dmg` for Apple Silicon and `PromptFixer-<version>-mac-x64.dmg`
+  for Intel, both from one machine of either kind. The app is signed with an ad-hoc signature
+  (there is no Apple Developer ID yet, and without any signature it would not start on Apple
+  Silicon) and not notarized, so the first launch goes through **System Settings → Privacy &
+  Security → Open Anyway**; [docs/INSTALL.md](docs/INSTALL.md#macos) walks through it. macOS 13
+  or later, which is what Electron 44 asks for. On Apple Silicon the model runs on the GPU
+  through Metal; on an Intel Mac it runs on the CPU. The Release workflow still builds Windows
+  only; a macOS image is built and attached by hand (docs/RELEASING.md). The 0.4.0 images were
+  built this way on 2026-10-16 and added to the v0.4.0 release, with `SHA256SUMS.txt` there
+  extended to list them; the README, [docs/INSTALL.md](docs/INSTALL.md#macos) and
+  [docs/releases/v0.4.0.md](docs/releases/v0.4.0.md) quote their sizes and hashes.
+- **The website offers the macOS images next to the Windows installer.** `site/releases.json`
+  gains a `mac` field per release, `{ arm64, x64 }`, each with the same name, link, size, hash
+  and `SHA256SUMS.txt` link as the installer or null when the release has no such image
+  (`scripts/site-releases.mjs`, with tests); a release's checksum file is now fetched when it
+  has any download, not only an installer. The download card shows a macOS section with both
+  images, the hero names them under the Windows button, the release list links every file a
+  release has, and "Before you run it" gives the `shasum` command and the Gatekeeper steps. A
+  release without an image, which is every one before 0.4.0, looks as it did.
+
 ## [0.4.0] - 2026-09-27
 
 ### Added

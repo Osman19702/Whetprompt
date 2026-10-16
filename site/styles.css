@@ -432,6 +432,11 @@ h1 {
   max-width: 60ch;
 }
 
+/* The macOS line sits right under the Windows requirements, not a paragraph away. */
+.requirements.mac-line {
+  margin-top: -1.9rem;
+}
+
 .screenshot {
   margin: 0 auto;
   max-width: 1000px;
@@ -726,6 +731,31 @@ html:not([data-releases="ready"]) .needs-data {
 
 .cta-row {
   margin: 0.25rem 0 1.5rem;
+}
+
+/* The macOS images on the download card, under the Windows facts. */
+.mac-images {
+  margin-top: 1.25rem;
+  padding-top: 1rem;
+  border-top: 1px solid var(--border);
+}
+
+.mac-images h4 {
+  font-size: 1.05rem;
+  margin: 0 0 0.25rem;
+}
+
+.mac-images > .muted {
+  font-size: 0.95rem;
+  margin: 0 0 0.5rem;
+}
+
+.mac-image .cta-row {
+  margin: 0.5rem 0 0.25rem;
+}
+
+.mac-image .facts {
+  margin: 0.25rem 0 0.75rem;
 }
 
 .links {

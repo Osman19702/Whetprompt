@@ -2,8 +2,9 @@
 /**
  * Write site/releases.json, the release list the GitHub Pages site (site/)
  * shows and links: every published release of the repository, newest first,
- * with its notes and, for each, the Windows installer's name, size, SHA-256
- * and download link. The releases themselves are the source of truth, so the
+ * with its notes and, for each, the name, size, SHA-256 and download link of
+ * the Windows installer and of the two macOS disk images (Apple Silicon and
+ * Intel). The releases themselves are the source of truth, so the
  * file is generated at deploy time (.github/workflows/pages.yml) and
  * git-ignored: a committed copy would be stale the moment a draft is published.
  *
@@ -14,9 +15,10 @@
  * The list comes from the GitHub Releases API, with GITHUB_TOKEN or GH_TOKEN
  * when one is set (the workflow sets it; without one the API allows sixty
  * requests an hour, which is plenty). SITE_RELEASES_API_BASE replaces
- * https://api.github.com, for the tests. Drafts are left out. The installer's
- * hash is read from the release's SHA256SUMS.txt asset, or, when that asset or
- * its line is missing, from the "SHA-256 `...`" line of the release notes.
+ * https://api.github.com, for the tests. Drafts are left out. Each file's hash
+ * is read from the release's SHA256SUMS.txt asset; the installer's, when that
+ * asset or its line is missing, from the "SHA-256 `...`" line of the release
+ * notes (the images are uploaded by hand and have no such line).
  *
  * Exits 1 and writes nothing when the API cannot be read, when a release's
  * SHA256SUMS.txt cannot be fetched or when there is no published release at
@@ -31,8 +33,11 @@ export const USAGE = 'usage: site-releases.mjs [--out <file>] [--repo owner/name
 export const API_BASE = 'https://api.github.com'
 export const OUT_FILE = 'site/releases.json'
 
-/** The one asset the site offers for download; the .blockmap beside it is electron-builder's. */
+/** The Windows installer; the .blockmap beside it is electron-builder's. */
 const INSTALLER = /^PromptFixer-.+-win-x64\.exe$/
+/** The macOS disk images, one per architecture (docs/RELEASING.md, Building the installer locally). */
+const MAC_IMAGES = { arm64: /^PromptFixer-.+-mac-arm64\.dmg$/, x64: /^PromptFixer-.+-mac-x64\.dmg$/ }
+export const MAC_ARCHES = Object.keys(MAC_IMAGES)
 const SUMS_FILE = 'SHA256SUMS.txt'
 /** One line of SHA256SUMS.txt as scripts/release-checksums.js writes it; "*" marks binary mode in sha256sum's own output. */
 const SUMS_LINE = /^([0-9a-fA-F]{64})\s+\*?(.+?)\s*$/
@@ -84,13 +89,28 @@ export function hashFromBody(body) {
 }
 
 /**
- * The Windows installer among a release's assets as `{ name, url, bytes }`,
+ * The first of a release's assets whose name matches, as `{ name, url, bytes }`,
  * or null. Only an asset in state "uploaded" counts: an upload that broke off
  * stays listed in another state and cannot be downloaded.
  */
-export function installerOf(assets) {
-  const asset = (assets ?? []).find((a) => a.state === 'uploaded' && INSTALLER.test(a.name))
+function assetOf(assets, pattern) {
+  const asset = (assets ?? []).find((a) => a.state === 'uploaded' && pattern.test(a.name))
   return asset ? { name: asset.name, url: asset.browser_download_url, bytes: asset.size } : null
+}
+
+/** The Windows installer among a release's assets, or null. */
+export function installerOf(assets) {
+  return assetOf(assets, INSTALLER)
+}
+
+/** The macOS images among a release's assets, as `{ arm64, x64 }`, each `{ name, url, bytes }` or null. */
+export function macImagesOf(assets) {
+  return Object.fromEntries(MAC_ARCHES.map((arch) => [arch, assetOf(assets, MAC_IMAGES[arch])]))
+}
+
+/** Whether a release has anything the site can offer for download. */
+export function hasDownload(assets) {
+  return installerOf(assets) !== null || Object.values(macImagesOf(assets)).some(Boolean)
 }
 
 /** The release's SHA256SUMS.txt asset, uploaded whole, or null. */
@@ -104,7 +124,8 @@ const time = (release) => Date.parse(release.published_at ?? release.created_at 
  * The "releases" array and "latest" of site/releases.json from what the API
  * returned. `sumsByTag` maps a tag to the text of that release's
  * SHA256SUMS.txt (a Map or a plain object); a release without an entry, or
- * whose entry lacks the installer's line, gets the hash its notes state.
+ * whose entry lacks the installer's line, gets the hash its notes state. An
+ * image whose line is missing gets null: the notes name no hash for it.
  * Drafts are dropped, the rest is ordered newest first. A pre-release is
  * listed and flagged but is never "latest": that is what a person who just
  * wants the app should download.
@@ -115,16 +136,13 @@ export function toSiteReleases(apiReleases, { sumsByTag = new Map() } = {}) {
     .filter((r) => !r.draft)
     .sort((a, b) => time(b) - time(a))
     .map((r) => {
-      const found = installerOf(r.assets)
-      let installer = null
-      if (found) {
-        const sums = sumsAssetOf(r.assets)
-        installer = {
-          ...found,
-          sha256: parseSums(sumsOf(r.tag_name)).get(found.name) ?? hashFromBody(r.body),
-          sumsUrl: sums ? sums.browser_download_url : null,
-        }
-      }
+      const sums = sumsAssetOf(r.assets)
+      const sumsUrl = sums ? sums.browser_download_url : null
+      const hashes = parseSums(sumsOf(r.tag_name))
+      const withHash = (file, fallback = null) => (file ? { ...file, sha256: hashes.get(file.name) ?? fallback, sumsUrl } : null)
+      const installer = withHash(installerOf(r.assets), hashFromBody(r.body))
+      const images = macImagesOf(r.assets)
+      const mac = Object.fromEntries(MAC_ARCHES.map((arch) => [arch, withHash(images[arch])]))
       return {
         tag: r.tag_name,
         version: r.tag_name.replace(/^v/, ''),
@@ -134,6 +152,7 @@ export function toSiteReleases(apiReleases, { sumsByTag = new Map() } = {}) {
         url: r.html_url,
         notes: splitNotes(r.body),
         installer,
+        mac,
       }
     })
   return { latest: releases.find((r) => !r.prerelease)?.tag ?? null, releases }
@@ -199,7 +218,7 @@ export async function fetchReleases(repo, { fetch = globalThis.fetch, apiBase = 
 
 /**
  * The whole of site/releases.json for `repo`: the API's list, the
- * SHA256SUMS.txt of every release that has an installer, and the time of
+ * SHA256SUMS.txt of every release that has a download, and the time of
  * writing. `fetch` is a parameter so the tests can hand in a fake. The token
  * goes to the API only: a release asset is public, and its download redirects
  * to another host.
@@ -208,7 +227,7 @@ export async function collectReleases(repo, { fetch = globalThis.fetch, apiBase 
   const api = await fetchReleases(repo, { fetch, apiBase, token })
   const sumsByTag = new Map()
   for (const release of api) {
-    if (release.draft || !installerOf(release.assets)) continue
+    if (release.draft || !hasDownload(release.assets)) continue
     const sums = sumsAssetOf(release.assets)
     if (sums) sumsByTag.set(release.tag_name, await (await get(sums.browser_download_url, { fetch, token: null })).text())
   }
@@ -235,9 +254,9 @@ export function parseArgs(argv) {
 /** One line per release for the log, so a run's output says what the site will show. */
 function describe(release) {
   const flag = release.prerelease ? ' (pre-release)' : ''
-  const { installer } = release
-  if (!installer) return `${release.tag}${flag}: no Windows installer`
-  return `${release.tag}${flag}: ${installer.name}, ${installer.bytes} bytes, sha256 ${installer.sha256 ?? 'unknown'}`
+  const files = [release.installer, ...MAC_ARCHES.map((arch) => release.mac[arch])].filter(Boolean)
+  if (files.length === 0) return `${release.tag}${flag}: no download`
+  return `${release.tag}${flag}: ${files.map((f) => `${f.name}, ${f.bytes} bytes, sha256 ${f.sha256 ?? 'unknown'}`).join('; ')}`
 }
 
 if (process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.meta.url)) {

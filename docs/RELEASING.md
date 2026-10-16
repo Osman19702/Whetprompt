@@ -108,6 +108,21 @@ A build inside a synced folder (OneDrive, Dropbox) can fail with
 [Troubleshooting](../README.md#troubleshooting) has the cause and the command that builds to an
 unsynced folder instead.
 
+The macOS images are built the same way, on a Mac (electron-builder cannot write a `.dmg`
+anywhere else), and attached to the release by hand next to the Windows installer:
+
+```bash
+npm run dist:mac
+npm run release:checksums
+```
+
+It writes `release/PromptFixer-x.y.z-mac-arm64.dmg` and `release/PromptFixer-x.y.z-mac-x64.dmg`
+from one machine of either kind, ad-hoc signed (`mac.identity` in `package.json`; put a
+Developer ID Application certificate in the keychain and drop that line to sign and notarize for
+real). `release:checksums` hashes every `PromptFixer-*` file in the folder, so run it once with
+the installer and both images present, and upload the `SHA256SUMS.txt` it writes in place of the
+workflow's.
+
 Two builds of the same commit are not byte-identical, so a local installer never has the hash of
 the workflow's. The hash that counts is the one on the release.
 
