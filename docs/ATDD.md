@@ -4,8 +4,9 @@
 > as executable tests in `acceptance/*.acceptance.test.js` (`npm run test:acceptance`). The first
 > iteration's results, including the product defects it found, are in `docs/ATDD-REPORT.md`. Two
 > groups have been added since: Group M (marking a rewrite and fixing it again) and Group N (the
-> visual check with Elastishot); F11 (nothing leaves the machine) became a test in 0.3.0, and H15
-> (the link to the website) was added in 0.4.0. That makes 114 scenarios in fourteen groups — 104
+> visual check with Elastishot); F11 (nothing leaves the machine) became a test in 0.3.0, H15
+> (the link to the website) was added in 0.4.0, and H16 (the Report link beside a rewrite, which the
+> Microsoft Store asks for) in 0.6.0. That makes 115 scenarios in fourteen groups — 105
 > automated, 10 waiting on the nightly machine, the packaged installer or a person;
 > `npm run test:trace` prints the list. Parts 1 and 2 describe the conversion as it was planned
 > and are kept as written, apart from the counts and the visual seam.

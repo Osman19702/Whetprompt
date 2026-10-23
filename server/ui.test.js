@@ -41,6 +41,7 @@ import {
   readExamples,
   refinedNote,
   removeMark,
+  reportLink,
   resultView,
   shownMarks,
   undoAvailable,
@@ -521,6 +522,32 @@ test('linkParts: text without an https address stays one part, and only https is
   assert.deepEqual(linkParts(''), [])
   for (const text of ['http://example.com', 'file:///C:/x', 'javascript:alert(1)']) {
     assert.deepEqual(linkParts(text), [{ text }], text)
+  }
+})
+
+const REPORT_FORM = 'https://github.com/Osman19702/Whetprompt/issues/new?template=report-output.yml'
+
+test('reportLink: the form keeps its template and gains the version, provider and model, encoded', () => {
+  const href = reportLink(REPORT_FORM, { version: '0.6.0', provider: 'local', model: 'Qwen3 4B Instruct (2507)' })
+  const url = new URL(href)
+  assert.equal(url.origin + url.pathname, 'https://github.com/Osman19702/Whetprompt/issues/new')
+  assert.deepEqual(Object.fromEntries(url.searchParams), {
+    template: 'report-output.yml',
+    version: '0.6.0',
+    provider: 'local',
+    model: 'Qwen3 4B Instruct (2507)',
+  })
+  assert.doesNotMatch(href, /[ ()]/, 'nothing in the address is left unencoded')
+})
+
+test('reportLink: an unknown fact is left out rather than sent empty', () => {
+  const url = new URL(reportLink(REPORT_FORM, { version: '0.6.0', provider: '', model: undefined }))
+  assert.deepEqual([...url.searchParams.keys()], ['template', 'version'])
+})
+
+test('reportLink: no form, or one that is not https, is no link', () => {
+  for (const form of [undefined, '', 'http://github.com/x/issues/new', 'javascript:alert(1)', 'file:///C:/x']) {
+    assert.equal(reportLink(form, { version: '0.6.0' }), null, String(form))
   }
 })
 

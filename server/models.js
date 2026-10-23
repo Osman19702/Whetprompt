@@ -21,11 +21,25 @@ import path from 'node:path'
  * ~/.whetprompt/models, or PromptFixer's ~/.promptfixer/models when the model
  * is already there. 2.5 GB is not worth downloading again for a new name, and
  * a PromptFixer that is still installed goes on sharing the same files.
+ *
+ * The Microsoft Store version (`store`: Electron's process.windowsStore)
+ * downloads into %LOCALAPPDATA%\Whetprompt\models instead. A packaged app's
+ * new files under AppData land in the package's own storage, which Windows
+ * deletes with the app, so uninstalling it takes the 2.5 GB along (Store
+ * policy 10.2.7, a clean uninstall). A folder that is already there, its own
+ * from an earlier run or one the GitHub version or PromptFixer filled, is used
+ * where it is; the last two are not the Store app's to remove.
  */
-export function defaultModelDir({ home = os.homedir(), exists = existsSync } = {}) {
+export function defaultModelDir({
+  home = os.homedir(),
+  exists = existsSync,
+  store = process.windowsStore === true,
+  localAppData = process.env.LOCALAPPDATA,
+} = {}) {
   const fresh = path.join(home, '.whetprompt', 'models')
   const legacy = path.join(home, '.promptfixer', 'models')
-  return !exists(fresh) && exists(legacy) ? legacy : fresh
+  const own = store && localAppData ? path.join(localAppData, 'Whetprompt', 'models') : null
+  return [own, fresh, legacy].find((dir) => dir && exists(dir)) || own || fresh
 }
 
 export const MODEL_DIR = process.env.WHETPROMPT_MODEL_DIR || defaultModelDir()

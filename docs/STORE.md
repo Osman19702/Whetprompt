@@ -1,0 +1,168 @@
+# The Microsoft Store listing
+
+What goes into each page of a Whetprompt submission in Partner Center (**Apps and games →
+Whetprompt**), written once here so that a submission is pasted rather than retyped, and so that a
+later one starts from what the last one said. How a release gets its package is in
+[RELEASING.md](RELEASING.md#microsoft-store).
+
+| | |
+| --- | --- |
+| Product | Whetprompt, an MSIX app; Store ID `9P750H35HR59` |
+| Store page | <https://apps.microsoft.com/detail/9P750H35HR59> (answers once the first submission is published) |
+| Developer account | Turalio Labs, an individual account |
+| Package identity | `TuralioLabs.Whetprompt`, publisher `CN=2983B22E-31A1-4704-9688-153EBAC48AD9`, family name `TuralioLabs.Whetprompt_7a4rf7jk3z6yp` |
+
+Store policies are quoted by number from version 7.20, current since 22 October 2026. Four of them
+shape this listing:
+
+- **11.16, live generative AI.** The listing must say that the app uses generative AI, the
+  submission must declare it, and the app must let people report what the model wrote. The first
+  sentence of the description says it, **Properties** declares it, and the Report link beside
+  every rewrite is the way to report it.
+- **10.2.4, dependencies.** Fix needs a model the app downloads on first use, and the cloud
+  providers need the user's own key. A dependency like that belongs at the beginning of the
+  description, so that is where both are.
+- **10.5.1, privacy policy.** Every desktop app needs one, at a URL entered under **Properties**.
+- **10.8.7, pricing.** The app is open source and free on GitHub, so it is free here too.
+
+## Pricing and availability
+
+- **Markets:** all markets.
+- **Discoverability:** public, discoverable in the Store.
+- **Pricing:** Free. No free trial, no sale.
+- **Schedule:** as soon as the submission passes certification, unless a date is wanted.
+
+## Properties
+
+- **Category:** Developer tools. If a subcategory is asked for: Utilities.
+- **Privacy policy URL:** <https://github.com/Osman19702/Whetprompt/blob/master/docs/PRIVACY.md>
+- **Website:** <https://osman19702.github.io/Whetprompt/>
+- **Support contact info:** <https://github.com/Osman19702/Whetprompt/issues>
+- **Generative AI:** declare that the product contains live generative AI content.
+- **Product declarations:** leave the defaults. Do not tick that the product has been tested for
+  accessibility: H11 and H12 test the keyboard and the contrast, which is not a full accessibility
+  review.
+- **System requirements**, minimum: Memory 4 GB. Recommended: Memory 8 GB. Graphics, if a field
+  asks: a GPU is used when there is one, and none is required.
+
+## Age ratings
+
+The IARC questionnaire, answered for what the app does:
+
+- It is not a game, and it is a productivity or developer tool.
+- It has no violence, sexual content, profanity, drugs, gambling or scary content of its own.
+- Users cannot talk to each other or share content with other users through the app, and it does
+  not share the user's location.
+- It sells nothing, and it shows no advertising.
+- It does not give unrestricted access to the internet, as a web browser would.
+- Where the questionnaire asks about generative AI or other content the app does not control:
+  yes. The model writes text in reply to what the user types: a rewrite of the user's own prompt.
+
+Policy 11.11.2 asks for the answers to be kept true: a release that changes any of them (a chat, a
+way to share, a store of downloadable prompts) takes the questionnaire again.
+
+## Packages
+
+Upload `Whetprompt-x.y.z-win-x64.appx`, from the Release workflow's artifact
+`Whetprompt-vx.y.z-store`. Device family: Windows 10/11 Desktop. Nothing else is uploaded: the
+package carries the manifest and its images, and the Store signs it.
+
+## Store listing (English)
+
+**Description**
+
+```text
+Whetprompt uses generative AI: a language model that runs on your own PC rewrites the prompts you give it. To do that, it downloads the model the first time you press Fix: 2.5 GB, or 1 GB for the lite version. After that it works offline. Cloud models are optional and use your own API key (Anthropic, OpenAI, Google Gemini or OpenRouter), or a model you run yourself with Ollama.
+
+Whetprompt checks and improves the prompts you write for AI models, before you send them. A clearer prompt means a better first answer and fewer wasted tokens.
+
+• Score: paste a prompt and it is checked at once against about 30 prompt-engineering rules, with a score out of 100 and a list of what to fix. This part needs no model at all.
+• Fix: the built-in model rewrites the prompt, and the rewrite is scored again, so you see what improved.
+• See every change: a word-level diff and a change log explain each edit.
+• Keep or change: select any passage of the rewrite, mark it "Keep it" or "Change it", and fix again. The model revises its own rewrite, and a check makes sure what you kept comes back word for word.
+• Library: save the prompts that work, and export or import them.
+• Private by default: the built-in model runs on your PC, and an automated test fails every build in which the app connects to anything but your own machine. No account, no telemetry, no ads.
+• Report: if a rewrite is ever harmful or inappropriate, the Report link beside it opens a report form in your browser.
+
+Requirements: 8 GB of memory (4 GB with the lite model) and about 3.5 GB of free disk space. A graphics card is used if you have one (NVIDIA, AMD or Intel); without one, a fix takes longer.
+
+Uninstalling Whetprompt removes your library and the model it downloaded. To keep your prompts, export them from the Library first.
+
+Whetprompt is open source, under the MIT licence: https://github.com/Osman19702/Whetprompt
+```
+
+**What's new in this version** (for the first submission)
+
+```text
+The first release in the Microsoft Store. New in 0.6.0: a Report link beside every rewrite.
+```
+
+**Product features**
+
+```text
+Scores a prompt at once against about 30 prompt-engineering rules, with no model needed
+Rewrites prompts with a built-in AI model that runs on your PC, offline after one download
+Re-scores the rewrite and shows a word-level diff and a change log for every edit
+Mark passages to keep or to change, and fix again
+A library of your prompts, with export and import
+Optional cloud models with your own API key
+No account, no telemetry, no ads
+```
+
+**Screenshots:** four PNGs of the real app with the real local model, 2560 × 1440, made by
+`scripts/capture-screenshot.mjs` into `release/store-listing/` (its header has the commands; a
+new release with a changed interface takes new ones). Upload them in this order, with these
+captions:
+
+1. `A weak prompt scored 42 out of 100, rewritten to 93, with what changed and why.`
+2. `Every edit, word by word.`
+3. `Instant feedback as you type: the issues that cost a prompt its score.`
+4. `Mark what to keep and what to change, then fix again.`
+
+**Store logos:** the 1:1 app tile icon, 300 × 300, which the Store shows in place of the
+package's own icon: `build/store/AppTileIcon-300.png`, drawn with the package images by
+`scripts/appx-assets.mjs`.
+
+**Short description**
+
+```text
+Lint, score and rewrite your AI prompts on your own PC. A built-in local model fixes a prompt offline, and nothing you type leaves the machine.
+```
+
+**Search terms** (seven at most, policy 10.1.3; no other product's name)
+
+```text
+prompt engineering
+prompt optimizer
+AI prompts
+LLM
+prompt linter
+local AI
+prompt rewriter
+```
+
+**Copyright and trademark info:** `© 2026 Osman Turalioglu`
+
+**Additional license terms:** `MIT License: https://github.com/Osman19702/Whetprompt/blob/master/LICENSE`
+
+**Developed by:** `Osman Turalioglu`
+
+## Submission options
+
+**Notes for certification**
+
+```text
+No account or sign-in is needed.
+Scoring works at once: paste any prompt, for example "explain how machine learning works", and the score and the issues appear with no download.
+To test Fix: pick the lite model in the tier selector next to "Local (built-in)" (1 GB, the quickest to download), press Download in the results pane, and wait until it has downloaded and loaded. Then press "Fix prompt". The rewrite appears in the Fixed tab.
+The Report link for generative AI output (policy 11.16) is in the results toolbar, next to Copy, Apply and Save, once there is a rewrite. It opens a report form on GitHub in the browser.
+The app runs a small web server on 127.0.0.1 (a random port) that only its own window uses.
+```
+
+**Restricted capabilities.** The package declares `runFullTrust`, as every desktop app packaged
+for the Store does. The justification box cuts long text off without saying so, so it is two
+sentences:
+
+```text
+Whetprompt is a desktop (Electron) app. It needs full trust to run its built-in local language model and its local server.
+```

@@ -27,7 +27,7 @@ import {
 } from './metaprompt.js'
 import { ProviderError, complete, listModels, providerStatus, redact } from './providers.js'
 import * as store from './store.js'
-import { HOMEPAGE, VERSION } from './version.js'
+import { HOMEPAGE, REPORT_URL, VERSION } from './version.js'
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
 // PORT=0 is valid (OS-assigned port), so don't treat 0 as "unset".
@@ -174,6 +174,9 @@ app.get('/api/config', (_req, res) => {
     // opens in their own browser is not an update check, and docs/PRIVACY.md
     // promises there is none.
     homepage: HOMEPAGE,
+    // Where the Report link beside a rewrite goes: the issue tracker's form
+    // for reporting harmful output. Linked the same way, never fetched.
+    report: REPORT_URL,
     providers: providerStatus(),
     defaultProvider: DEFAULT_PROVIDER,
     desktop: process.env.WHETPROMPT_DESKTOP === '1',

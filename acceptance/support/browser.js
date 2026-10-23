@@ -22,6 +22,7 @@ export async function closeBrowser() {
 
 /**
  * Open the app served by `app` (from app.js) in a new context.
+ * @param deviceScaleFactor pixels per CSS pixel; 2 draws a screenshot at twice the viewport's size.
  * @param route      `{ pattern, handler }` to intercept a request before the page loads.
  * @param initScript runs before any page script — e.g. seed localStorage.
  * @param onRequest  called for every request the context makes, registered
@@ -32,10 +33,11 @@ export async function closeBrowser() {
  */
 export async function openApp(
   app,
-  { viewport = { width: 1360, height: 880 }, permissions = [], route, initScript, onRequest } = {}
+  { viewport = { width: 1360, height: 880 }, deviceScaleFactor = 1, permissions = [], route, initScript, onRequest } = {}
 ) {
   const context = await browser.newContext({
     viewport,
+    deviceScaleFactor,
     permissions,
     acceptDownloads: true,
     // Nothing in this app registers one, and a worker's requests would not

@@ -79,3 +79,12 @@ Feature: H — The editor and the results interface
     Then the top bar offers a "What's new" link to that address, marked to open outside the app
     When I click it
     Then the website opens in a page of its own and the editor is still where I left it
+
+  Scenario: H16 — A rewrite can be reported, and the report leaves the app the safe way
+    Given no prompt has been fixed yet
+    Then there is nothing to report and no Report link
+    When I fix a prompt
+    Then a Report link beside the rewrite offers the project's report form, marked to open outside the app
+    And the form is filled in with the app's version, the provider and the model, and with nothing I wrote or the model wrote
+    When I click it
+    Then the form opens in a page of its own and the rewrite is still where I left it

@@ -8,6 +8,40 @@ minor or a breaking change while the version starts with 0, is in
 
 ## [Unreleased]
 
+## [0.6.0] - 2026-10-23
+
+### Added
+
+- **A Microsoft Store package.** `npm run dist:store` writes `release/Whetprompt-<version>-win-x64.appx`,
+  and the Release workflow builds it beside the installer, from the same packed app, and keeps it
+  as a workflow artifact for the upload to Partner Center. It is not a release asset: Windows
+  installs no unsigned package, and the Store signs it on the way in. The package identity is the
+  one Partner Center reserved for Whetprompt (`appx` in `package.json`), and its Start menu,
+  taskbar and Store images are drawn from the app icon at every scale Windows asks for
+  (`scripts/appx-assets.mjs`, into `build/appx/`). A Store install keeps a model it downloads in
+  its own storage, `%LOCALAPPDATA%\Whetprompt\models` as the app sees it, and Windows removes that
+  with the app, as it does the library (Store policy 10.2.7, a clean uninstall). A model that the
+  GitHub version or PromptFixer downloaded is used where it is and left alone
+  (`defaultModelDir()` in `server/models.js`, with tests).
+  [docs/INSTALL.md](docs/INSTALL.md#the-microsoft-store-version) says where a Store install keeps
+  what, [docs/RELEASING.md](docs/RELEASING.md#microsoft-store) how a release reaches the Store,
+  and [docs/STORE.md](docs/STORE.md) holds the listing.
+- **A Report link beside every rewrite.** It opens the project's report form
+  (`.github/ISSUE_TEMPLATE/report-output.yml`) in the browser, with the app's version, the provider
+  and the model filled in, and nothing of the prompt or the rewrite: the address reaches GitHub the
+  moment the form opens, so what goes into a report is what the person reporting pastes in. The
+  Microsoft Store asks every app whose output comes from generative AI for a way to report it
+  (policy 11.16). `GET /api/config` names the form (`report`), from `bugs` in `package.json`.
+  Scenario H16, and tests for the link (`reportLink` in `src/lib/ui.ts`) and the config.
+
+### Changed
+
+- **The app no longer carries its dependencies' JavaScript source maps** (`!node_modules/**/*.map`
+  in `build.files`), 610 files that nothing runs. They also held the package's longest paths. A
+  Store install puts the app under `C:\Program Files\WindowsApps\TuralioLabs.Whetprompt_<version>_x64__7a4rf7jk3z6yp\`,
+  and with them the longest file would have been 260 characters there, one more than Windows allows
+  a path; without them it is 256.
+
 ## [0.5.0] - 2026-10-23
 
 ### Added
@@ -386,7 +420,8 @@ First public release: a Windows x64 installer.
   (`npm run test:acceptance`), a traceability matrix (`npm run test:trace`) and a results report
   (`npm run test:report`).
 
-[Unreleased]: https://github.com/Osman19702/Whetprompt/compare/v0.5.0...HEAD
+[Unreleased]: https://github.com/Osman19702/Whetprompt/compare/v0.6.0...HEAD
+[0.6.0]: https://github.com/Osman19702/Whetprompt/compare/v0.5.0...v0.6.0
 [0.5.0]: https://github.com/Osman19702/Whetprompt/compare/v0.4.0...v0.5.0
 [0.4.0]: https://github.com/Osman19702/Whetprompt/compare/v0.3.0...v0.4.0
 [0.3.0]: https://github.com/Osman19702/Whetprompt/compare/v0.2.0...v0.3.0

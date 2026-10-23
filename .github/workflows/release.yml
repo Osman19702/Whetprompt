@@ -4,7 +4,9 @@ name: Release
 # attaches it, its .blockmap and SHA256SUMS.txt to a DRAFT GitHub release whose
 # notes are the version's CHANGELOG.md section. A draft, because the installer
 # is not code-signed: the author downloads it, checks it against
-# SHA256SUMS.txt and publishes by hand (docs/RELEASING.md).
+# SHA256SUMS.txt and publishes by hand (docs/RELEASING.md). The Microsoft Store
+# package of the same build is kept as a workflow artifact, for its upload to
+# Partner Center; it is not a release asset.
 #
 # Started by hand instead (gh workflow run release.yml, or "Run workflow" on
 # the Actions tab) it is a rehearsal: the same steps on the same runner for the
@@ -95,6 +97,7 @@ jobs:
           {
             echo "TAG=$TAG"
             echo "INSTALLER=Whetprompt-${TAG#v}-win-x64.exe"
+            echo "STORE_PACKAGE=Whetprompt-${TAG#v}-win-x64.appx"
             echo "COMMIT=$COMMIT"
             echo "LINKS=$GITHUB_SERVER_URL/$GITHUB_REPOSITORY/blob/$REF"
             echo "PRERELEASE=$PRERELEASE"
@@ -190,13 +193,21 @@ jobs:
       # build.publish block, and on a tag build electron-builder would
       # otherwise upload to a release of its own making. This workflow
       # creates the release, after the checksums exist.
-      - name: Installer
+      #
+      # The same run also writes the Microsoft Store package (appx in
+      # package.json; docs/RELEASING.md, Microsoft Store), from the same
+      # packed app, so the Store and the GitHub release carry one build of the
+      # tagged commit. Both are packed here and nowhere else for the same
+      # reason: the Visual C++ runtime the afterPack hook puts beside the
+      # llama.cpp binaries comes from the runner's Visual Studio.
+      - name: Installer and Store package
         if: env.MODE != 'skip'
         run: |
-          npx electron-builder --win --x64 --publish never
+          npx electron-builder --win nsis appx --x64 --publish never
           ls -la release
           test -f "release/$INSTALLER" || { echo "electron-builder did not write release/$INSTALLER"; exit 1; }
           test -f "release/$INSTALLER.blockmap" || { echo "electron-builder did not write release/$INSTALLER.blockmap"; exit 1; }
+          test -f "release/$STORE_PACKAGE" || { echo "electron-builder did not write release/$STORE_PACKAGE"; exit 1; }
 
       - name: SHA256SUMS.txt
         if: env.MODE != 'skip'
@@ -242,6 +253,24 @@ jobs:
           gh release upload "$TAG" --clobber \
             "release/$INSTALLER" "release/$INSTALLER.blockmap" release/SHA256SUMS.txt
           gh release edit "$TAG" --prerelease="$PRERELEASE" --notes-file release/RELEASE_NOTES.md
+
+      # Not a release asset: the package is unsigned until the Store signs it
+      # on the way in, and Windows installs no unsigned package, so a visitor
+      # could do nothing with it. It is kept here for its upload to Partner
+      # Center (docs/RELEASING.md, Microsoft Store), and on a rehearsal as
+      # well, so a package can be installed and tried before its tag exists.
+      # SHA256SUMS.txt does not list it (scripts/release-checksums.js), as it
+      # is not among the files next to it. Thirty days: enough for a
+      # certification that is turned down once and submitted again.
+      - name: Store package, for Partner Center
+        if: env.MODE != 'skip'
+        uses: actions/upload-artifact@v7
+        with:
+          name: Whetprompt-${{ env.TAG }}-store
+          path: release/${{ env.STORE_PACKAGE }}
+          retention-days: 30
+          compression-level: 0
+          if-no-files-found: error
 
       - name: Rehearsal - the notes, as they would be
         if: env.MODE == 'rehearse'

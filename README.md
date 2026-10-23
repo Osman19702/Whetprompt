@@ -88,12 +88,16 @@ instead — same thing, with a progress bar.
 
 ```
 Whetprompt/
-├── .github/workflows/     ci.yml: every push runs the checks, the tests, the acceptance suite and a visual comparison
+├── .github/
+│   ├── ISSUE_TEMPLATE/    report-output.yml: the form the Report link beside a rewrite opens
+│   └── workflows/         ci.yml: every push runs the checks, the tests, the acceptance suite and a visual comparison
 │                          with the commit before on a Windows runner, and keeps both reports
-│                          release.yml: a pushed tag v<version> builds the installer onto a draft GitHub release;
-│                          started by hand it is a rehearsal that releases nothing
+│                          release.yml: a pushed tag v<version> builds the installer onto a draft GitHub release,
+│                          and the Microsoft Store package as a workflow artifact; started by hand it is a
+│                          rehearsal that releases nothing
 │                          pages.yml: a push to master that touches site/, a published release, or a run by hand
 │                          writes site/releases.json from the GitHub Releases API and publishes site/ to GitHub Pages
+├── build/                 icon.svg and icon.png, the app icon; appx/, the Store package images drawn from it
 ├── electron/
 │   ├── main.js            Electron main process: starts the server in-process, opens the window
 │   ├── env.js             Desktop .env loading (user-data dir) and desktop defaults
@@ -114,6 +118,7 @@ Whetprompt/
 ├── scripts/
 │   ├── setup-model.js     CLI model download (npm run setup)
 │   ├── bundle-vcruntime.js  electron-builder afterPack hook: the Visual C++ runtime next to the llama.cpp binaries
+│   ├── appx-assets.mjs    Draws build/appx/, the Microsoft Store package images, from build/icon.svg
 │   ├── lint-prompts.js    Lint prompt files in CI (npm run lint:prompts)
 │   ├── check-release.mjs  The release gate: version, lock file, changelog and sources agree (npm run check:release)
 │   ├── changelog-section.mjs  Prints one version's CHANGELOG.md section; the release notes are cut from it
@@ -132,7 +137,9 @@ Whetprompt/
 │   └── trace.js           Traceability matrix (npm run test:trace)
 ├── docs/
 │   ├── INSTALL.md         End-user install guide for the Windows download (no Node or npm needed)
-│   ├── RELEASING.md       Release checklist: changelog, version bump, tag, the Release workflow, verifying the draft
+│   ├── RELEASING.md       Release checklist: changelog, version bump, tag, the Release workflow, verifying the draft,
+│   │                      and the Microsoft Store
+│   ├── STORE.md           The Microsoft Store listing: every page of a submission, ready to paste
 │   ├── releases/          The release page of each version: download, hash, what is new
 │   ├── ATDD.md            Acceptance test-driven development: strategy and the acceptance scenarios
 │   ├── PRIVACY.md         What does and does not leave the machine, and how scenario F11 checks it
@@ -153,7 +160,10 @@ never end up in a build. The prompt library lives in Electron's per-user data di
 the app runs as a desktop app — `npm run desktop`, `npm run desktop:dev` or the installed build —
 for example `%APPDATA%\Whetprompt\data\library.json` on Windows (the folder is named `whetprompt`,
 after the package name, when run from source). Only browser mode (`npm run dev`, `npm start`) uses
-`server/data/library.json`. Override either with `WHETPROMPT_DATA_DIR`.
+`server/data/library.json`. Override either with `WHETPROMPT_DATA_DIR`. The Microsoft Store version
+is the exception to "survive reinstalls": on a PC without the installer's version it keeps both in
+the storage Windows gives a Store app, which uninstalling empties
+([docs/INSTALL.md](docs/INSTALL.md#the-microsoft-store-version)).
 
 To move a library between machines, `GET /api/library/export` downloads it as
 `whetprompt-library-YYYY-MM-DD.json` and `POST /api/library/import` with that file's body merges it
@@ -197,6 +207,7 @@ most of the way for free.
 | `npm run desktop` | Build the UI and open the desktop app |
 | `npm run desktop:dev` | Open the desktop app without rebuilding |
 | `npm run dist:win` | Build a Windows installer into `release/` (`dist:mac`, `dist:linux` likewise) |
+| `npm run dist:store` | Build the Microsoft Store package, `release/Whetprompt-<version>-win-x64.appx` (see [docs/RELEASING.md](docs/RELEASING.md#microsoft-store)) |
 | `npm run release:checksums` | Write `release/SHA256SUMS.txt` for the built installers (`-- --check` verifies it; `-- --dir <folder>` targets another folder) |
 | `npm run check:release` | The gate a release must pass: `package.json`, `package-lock.json` and `CHANGELOG.md` name the same version and no source file repeats it (`-- --tag v0.2.0`, the form a release uses, also compares the tag name and refuses entries left under [Unreleased]) — see [docs/RELEASING.md](docs/RELEASING.md) |
 | `npm run site:releases` | Write `site/releases.json` for the website from the GitHub Releases API: every published release with its tag, date, notes, installer name, size and SHA-256. The Pages workflow (`.github/workflows/pages.yml`) runs it before uploading `site/`; the file is git-ignored |

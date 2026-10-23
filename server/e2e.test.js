@@ -445,6 +445,21 @@ test('GET /api/config names the project website, and it is the one package.json 
   assert.match(config.body.homepage, /^https:\/\//, 'an https address, not a placeholder')
 })
 
+test('GET /api/config names the report form, on the issue tracker package.json names', async () => {
+  // Store policy 11.16: a way to report generative AI output. The template
+  // is the one in .github/ISSUE_TEMPLATE; a link to a template that does not
+  // exist would open GitHub's blank issue page instead of the form.
+  const pkg = JSON.parse(fs.readFileSync(path.join(__dirname, '..', 'package.json'), 'utf8'))
+  const config = await req('GET', '/api/config')
+  assert.equal(config.body.report, `${pkg.bugs.url}/new?template=report-output.yml`)
+  assert.match(config.body.report, /^https:\/\//)
+  const form = fs.readFileSync(path.join(__dirname, '..', '.github', 'ISSUE_TEMPLATE', 'report-output.yml'), 'utf8')
+  // The interface fills these three fields by id (reportLink in src/lib/ui.ts).
+  for (const id of ['version', 'provider', 'model']) {
+    assert.match(form, new RegExp(`^\\s+id: ${id}\\s*$`, 'm'), `the form has a field with id ${id}`)
+  }
+})
+
 test('GET /api/config lists providers and presets', async () => {
   const { status, body } = await req('GET', '/api/config')
   assert.equal(status, 200)

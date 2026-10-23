@@ -21,9 +21,17 @@
  * what came back: the first sentence, and the sentence furthest from it that is still in view.
  * SHOT_KEEP / SHOT_CHANGE name the passages instead (each has to occur in the rewrite).
  *
+ * SHOT_TAB shows one of the results tabs (Fixed, Diff, Issues, Changes) in the picture, SHOT_NOFIX=1
+ * takes it before any fix (the live score and the issues of what was typed, with SHOT_TAB=Issues),
+ * and SHOT_SCALE=2 draws it at twice the size, for a sharp picture of a normal-sized window.
+ *
  * The website image is
  *   SHOT_REAL=1 SHOT_MARKS=1 SHOT_PROMPT="explain how machine learning works" SHOT_INTENT=general \
  *     node scripts/capture-screenshot.mjs ../my-portfolio/img/whetprompt.png 1200 750
+ *
+ * The Microsoft Store screenshots (docs/STORE.md) are 1280 x 720 at SHOT_SCALE=2, 2560 x 1440, with
+ * that prompt: store-1 after a fix, store-2 the same with SHOT_TAB=Diff, store-3 with SHOT_NOFIX=1
+ * SHOT_TAB=Issues, and store-4 with SHOT_MARKS=1.
  */
 import path from 'node:path'
 import { fileURLToPath } from 'node:url'
@@ -67,6 +75,10 @@ async function main() {
   const marks = process.env.SHOT_MARKS === '1'
   const prompt = process.env.SHOT_PROMPT || BLOG_PROMPT
   const intent = process.env.SHOT_INTENT || ''
+  const scale = Number(process.env.SHOT_SCALE || 1)
+  const tab = process.env.SHOT_TAB || ''
+  const fix = process.env.SHOT_NOFIX !== '1'
+  if (!fix && marks) throw new Error('SHOT_NOFIX takes the picture before any fix, so there is no rewrite to mark')
 
   /** Whether the passage, selected, lies inside what the results pane shows without scrolling. */
   const inView = async (page, passage) => {
@@ -121,17 +133,29 @@ async function main() {
   const stub = real ? null : await startStub()
   const app = await startApp(
     real
-      ? // Wherever the app itself would find it, PromptFixer's old folder included.
-        { env: { WHETPROMPT_MODEL_DIR: defaultModelDir() } }
+      ? // Wherever the app itself would find it, PromptFixer's old folder included, and loaded at
+        // start as the desktop app loads it, so no picture shows the "on disk, load now" banner.
+        { env: { WHETPROMPT_MODEL_DIR: defaultModelDir(), WHETPROMPT_PRELOAD: '1' } }
       : { stub, env: { COMPATIBLE_LABEL: process.env.SHOT_LABEL || 'Stub' } },
   )
   await launchBrowser()
   try {
-    const { page, close } = await openApp(app, { viewport: { width, height } })
+    const { page, close } = await openApp(app, { viewport: { width, height }, deviceScaleFactor: scale })
     try {
+      if (real) {
+        for (let waited = 0; ; waited += 1000) {
+          const { phase, error } = (await app.get('/api/local/status')).body
+          if (phase === 'ready') break
+          if (phase === 'error' || waited > SLOW) throw new Error(`the local model did not load: ${error || phase}`)
+          await new Promise((resolve) => setTimeout(resolve, 1000))
+        }
+        await page.locator('.banner', { hasText: /on disk|Loading/ }).waitFor({ state: 'hidden', timeout: 30_000 })
+      }
       await typePrompt(page, prompt)
       if (intent) await page.locator('#intent').selectOption(intent)
-      if (real) {
+      if (!fix) {
+        // Nothing to wait for: the score and the issues follow the editor as it is typed in.
+      } else if (real) {
         await ui.fixButton(page).click({ timeout: SLOW })
         await page.getByRole('tab', { name: /^Fixed/, selected: true }).waitFor({ timeout: SLOW })
         await ui.output(page).waitFor({ timeout: SLOW })
@@ -139,11 +163,19 @@ async function main() {
         await runFix(page)
       }
       if (marks) await markRewrite(page)
+      if (tab) {
+        await ui.tab(page, tab).click()
+        await page.getByRole('tab', { name: new RegExp(`^${tab}`), selected: true }).waitFor()
+        await page.mouse.move(0, 0)
+        await page.evaluate(() => document.activeElement?.blur?.())
+      }
       // Let the "Fixed in …" toast go so the shot is the resting state of the interface.
       await page.locator('.toast').first().waitFor({ state: 'hidden', timeout: 15_000 }).catch(() => {})
       await page.waitForTimeout(300)
       await page.screenshot({ path: out })
-      console.log(`wrote ${out} (${width}x${height}, ${real ? 'real local model' : 'stub provider'}${marks ? ', marked' : ''})`)
+      console.log(
+        `wrote ${out} (${width * scale}x${height * scale}, ${real ? 'real local model' : fix ? 'stub provider' : 'before any fix'}${marks ? ', marked' : ''}${tab ? `, ${tab} tab` : ''})`
+      )
     } finally {
       await close()
     }

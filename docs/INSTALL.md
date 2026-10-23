@@ -73,6 +73,31 @@ doing:
 - **Prompt files** for `npm run lint:prompts` may keep `<!-- promptfixer: intent=… -->` as their
   first line; `<!-- whetprompt: intent=… -->` is the new spelling.
 
+### The Microsoft Store version
+
+From 0.6.0, Whetprompt is also in the Microsoft Store. It is the same app as the download above,
+built in the same run from the same release, but the Store installs and updates it, and it opens
+without the "Windows protected your PC" screen. Windows gives a Store app storage of its own, and
+that is the one difference to know about:
+
+- **On a PC that never had Whetprompt**, the Store version keeps its library, its settings and the
+  model it downloads in that storage. The app sees them as `%APPDATA%\Whetprompt\` and
+  `%LOCALAPPDATA%\Whetprompt\models\`; in File Explorer they are under
+  `%LOCALAPPDATA%\Packages\TuralioLabs.Whetprompt_7a4rf7jk3z6yp\LocalCache\`. **Uninstalling it
+  removes them**, so export your library first (**Library → Export**) to keep your prompts.
+- **On a PC that already has the download version**, the Store version uses what is there: the
+  library and settings in `%APPDATA%\Whetprompt\`, and the model wherever the download version or
+  PromptFixer put it. Both versions then share them, and uninstalling the Store version leaves
+  them where they are. PromptFixer's library is copied into the Store version's own storage the
+  first time it starts, as the download version copies it into its folder.
+- **Cloud provider keys** go in a `.env` file as described below, in the folder the Store version
+  uses: `%APPDATA%\Whetprompt\` when it shares the download version's, and otherwise
+  `%LOCALAPPDATA%\Packages\TuralioLabs.Whetprompt_7a4rf7jk3z6yp\LocalCache\Roaming\whetprompt\`.
+
+Both versions can be installed at once; they are then two entries called Whetprompt in the Start
+menu. To move to the Store version, install it, check that your library is there, and uninstall
+the download version: its library and model stay behind, and the Store version goes on using them.
+
 ### Optional: cloud providers
 
 If you would rather use Claude, OpenAI, Gemini, OpenRouter or Ollama, create a text file named
@@ -83,7 +108,8 @@ displays them.
 ### Uninstall
 
 Settings → Apps → Whetprompt → Uninstall. This removes the app only; your library and the model
-are left in place. Delete the two folders above if you want them gone too.
+are left in place. Delete the two folders above if you want them gone too. What uninstalling the
+Store version removes is in [The Microsoft Store version](#the-microsoft-store-version).
 
 ### Trouble?
 

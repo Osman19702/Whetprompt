@@ -5,7 +5,9 @@ installer. A release is cut by pushing a tag. The `Release` workflow checks that
 `package.json`, `package-lock.json` and `CHANGELOG.md` agree, runs the typecheck, the build and the
 unit and component tests, builds the installer, writes `SHA256SUMS.txt` and puts all of it on a
 **draft** GitHub release whose notes are the version's changelog section. The draft is published
-by hand, after the download has been checked, because the installer is not code-signed.
+by hand, after the download has been checked, because the installer is not code-signed. The same
+run builds the Microsoft Store package of the same app, which goes to the Store by hand as well
+([Microsoft Store](#microsoft-store)).
 
 The version lives in `package.json` and nowhere else. `package-lock.json` repeats it because npm
 writes it there, the installer's file name and `GET /api/health` read it, and
@@ -142,6 +144,83 @@ workflow's.
 
 Two builds of the same commit are not byte-identical, so a local installer never has the hash of
 the workflow's. The hash that counts is the one on the release.
+
+## Microsoft Store
+
+Whetprompt is in the Microsoft Store as product `9P750H35HR59`, under the developer account
+"Turalio Labs". The Store gets an MSIX-style package, `Whetprompt-x.y.z-win-x64.appx`, which the
+Store signs when it takes it in, so neither the package nor the app in it needs a certificate of
+ours, and a Store install shows no SmartScreen warning.
+
+**The identity.** `appx` in `package.json` holds the three values from Partner Center, **Whetprompt
+→ Product management → Product identity**: `Package/Identity/Name` (`identityName`),
+`Package/Identity/Publisher` (`publisher`) and `Package/Properties/PublisherDisplayName`
+(`publisherDisplayName`). The Store refuses a package whose identity differs from the reserved one
+by a character, and it never changes: leave them alone. The package family name that follows from
+them is `TuralioLabs.Whetprompt_7a4rf7jk3z6yp`; Windows uses it for the folders a Store install
+keeps its files in ([docs/INSTALL.md](INSTALL.md#the-microsoft-store-version)).
+
+**The images** in `build/appx/` are the Start menu, taskbar and Store pictures, drawn from
+`build/icon.svg` at every scale and size Windows asks for by `node scripts/appx-assets.mjs`. Run
+it again after changing the icon, and commit what it writes. Without them electron-builder packs
+its own sample images, which certification refuses.
+
+**The build.** The Release workflow builds the package next to the installer, from the same packed
+app, and keeps it for thirty days as the run's artifact `Whetprompt-vx.y.z-store`, on a rehearsal
+(step 6) as well. It is not attached to the release: unsigned, it would install nowhere. Locally,
+with the Visual C++ runtime found the same way as for the installer:
+
+```bash
+npm run dist:store
+```
+
+It writes `release/Whetprompt-x.y.z-win-x64.appx`. The package's version is `package.json`'s with a
+fourth part of `0`, which the Store requires, and every submission needs a higher version than the
+last one the Store took.
+
+The tools that pack and sign it are electron-builder's current set, `toolsets.winCodeSign`
+`1.1.0` in `package.json`, from Windows SDK 10.0.26100. A package from its older default set could
+not be signed at all (signtool: "Multiple signature support is not implemented for this
+filetype"), and the Store signs every package it takes in. The installer is built with the same
+set.
+
+**Trying a package before it goes in.** Windows installs a package only when it trusts the
+signature, so a test copy is signed with a certificate made for the purpose, whose subject is the
+publisher in `package.json`, and that certificate is trusted on the test machine for as long as
+the test takes. In PowerShell, with the `Import-Certificate` line as administrator:
+
+```powershell
+$cert = New-SelfSignedCertificate -Type Custom -Subject "CN=2983B22E-31A1-4704-9688-153EBAC48AD9" `
+  -KeyUsage DigitalSignature -FriendlyName "Whetprompt test signing" -CertStoreLocation Cert:\CurrentUser\My `
+  -TextExtension @("2.5.29.37={text}1.3.6.1.5.5.7.3.3", "2.5.29.19={text}") -NotAfter (Get-Date).AddDays(7)
+$pw = Read-Host "A password for the test certificate"
+Export-PfxCertificate -Cert $cert -FilePath whetprompt-test.pfx -Password (ConvertTo-SecureString $pw -AsPlainText -Force)
+Export-Certificate -Cert $cert -FilePath whetprompt-test.cer
+Copy-Item release\Whetprompt-x.y.z-win-x64.appx Whetprompt-test.appx
+& "$env:LOCALAPPDATA\electron-builder\Cache\win-codesign@1.1.0\windows-kits-bundle-10_0_26100_0-<suffix>\x64\signtool.exe" `
+  sign /fd sha256 /f whetprompt-test.pfx /p $pw Whetprompt-test.appx
+Import-Certificate -FilePath whetprompt-test.cer -CertStoreLocation Cert:\LocalMachine\TrustedPeople
+Add-AppxPackage -Path Whetprompt-test.appx
+```
+
+Sign a copy, never the file that goes to the Store. Start the app from the Start menu, or with
+`explorer.exe shell:AppsFolder\TuralioLabs.Whetprompt_7a4rf7jk3z6yp!Whetprompt`, which is how
+Windows starts it (running the `.exe` in `WindowsApps` directly is not the same). It installs to
+`C:\Program Files\WindowsApps\TuralioLabs.Whetprompt_x.y.z.0_x64__7a4rf7jk3z6yp\`. Afterwards:
+`Get-AppxPackage TuralioLabs.Whetprompt | Remove-AppxPackage`; the certificate out of
+`Cert:\LocalMachine\TrustedPeople` (as administrator) and `Cert:\CurrentUser\My`; and the two
+certificate files. The first package, of the code that became 0.6.0, was tried this way on
+23 October 2026 on a Windows 11 machine that has never had the Visual C++ Redistributable: it
+installed in 11 seconds, loaded the model on the GPU, fixed a prompt, and uninstalling it emptied
+its storage.
+
+**Submitting.** In Partner Center, **Apps and games → Whetprompt**: **Start submission** the first
+time, **Update** on the last submission after that. Upload the workflow's package under
+**Packages**. The texts, the answers and the notes for certification for every other page are in
+[docs/STORE.md](STORE.md), to be pasted, not retyped. Certification takes up to three business
+days; then the Store publishes the version, at once or when chosen under **Submission options**.
+After the first one, add the Store link to the README and `docs/INSTALL.md` (step 11 of every
+release after it has nothing more to change for the Store).
 
 ## Choosing the number
 

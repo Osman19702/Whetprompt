@@ -201,6 +201,11 @@ export interface AppConfig {
    * Absent on servers that predate it; '' when package.json names none.
    */
   homepage?: string
+  /**
+   * The form for reporting a harmful rewrite, for the Report link beside it.
+   * Absent on servers that predate it; '' when package.json names no tracker.
+   */
+  report?: string
   providers: ProviderInfo[]
   defaultProvider: string
   defaultModel: string

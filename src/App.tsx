@@ -27,6 +27,7 @@ import {
   promptFit,
   readExamples,
   refinedNote,
+  reportLink,
   resultView,
   shownMarks,
   stageLabel,
@@ -543,6 +544,9 @@ export default function App() {
   }
 
   const { shown, active } = view
+  const reportHref = active
+    ? reportLink(config.report, { version: config.version, provider: active.meta.provider, model: active.meta.model })
+    : null
   const exampleRows = (
     <div className="example-list" aria-label="Example prompts" data-testid="example-gallery">
       {examples.map((ex) => (
@@ -995,6 +999,23 @@ export default function App() {
                 <button className="btn sm" onClick={saveToLibrary}>
                   Save
                 </button>
+                {/* Store policy 11.16: output from generative AI must be
+                    reportable. A link like What's new: the form opens in the
+                    user's browser, and nothing reaches GitHub until they open
+                    it. Then only the version, provider and model do; what they
+                    report they paste in themselves. */}
+                {reportHref && (
+                  <a
+                    className="btn ghost sm"
+                    href={reportHref}
+                    target="_blank"
+                    rel="noreferrer"
+                    data-testid="report-link"
+                    title="Report a harmful or inappropriate rewrite. Opens a form on GitHub in your browser; it names this version and model, and includes your prompt or the rewrite only if you paste them in."
+                  >
+                    Report
+                  </a>
+                )}
               </>
             )}
           </div>

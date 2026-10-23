@@ -2,9 +2,9 @@
 
 This page is for whoever approves software where you work. It states exactly what Whetprompt
 sends, where it stores what you write, and which of those statements is checked automatically on
-every build.
+every build. It is also the privacy policy that Whetprompt's Microsoft Store listing links to.
 
-As of version 0.4.0.
+As of version 0.6.0.
 
 ## The short version
 
@@ -22,6 +22,11 @@ There are exactly two ways anything reaches the internet, and both are things yo
 
 There is no telemetry, no analytics, no crash reporting, no licence check and no update check.
 
+The Microsoft Store version is the same app, and everything on this page holds for it. Windows and
+the Store report the installs and crashes of every Store app to Microsoft, which shows the
+developer reports of them; that reporting is Windows', governed by Microsoft's privacy statement,
+not the app's.
+
 ## Where your data is stored
 
 | What | Where |
@@ -30,6 +35,7 @@ There is no telemetry, no analytics, no crash reporting, no licence check and no
 | The model file | `~/.whetprompt/models`. Override with `WHETPROMPT_MODEL_DIR`. |
 | Your settings and the draft in the editor | Your browser profile's local storage for this app, on your machine. |
 | API keys, if you add any | A `.env` file you create, read on the server side only. Keys are never sent to the interface. |
+| All of the above, in the Microsoft Store version | The same places, as the app sees them, but on a PC without the download version Windows keeps them in the app's own storage, `%LOCALAPPDATA%PackagesTuralioLabs.Whetprompt_7a4rf7jk3z6ypLocalCache`, and deletes them when the app is uninstalled. A model it downloads goes to `%LOCALAPPDATA%Whetpromptmodels` as the app sees it, in that storage too. Where the download version is installed, the two share its files, and uninstalling the Store version leaves them. [INSTALL.md](INSTALL.md#the-microsoft-store-version) has the details. |
 
 Nothing is encrypted at rest: these are ordinary files with your account's permissions on them.
 Treat the library the way you would treat a folder of documents.
@@ -57,6 +63,11 @@ requests that address: there is still no update check, and scenario F11 still ho
 way, when the built-in model cannot start because Windows lacks the Microsoft Visual C++ runtime,
 the error links to Microsoft's download of it, `aka.ms/vc14/vc_redist.x64.exe`, which opens in
 your browser if you click it and is never requested by the app.
+
+The **Report** link beside a rewrite opens the project's report form on GitHub in your browser
+when you click it, with the app's version, the provider and the model filled in. Nothing you wrote
+and nothing the model wrote is in the address; a report holds what you paste into the form, and it
+is public once you submit it. The app itself never requests that address either.
 
 ## How the claim is checked
 
@@ -124,3 +135,6 @@ You do not have to take this page's word for it. Two things you can do:
 
 If you need a signed installer, a software bill of materials, or a statement about the licences of
 the app's dependencies, those do not exist yet. Ask before you need them.
+
+Questions about this page, or about what the app does with your data, are welcome as an issue at
+<https://github.com/Osman19702/Whetprompt/issues>.

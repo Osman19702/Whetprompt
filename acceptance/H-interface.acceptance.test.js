@@ -433,3 +433,47 @@ test('H15 — The interface links to the project website, and the link leaves th
     await close()
   }
 })
+
+test('H16 — A rewrite can be reported, and the report leaves the app the safe way', async () => {
+  const { report, version } = (await app.get('/api/config')).body
+  assert.match(report, /^https:\/\//, 'the server names the report form, and it is an https address')
+  const form = new URL(report)
+  // As in H15: the form's origin is answered here, so opening it is not off-machine traffic (F11).
+  const { context, page, close } = await openApp(app, {
+    route: {
+      pattern: (url) => url.origin === form.origin,
+      handler: (r) => r.fulfill({ status: 200, contentType: 'text/html', body: '<!doctype html><title>stub</title>' }),
+    },
+  })
+  try {
+    const link = page.locator('[data-testid="report-link"]')
+    assert.equal(await link.count(), 0, 'nothing has been written yet, so there is nothing to report')
+
+    await typePrompt(page, BLOG_PROMPT)
+    await runFix(page)
+    await link.waitFor()
+    assert.equal(await page.getByRole('link', { name: 'Report' }).getAttribute('data-testid'), 'report-link')
+    assert.equal(await link.getAttribute('target'), '_blank', 'opens outside the app')
+    assert.match(await link.getAttribute('rel'), /\bnoreferrer\b/)
+
+    const href = new URL(await link.getAttribute('href'))
+    assert.equal(href.origin + href.pathname, form.origin + form.pathname, 'the form the server named')
+    const provider = await page.locator('select[aria-label="Provider"]').inputValue()
+    const model = await page.locator('select[aria-label="Model"]').inputValue()
+    // Exactly these fields: a parameter more could carry the prompt or the rewrite to GitHub.
+    assert.deepEqual(Object.fromEntries(href.searchParams), {
+      template: form.searchParams.get('template'),
+      version,
+      provider,
+      model,
+    })
+
+    const [popup] = await Promise.all([context.waitForEvent('page'), link.click()])
+    await popup.waitForLoadState()
+    assert.equal(popup.url(), href.toString(), 'the form opened in a page of its own')
+    assert.equal(new URL(page.url()).origin, new URL(app.base).origin, 'the app page stayed at its own address')
+    assert.equal(await ui.output(page).innerText(), FIX_RESPONSE.fixedPrompt, 'with the rewrite still there')
+  } finally {
+    await close()
+  }
+})

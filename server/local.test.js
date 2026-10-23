@@ -147,6 +147,23 @@ test("defaultModelDir() keeps using PromptFixer's folder when the model is alrea
   assert.equal(models.defaultModelDir({ home, exists: has(fresh, legacy) }), fresh, 'once Whetprompt has its own, that one')
 })
 
+test('defaultModelDir(): the Store version downloads where Windows removes it with the app, and uses a model already there', () => {
+  const home = path.join('C:', 'Users', 'me')
+  const localAppData = path.join(home, 'AppData', 'Local')
+  const own = path.join(localAppData, 'Whetprompt', 'models')
+  const fresh = path.join(home, '.whetprompt', 'models')
+  const legacy = path.join(home, '.promptfixer', 'models')
+  const has = (...dirs) => (dir) => dirs.includes(dir)
+  const store = (exists) => models.defaultModelDir({ home, exists, store: true, localAppData })
+  assert.equal(store(has()), own, "a first download goes into the app's own storage")
+  assert.equal(store(has(own)), own, 'and is used from there')
+  assert.equal(store(has(fresh)), fresh, "the GitHub version's model is used where it is, not downloaded again")
+  assert.equal(store(has(legacy)), legacy, "and so is PromptFixer's")
+  assert.equal(store(has(own, fresh)), own, 'once it has its own copy, that one')
+  assert.equal(models.defaultModelDir({ home, exists: has(), store: false, localAppData }), fresh, 'outside the Store nothing changes')
+  assert.equal(models.defaultModelDir({ home, exists: has(), store: true, localAppData: '' }), fresh, 'nor without a LOCALAPPDATA to put it in')
+})
+
 // --- pure budget maths (finding 26) -----------------------------------------
 
 test('outputBudget() clamps the reply to the context so the input budget never goes negative', () => {

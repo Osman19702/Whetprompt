@@ -1,0 +1,52 @@
+# The form behind the app's Report link (src/App.tsx), which opens it with
+# version, provider and model filled in from the query string: GitHub fills
+# an issue form's fields from parameters named after their ids, so those three
+# ids are part of the link and must not be renamed without it. Microsoft Store
+# policy 11.16 asks an app whose output comes from generative AI for a way to
+# report it, and for the developer to act on what is reported.
+name: Report a rewrite
+description: A rewrite that was harmful, offensive or otherwise inappropriate.
+title: "Report: "
+labels: ["report"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thank you for taking the time. Every report is read, and a rewrite that should not have been produced is
+        treated as a bug: the instructions the model works from are changed so that it does not happen again.
+
+        **Reports are public.** Paste only what you are comfortable sharing, and leave out anything personal.
+        Nothing from the app is in this form except the three fields at the bottom, which the Report link filled in.
+  - type: dropdown
+    id: kind
+    attributes:
+      label: What was wrong with it?
+      options:
+        - Offensive, hateful or harassing
+        - Sexual or violent
+        - Dangerous or illegal advice
+        - Personal information about someone
+        - Misleading in a way that could cause harm
+        - Something else
+    validations:
+      required: true
+  - type: textarea
+    id: details
+    attributes:
+      label: What happened
+      description: The rewrite, or the part of it that was wrong. Add the prompt you started from if you are willing to share it.
+    validations:
+      required: true
+  - type: input
+    id: version
+    attributes:
+      label: Whetprompt version
+  - type: input
+    id: provider
+    attributes:
+      label: Provider
+      description: "local is the model built into the app."
+  - type: input
+    id: model
+    attributes:
+      label: Model

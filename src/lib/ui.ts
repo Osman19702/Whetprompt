@@ -112,6 +112,24 @@ export function linkParts(text: string): TextPart[] {
   return parts
 }
 
+/**
+ * The address of the report form for one rewrite, with the version, provider
+ * and model filled in: GitHub fills an issue form's fields from query
+ * parameters named after their ids. Never the prompt or the rewrite. The
+ * address reaches GitHub the moment the link is opened, before the user has
+ * decided what to share, so they paste into the form what they choose to.
+ * null unless `form` is an https address.
+ */
+export function reportLink(
+  form: string | undefined,
+  facts: { version?: string; provider?: string; model?: string }
+): string | null {
+  if (typeof form !== 'string' || !form.startsWith('https://')) return null
+  const url = new URL(form)
+  for (const [field, value] of Object.entries(facts)) if (value) url.searchParams.set(field, value)
+  return url.toString()
+}
+
 export interface ResultView {
   /** The editor no longer holds the text the fix was made for. */
   edited: boolean
