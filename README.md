@@ -26,24 +26,25 @@ remain available as an optional switch — but nothing requires them.
 
 ## Download (Windows)
 
-The latest published release is 0.4.0, the last one under the old name, so its files are still
-called PromptFixer.
+**[Whetprompt-0.5.0-win-x64.exe](https://github.com/Osman19702/Whetprompt/releases/download/v0.5.0/Whetprompt-0.5.0-win-x64.exe)**
+(339.8 MiB, Windows 10/11 64-bit) from the
+[v0.5.0 release](https://github.com/Osman19702/Whetprompt/releases/tag/v0.5.0). The 2.5 GB model
+downloads on first run; after that the app works offline. Installed over PromptFixer, it replaces
+it and keeps your library and the model
+([Upgrading from PromptFixer](docs/INSTALL.md#upgrading-from-promptfixer)).
 
-**[PromptFixer-0.4.0-win-x64.exe](https://github.com/Osman19702/Whetprompt/releases/download/v0.4.0/PromptFixer-0.4.0-win-x64.exe)**
-(339.1 MiB, Windows 10/11 64-bit) from the
-[v0.4.0 release](https://github.com/Osman19702/Whetprompt/releases/tag/v0.4.0). The 2.5 GB model
-downloads on first run; after that the app works offline.
-
-- SHA-256: `a8748c36186d3b4ff0d16e81ab7e4044ab481caab1ada5ff547685893b1ff566`, also in the release's
-  [`SHA256SUMS.txt`](https://github.com/Osman19702/Whetprompt/releases/download/v0.4.0/SHA256SUMS.txt).
-  Check it in PowerShell with `(Get-FileHash .\PromptFixer-0.4.0-win-x64.exe).Hash.ToLower()`.
+- SHA-256: `d420ea0f63cfd623265287dca0d025b8f9f76d9eb22fbf591d60371bea5d7b12`, also in the release's
+  [`SHA256SUMS.txt`](https://github.com/Osman19702/Whetprompt/releases/download/v0.5.0/SHA256SUMS.txt).
+  Check it in PowerShell with `(Get-FileHash .\Whetprompt-0.5.0-win-x64.exe).Hash.ToLower()`.
 - The installer is not code-signed yet, so SmartScreen shows "Windows protected your PC": click
   **More info**, then **Run anyway**, once the hash matches.
 - Full guide: [docs/INSTALL.md](docs/INSTALL.md).
 
 ## Download (macOS)
 
-Two disk images on the same [v0.4.0 release](https://github.com/Osman19702/Whetprompt/releases/tag/v0.4.0),
+There is no macOS build of Whetprompt yet. The newest is 0.4.0, from before the rename, so the
+disk images and the app they install are still called PromptFixer, without the fixes of 0.5.0.
+Two disk images on the [v0.4.0 release](https://github.com/Osman19702/Whetprompt/releases/tag/v0.4.0),
 for macOS 13 or later. Pick the one for your Mac (Apple menu, About This Mac):
 
 - **[PromptFixer-0.4.0-mac-arm64.dmg](https://github.com/Osman19702/Whetprompt/releases/download/v0.4.0/PromptFixer-0.4.0-mac-arm64.dmg)** (138.9 MiB) for Apple Silicon.

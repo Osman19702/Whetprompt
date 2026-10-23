@@ -17,15 +17,15 @@ install first, no Node.js, no command line, no account.
 
 ### Install
 
-1. Download **PromptFixer-0.4.0-win-x64.exe** (0.4.0 is the latest published release, and the
-   last one under the old name): press **Download** on
+1. Download **Whetprompt-0.5.0-win-x64.exe**: press **Download** on
    [osman19702.github.io/Whetprompt](https://osman19702.github.io/Whetprompt/), or take it from
-   the [v0.4.0 release page](https://github.com/Osman19702/Whetprompt/releases/tag/v0.4.0) or the
+   the [v0.5.0 release page](https://github.com/Osman19702/Whetprompt/releases/tag/v0.5.0) or the
    download button on [osmanturalioglu.com](https://www.osmanturalioglu.com/).
 2. Double-click it. Windows may show a blue **"Windows protected your PC"** screen because the
    installer is not yet code-signed. Click **More info**, then **Run anyway**. (To check the file
    first, compare its SHA-256 with the line in `SHA256SUMS.txt` on the same release page. In
-   PowerShell: `(Get-FileHash .\PromptFixer-0.4.0-win-x64.exe).Hash.ToLower()`.)
+   PowerShell: `(Get-FileHash .\Whetprompt-0.5.0-win-x64.exe).Hash.ToLower()`, which for 0.5.0
+   must print `d420ea0f63cfd623265287dca0d025b8f9f76d9eb22fbf591d60371bea5d7b12`.)
 3. Choose an install folder or accept the default, and finish. Whetprompt opens by itself and adds a
    Start menu entry.
 
@@ -104,6 +104,11 @@ are left in place. Delete the two folders above if you want them gone too.
 
 ## macOS
 
+There is no macOS build of Whetprompt yet. The newest is 0.4.0, from before the rename, so the disk
+images, the app and its folders below are all called PromptFixer, and it is 0.4.0 without the fixes
+of 0.5.0. When Whetprompt comes to macOS, it will take over PromptFixer's library and model the
+way the Windows version does.
+
 The macOS build is a disk image. There is one for each kind of Mac, and the wrong one still runs
 (an Intel build on Apple Silicon goes through Rosetta, slowly), so pick the right one:
 
@@ -125,16 +130,16 @@ Apple menu → **About This Mac** says which you have. Both are on the
 
 ### Install
 
-1. Open the `.dmg` and drag **Whetprompt** onto the **Applications** folder shown next to it.
-2. Open Whetprompt from Applications. The first time, macOS refuses: the app is not notarized
+1. Open the `.dmg` and drag **PromptFixer** onto the **Applications** folder shown next to it.
+2. Open PromptFixer from Applications. The first time, macOS refuses: the app is not notarized
    with Apple (it is signed only with an ad-hoc signature, which is what makes it launch at all on
-   Apple Silicon), so Gatekeeper says **"Apple could not verify Whetprompt is free of malware"**
+   Apple Silicon), so Gatekeeper says **"Apple could not verify PromptFixer is free of malware"**
    and offers only *Done*. Click *Done*, open **System Settings → Privacy & Security**, scroll
-   down to the line that says Whetprompt was blocked and click **Open Anyway**, then confirm.
+   down to the line that says PromptFixer was blocked and click **Open Anyway**, then confirm.
    This happens once. The same thing from a terminal, if you prefer it:
 
    ```bash
-   xattr -d com.apple.quarantine /Applications/Whetprompt.app
+   xattr -d com.apple.quarantine /Applications/PromptFixer.app
    ```
 
    To check the file before trusting it, compare its SHA-256 with the line in `SHA256SUMS.txt`
@@ -142,9 +147,6 @@ Apple menu → **About This Mac** says which you have. Both are on the
    Apple Silicon image is `5950705c72d5e19e6b2abd7d8d334db50dabcee3c595b3248488303c814c17fa` and the
    Intel image `6a5d3963ee807391be127626bee786bddf24a403a65de8546bf4feb4e7ea4b0c`.
 3. Eject the disk image. The app is in Applications; the `.dmg` can go.
-4. Coming from PromptFixer? It stays in Applications beside Whetprompt, as a separate app. Open
-   Whetprompt once, which copies your library across, then drag PromptFixer to the Trash; the
-   model it downloaded stays in `~/.promptfixer/models/`, and Whetprompt goes on using it.
 
 ### First run
 
@@ -154,17 +156,16 @@ works with no internet connection.
 
 ### Where your data lives
 
-- Your saved prompts (the Library): `~/Library/Application Support/Whetprompt/data/library.json`,
-  copied on the first start from `~/Library/Application Support/PromptFixer/` if you used PromptFixer
-- The downloaded model: `~/.whetprompt/models/`, or `~/.promptfixer/models/` when PromptFixer
-  downloaded it, which Whetprompt goes on using
-- Optional cloud keys: a text file named `.env` in `~/Library/Application Support/Whetprompt/`,
+- Your saved prompts (the Library): `~/Library/Application Support/PromptFixer/data/library.json`
+- The downloaded model: `~/.promptfixer/models/`
+- Optional cloud keys: a text file named `.env` in `~/Library/Application Support/PromptFixer/`,
   for example `ANTHROPIC_API_KEY=sk-ant-…`; restart the app and the provider appears in the
   selector.
 
-All three survive deleting and reinstalling the app.
+All three survive deleting and reinstalling the app, and they are where a macOS Whetprompt will look
+for them.
 
 ### Uninstall
 
-Drag Whetprompt out of Applications into the Trash. Your library and the model stay where they
+Drag PromptFixer out of Applications into the Trash. Your library and the model stay where they
 are; delete the two folders above if you want them gone too.
