@@ -5,7 +5,7 @@ Feature: D — Learning from the user's own library
   So that the tool adapts to me without any configuration
 
   Background:
-    Given PromptFixer is running against a scripted model
+    Given Whetprompt is running against a scripted model
     And the library is empty
 
   Scenario: D1 — The tool learns how much change this user actually likes

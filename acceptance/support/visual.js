@@ -43,7 +43,7 @@ const spawned = (script, args, env) =>
   new Promise((resolve, reject) => {
     const child = spawn(process.execPath, [script, ...args], {
       cwd: root,
-      env: { ...process.env, PROMPTFIXER_VISUAL_VARIANT: '', ...env },
+      env: { ...process.env, WHETPROMPT_VISUAL_VARIANT: '', ...env },
       stdio: ['ignore', 'pipe', 'pipe'],
     })
     let output = ''
@@ -79,7 +79,7 @@ const outcome = ({ code, output }, out) => {
 export async function check(name, { app, baselines, screens = [], update = false, variant = '' }) {
   const out = emptyFolder(name)
   const args = ['run', '--config', CONFIG, '--out', out, '--quiet', ...(update ? ['--update'] : []), ...screens]
-  const env = { PROMPTFIXER_VISUAL_URL: app.base, PROMPTFIXER_VISUAL_BASELINES: baselines, PROMPTFIXER_VISUAL_VARIANT: variant }
+  const env = { WHETPROMPT_VISUAL_URL: app.base, WHETPROMPT_VISUAL_BASELINES: baselines, WHETPROMPT_VISUAL_VARIANT: variant }
   return outcome(await spawned(CLI, args, env), out)
 }
 
@@ -88,7 +88,7 @@ export async function comparePictures(name, baseline, candidate) {
   const out = emptyFolder(name)
   const args = ['compare', baseline, candidate, '--name', name, '--out', out, '--quiet']
   // The CLI loads the project's config from the working folder, and the config insists on a server; none is contacted.
-  const compared = outcome(await spawned(CLI, args, { PROMPTFIXER_VISUAL_URL: 'http://127.0.0.1:9' }), out)
+  const compared = outcome(await spawned(CLI, args, { WHETPROMPT_VISUAL_URL: 'http://127.0.0.1:9' }), out)
   return { ...compared, pair: () => compared.pairs[0] ?? null }
 }
 
@@ -103,8 +103,8 @@ export async function npmRun(script, name, { screens = [], baselines, variant = 
   if (node !== 'node' || !file) throw new Error(`package.json "${script}" is not a node script: ${SCRIPTS[script]}`)
   const out = emptyFolder(name)
   const env = {
-    PROMPTFIXER_VISUAL_BASELINES: baselines,
-    PROMPTFIXER_VISUAL_VARIANT: variant,
+    WHETPROMPT_VISUAL_BASELINES: baselines,
+    WHETPROMPT_VISUAL_VARIANT: variant,
     ...(tmp ? { TMP: tmp, TEMP: tmp, TMPDIR: tmp } : {}),
   }
   return outcome(await spawned(path.join(root, file), [...flags, ...more, '--no-build', '--out', out, ...screens], env), out)

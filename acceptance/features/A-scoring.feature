@@ -5,7 +5,7 @@ Feature: A — Scoring a prompt, with no model involved
   So that I can improve a prompt before spending any model time on it
 
   Background:
-    Given PromptFixer is running with no API key configured and no local model on disk
+    Given Whetprompt is running with no API key configured and no local model on disk
 
   Scenario: A1 — A pasted prompt is scored before anything is contacted
     When I paste "write a blog post about our new feature, make it good and professional..." into the editor

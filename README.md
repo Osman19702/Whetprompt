@@ -1,11 +1,14 @@
-# PromptFixer
+# Whetprompt
+
+*Formerly PromptFixer: the same app, renamed in 0.5.0. Settings, the library and the downloaded
+model carry over on their own (see [Upgrading from PromptFixer](docs/INSTALL.md#upgrading-from-promptfixer)).*
 
 A desktop app for Windows and macOS that lints, scores and rewrites LLM prompts — with a
 **built-in local model**, so it works offline and nothing you type leaves your machine. That last claim is checked on every push,
 not just asserted: see [docs/PRIVACY.md](docs/PRIVACY.md) for what does and does not leave, and how
 the check works.
 
-Website: **[osman19702.github.io/PromptFixer](https://osman19702.github.io/PromptFixer/)** — the
+Website: **[osman19702.github.io/Whetprompt](https://osman19702.github.io/Whetprompt/)** — the
 latest download, and what changed in every release.
 
 Paste a prompt. It's scored instantly against ~30 prompt-engineering rules. Press **Fix prompt**
@@ -23,13 +26,16 @@ remain available as an optional switch — but nothing requires them.
 
 ## Download (Windows)
 
-**[PromptFixer-0.4.0-win-x64.exe](https://github.com/Osman19702/PromptFixer/releases/download/v0.4.0/PromptFixer-0.4.0-win-x64.exe)**
+The latest published release is 0.4.0, the last one under the old name, so its files are still
+called PromptFixer.
+
+**[PromptFixer-0.4.0-win-x64.exe](https://github.com/Osman19702/Whetprompt/releases/download/v0.4.0/PromptFixer-0.4.0-win-x64.exe)**
 (339.1 MiB, Windows 10/11 64-bit) from the
-[v0.4.0 release](https://github.com/Osman19702/PromptFixer/releases/tag/v0.4.0). The 2.5 GB model
+[v0.4.0 release](https://github.com/Osman19702/Whetprompt/releases/tag/v0.4.0). The 2.5 GB model
 downloads on first run; after that the app works offline.
 
 - SHA-256: `a8748c36186d3b4ff0d16e81ab7e4044ab481caab1ada5ff547685893b1ff566`, also in the release's
-  [`SHA256SUMS.txt`](https://github.com/Osman19702/PromptFixer/releases/download/v0.4.0/SHA256SUMS.txt).
+  [`SHA256SUMS.txt`](https://github.com/Osman19702/Whetprompt/releases/download/v0.4.0/SHA256SUMS.txt).
   Check it in PowerShell with `(Get-FileHash .\PromptFixer-0.4.0-win-x64.exe).Hash.ToLower()`.
 - The installer is not code-signed yet, so SmartScreen shows "Windows protected your PC": click
   **More info**, then **Run anyway**, once the hash matches.
@@ -37,15 +43,15 @@ downloads on first run; after that the app works offline.
 
 ## Download (macOS)
 
-Two disk images on the same [v0.4.0 release](https://github.com/Osman19702/PromptFixer/releases/tag/v0.4.0),
+Two disk images on the same [v0.4.0 release](https://github.com/Osman19702/Whetprompt/releases/tag/v0.4.0),
 for macOS 13 or later. Pick the one for your Mac (Apple menu, About This Mac):
 
-- **[PromptFixer-0.4.0-mac-arm64.dmg](https://github.com/Osman19702/PromptFixer/releases/download/v0.4.0/PromptFixer-0.4.0-mac-arm64.dmg)** (138.9 MiB) for Apple Silicon.
+- **[PromptFixer-0.4.0-mac-arm64.dmg](https://github.com/Osman19702/Whetprompt/releases/download/v0.4.0/PromptFixer-0.4.0-mac-arm64.dmg)** (138.9 MiB) for Apple Silicon.
   SHA-256: `5950705c72d5e19e6b2abd7d8d334db50dabcee3c595b3248488303c814c17fa`.
-- **[PromptFixer-0.4.0-mac-x64.dmg](https://github.com/Osman19702/PromptFixer/releases/download/v0.4.0/PromptFixer-0.4.0-mac-x64.dmg)** (144.1 MiB) for an Intel Mac.
+- **[PromptFixer-0.4.0-mac-x64.dmg](https://github.com/Osman19702/Whetprompt/releases/download/v0.4.0/PromptFixer-0.4.0-mac-x64.dmg)** (144.1 MiB) for an Intel Mac.
   SHA-256: `6a5d3963ee807391be127626bee786bddf24a403a65de8546bf4feb4e7ea4b0c`.
 
-Both hashes are in the release's [`SHA256SUMS.txt`](https://github.com/Osman19702/PromptFixer/releases/download/v0.4.0/SHA256SUMS.txt); check one in Terminal
+Both hashes are in the release's [`SHA256SUMS.txt`](https://github.com/Osman19702/Whetprompt/releases/download/v0.4.0/SHA256SUMS.txt); check one in Terminal
 with `shasum -a 256 ~/Downloads/PromptFixer-0.4.0-mac-arm64.dmg`. The app is ad-hoc signed and not
 notarized, so macOS refuses the first launch: click **Done**, then **System Settings → Privacy &
 Security → Open Anyway**. [docs/INSTALL.md](docs/INSTALL.md#macos) walks through it. The model
@@ -80,7 +86,7 @@ instead — same thing, with a progress bar.
 ## What's inside
 
 ```
-PromptFixer/
+Whetprompt/
 ├── .github/workflows/     ci.yml: every push runs the checks, the tests, the acceptance suite and a visual comparison
 │                          with the commit before on a Windows runner, and keeps both reports
 │                          release.yml: a pushed tag v<version> builds the installer onto a draft GitHub release;
@@ -90,7 +96,7 @@ PromptFixer/
 ├── electron/
 │   ├── main.js            Electron main process: starts the server in-process, opens the window
 │   ├── env.js             Desktop .env loading (user-data dir) and desktop defaults
-│   └── handlers.js        Navigation guard and the deterministic quit/unload handler
+│   └── handlers.js        Navigation guard, the deterministic quit/unload handler, a window size that fits the screen
 ├── server/
 │   ├── index.js           Express routes; exports start() for Electron
 │   ├── analyze.js         The linter: rules, categories, scoring (no model involved)
@@ -98,6 +104,7 @@ PromptFixer/
 │   ├── metaprompt.js      Rewrite instructions, presets, JSON schema for the output
 │   ├── local-llm.js       node-llama-cpp wrapper: download → load → grammar-constrained inference
 │   ├── models.js          Model catalog (3 tiers), RAM-based selection, on-disk resolution
+│   ├── vcruntime.js       Why llama.cpp cannot start on Windows: the Visual C++ runtime check and its message
 │   ├── providers.js       Provider registry: local + cloud adapters, plain fetch, no SDKs
 │   ├── store.js           Library persistence (atomic JSON writes)
 │   ├── e2e.test.js        End-to-end tests against a stub provider (no key, no model needed)
@@ -105,6 +112,7 @@ PromptFixer/
 │   └── cli.test.js        Tests for the prompt-linting CLI
 ├── scripts/
 │   ├── setup-model.js     CLI model download (npm run setup)
+│   ├── bundle-vcruntime.js  electron-builder afterPack hook: the Visual C++ runtime next to the llama.cpp binaries
 │   ├── lint-prompts.js    Lint prompt files in CI (npm run lint:prompts)
 │   ├── check-release.mjs  The release gate: version, lock file, changelog and sources agree (npm run check:release)
 │   ├── changelog-section.mjs  Prints one version's CHANGELOG.md section; the release notes are cut from it
@@ -128,8 +136,8 @@ PromptFixer/
 │   ├── ATDD.md            Acceptance test-driven development: strategy and the acceptance scenarios
 │   ├── PRIVACY.md         What does and does not leave the machine, and how scenario F11 checks it
 │   └── LOCAL-MODEL.md     Model choice, measured performance, and the train/fine-tune analysis
-├── site/                  The website (https://osman19702.github.io/PromptFixer/): index.html, styles.css, site.js,
-│                          icon.svg, promptfixer.png, README.md; releases.json is written by npm run site:releases
+├── site/                  The website (https://osman19702.github.io/Whetprompt/): index.html, styles.css, site.js,
+│                          icon.svg, whetprompt.png, README.md; releases.json is written by npm run site:releases
 │                          and git-ignored
 ├── dist/                  Built frontend (npm run build) — served by the server
 ├── elastishot.config.mjs  Visual check targets: seven screens, each at two window sizes
@@ -139,15 +147,15 @@ PromptFixer/
 └── package.json           Scripts + electron-builder config
 ```
 
-Model files live outside the project at `~/.promptfixer/models/` so they survive reinstalls and
+Model files live outside the project at `~/.whetprompt/models/` so they survive reinstalls and
 never end up in a build. The prompt library lives in Electron's per-user data directory whenever
 the app runs as a desktop app — `npm run desktop`, `npm run desktop:dev` or the installed build —
-for example `%APPDATA%\PromptFixer\data\library.json` on Windows (the folder is named `promptfixer`,
+for example `%APPDATA%\Whetprompt\data\library.json` on Windows (the folder is named `whetprompt`,
 after the package name, when run from source). Only browser mode (`npm run dev`, `npm start`) uses
-`server/data/library.json`. Override either with `PROMPTFIXER_DATA_DIR`.
+`server/data/library.json`. Override either with `WHETPROMPT_DATA_DIR`.
 
 To move a library between machines, `GET /api/library/export` downloads it as
-`promptfixer-library-YYYY-MM-DD.json` and `POST /api/library/import` with that file's body merges it
+`whetprompt-library-YYYY-MM-DD.json` and `POST /api/library/import` with that file's body merges it
 in: entries whose id already exists are skipped, never overwritten, malformed entries are dropped,
 and the reply says how many were `imported` and `skipped`.
 
@@ -171,9 +179,9 @@ Or pick a tier from the model dropdown in the app (it shows which are downloaded
 machine (GTX 1660 Ti, Vulkan) the 4B model does ~21 tokens/s — a typical fix takes 15–35 s, plus
 ~15 s to load the model the first time, which the app now shows as a real progress bar. The
 rewrite is streamed into the Fixed tab as the model writes it, so the wait is readable rather
-than blank, and the model is released again after 15 minutes with nothing to do (or at once,
-with **Release model**). Output is grammar-constrained to the result schema, so the small model
-can't produce malformed JSON.
+than blank, and the model stays loaded until the app quits, so only the first fix waits for it.
+Output is grammar-constrained to the result schema, so the small model can't produce malformed
+JSON.
 
 Why this model, what it measured, and whether it's worth fine-tuning a smaller one for this job:
 **[docs/LOCAL-MODEL.md](docs/LOCAL-MODEL.md)**. Short version: don't train; if you ever must,
@@ -203,7 +211,7 @@ most of the way for free.
 
 ## Versioning and releases
 
-PromptFixer follows [Semantic Versioning](https://semver.org/) and keeps a
+Whetprompt follows [Semantic Versioning](https://semver.org/) and keeps a
 [changelog](CHANGELOG.md). The version is written down once, in `package.json`: the installer's file
 name and `GET /api/health` read it, and `npm run check:release` fails when the lock file, the
 changelog or a source file disagrees. Every push to any branch is tested on a Windows runner: the
@@ -225,7 +233,7 @@ npm run lint:prompts -- <path...> [--intent <id>] [--min-score <n>] [--fail-on h
 ```
 
 - `<path>` may be files or directories; directories are searched recursively for `*.md`, `*.txt` and `*.prompt`. Each file is one prompt.
-- A file can set its own intent with a first-line comment, which is stripped before linting: `<!-- promptfixer: intent=code -->`. `--intent` is the default for files without one (`general` if unset).
+- A file can set its own intent with a first-line comment, which is stripped before linting: `<!-- whetprompt: intent=code -->`. `--intent` is the default for files without one (`general` if unset).
 - `--json` prints one JSON object with every file's score, categories and issues; `--quiet` prints only the summary line.
 
 Exit codes:
@@ -369,30 +377,30 @@ Three environment variables belong to the check, none of them to the app:
 
 | Variable | Purpose |
 | --- | --- |
-| `PROMPTFIXER_VISUAL_URL` | The server to photograph. `npm run visual` sets it; without it the config refuses to load and says to use the npm script |
-| `PROMPTFIXER_VISUAL_BASELINES` | Another folder for the approved pictures (default `.elastishot/baselines`) — Group N uses it to keep away from yours |
-| `PROMPTFIXER_VISUAL_VARIANT` | Restyle the page before capture to prove the check notices: `keep-colour` (the keep highlight loses its green), `marks-plain` (both highlights lose all their paint and keep their place), `rewrite-type` (the rewrite in larger type), `fix-button` (a red **Fix prompt** button). Any other name is an error |
+| `WHETPROMPT_VISUAL_URL` | The server to photograph. `npm run visual` sets it; without it the config refuses to load and says to use the npm script |
+| `WHETPROMPT_VISUAL_BASELINES` | Another folder for the approved pictures (default `.elastishot/baselines`) — Group N uses it to keep away from yours |
+| `WHETPROMPT_VISUAL_VARIANT` | Restyle the page before capture to prove the check notices: `keep-colour` (the keep highlight loses its green), `marks-plain` (both highlights lose all their paint and keep their place), `rewrite-type` (the rewrite in larger type), `fix-button` (a red **Fix prompt** button). Any other name is an error |
 
 ## Configuration (optional)
 
 Everything has a working default. Configuration is a plain `.env` file (see `.env.example`); create
 it only if you want to change something, and restart the app afterwards. Where it lives depends
-on how you run PromptFixer:
+on how you run Whetprompt:
 
 | How you run it | `.env` location |
 | --- | --- |
-| Installed desktop app | Electron's per-user data directory: `%APPDATA%\PromptFixer\.env` on Windows, `~/Library/Application Support/PromptFixer/.env` on macOS, `~/.config/PromptFixer/.env` on Linux |
-| `npm run desktop` / `npm run desktop:dev` | The project `.env` (the user-data file is read as a fallback; from source that folder is `promptfixer`) |
+| Installed desktop app | Electron's per-user data directory: `%APPDATA%\Whetprompt\.env` on Windows, `~/Library/Application Support/Whetprompt/.env` on macOS, `~/.config/Whetprompt/.env` on Linux |
+| `npm run desktop` / `npm run desktop:dev` | The project `.env` (the user-data file is read as a fallback; from source that folder is `whetprompt`) |
 | `npm run dev` / `npm start` / `npm run setup` | The project `.env` |
 
 | Variable | Purpose |
 | --- | --- |
-| `PROMPTFIXER_MODEL` | Force a tier: `lite`, `default`, `quality` (also honoured by `npm run setup`) |
-| `PROMPTFIXER_MODEL_DIR` | Where model files are stored (default `~/.promptfixer/models`) |
-| `PROMPTFIXER_DATA_DIR` | Where the prompt library is stored (see above for the defaults) |
-| `PROMPTFIXER_PRELOAD` | `1` to load the model at startup (the desktop default; `0` to load on first fix) |
-| `PROMPTFIXER_IDLE_UNLOAD_MS` | How long the model may sit unused before it is released (default 15 minutes; `0` keeps it loaded for ever) |
-| `PROMPTFIXER_FIX_TIMEOUT_MS` | How long a local fix may produce nothing before it is stopped (default 5 minutes; `0` for no limit). A stall, not a total time limit: a slow machine is never cut off mid-answer |
+| `WHETPROMPT_MODEL` | Force a tier: `lite`, `default`, `quality` (also honoured by `npm run setup`) |
+| `WHETPROMPT_MODEL_DIR` | Where model files are stored (default `~/.whetprompt/models`) |
+| `WHETPROMPT_DATA_DIR` | Where the prompt library is stored (see above for the defaults) |
+| `WHETPROMPT_PRELOAD` | `1` to load the model at startup (the desktop default; `0` to load on first fix) |
+| `WHETPROMPT_IDLE_UNLOAD_MS` | How long the model may sit unused before it is released (default: never, until the app quits; `900000` is fifteen minutes) |
+| `WHETPROMPT_FIX_TIMEOUT_MS` | How long a local fix may produce nothing before it is stopped (default 5 minutes; `0` for no limit). A stall, not a total time limit: a slow machine is never cut off mid-answer |
 | `DEFAULT_PROVIDER` | Provider selected on first load (default `local`) |
 | `DEFAULT_MODEL` | Force a specific model id instead of the provider's default |
 | `PORT` | Browser-mode port (default `8787`; `npm run dev` proxies to it; the desktop app picks a free one) |
@@ -524,11 +532,11 @@ place, whatever that original happens to contain.
   you kept before. Turn it off in the option toggles; the result line says when examples were used.
   Because the examples come from your library, they change as it grows — see
   [Repeatable runs](#repeatable-runs) before comparing one run against another.
-- **Release the model.** When the local model is loaded, the row under the provider selectors shows
-  what is on disk and offers **Release model**, which gives the memory back at once; the next fix
-  loads it again. The same row deletes a downloaded model, part-finished downloads included, so the
-  disk can be reclaimed without going near `~/.promptfixer/models`. Left alone, the model is
-  released after 15 minutes of doing nothing.
+- **The model stays loaded.** Once loaded, the local model stays in memory until the app quits,
+  so no fix after the first waits for it. `WHETPROMPT_IDLE_UNLOAD_MS` releases it after that
+  long with nothing to do, and the next fix loads it again. A downloaded model is deleted by
+  deleting its file in `~/.whetprompt/models`, or with `DELETE /api/local/model/:tier`, which
+  takes part-finished downloads with it.
 - **What's new.** The link in the top bar opens the website in your browser — the latest download,
   and the notes of every release. It is a plain link: the app makes no update check and never
   fetches the site on its own.
@@ -553,6 +561,12 @@ place, whatever that original happens to contain.
   backend in the status chip once loaded.
 - **Model loads on Vulkan but you have an NVIDIA card** — the prebuilt CUDA binary needs a
   compatible CUDA runtime; Vulkan is the fallback and is close in speed for a 4B model.
+- **"Local model problem" naming the Microsoft Visual C++ runtime, or `NoBinaryFoundError`** — the
+  prebuilt llama.cpp binaries for Windows need the Visual C++ Redistributable, which a fresh Windows
+  install does not have and Electron does not bring. The installer ships it next to them; from
+  source, or with 0.4.0, install it from <https://aka.ms/vc14/vc_redist.x64.exe> and press
+  **Retry**. On such a machine `npm ci` cannot finish Electron's own download either (its unzipper
+  is a native module that needs the same DLLs): install the Redistributable first.
 - **`npm run visual` reports a change you did not make** — the approved pictures are from one
   machine at one moment. Fonts, antialiasing, the GPU, display scaling, a Playwright browser update
   or baselines copied from another machine all move pixels without any code changing. Open the
@@ -561,26 +575,28 @@ place, whatever that original happens to contain.
   `npm run visual:approve -- <screen>` for one screen. If the same screen fails on every run with
   nothing changed in between, something on it varies between captures: give it a `data-testid` and
   add it to `hide` or `mask` in `elastishot.config.mjs`.
-- **Elastishot run by hand stops with "PROMPTFIXER_VISUAL_URL is not set" or "was not started by the
+- **Elastishot run by hand stops with "WHETPROMPT_VISUAL_URL is not set" or "was not started by the
   acceptance harness"** — neither comes from `npm run visual`. The first means Elastishot was run
-  directly (`npx elastishot …`), the second that `PROMPTFIXER_VISUAL_URL` points at a server you are
+  directly (`npx elastishot …`), the second that `WHETPROMPT_VISUAL_URL` points at a server you are
   using, whose library the check will not empty. Go through `npm run visual`, which starts a
   throwaway server for it.
 - **Packaging** — `npm run dist:win` produces an NSIS installer under `release/`, and
   `npm run dist:mac` (on a Mac) a `.dmg` for each of Apple Silicon and Intel. The model is
-  *not* bundled (it's per-user in `~/.promptfixer`); the installer is still ~350 MB because it
+  *not* bundled (it's per-user in `~/.whetprompt`); the installer is still ~350 MB because it
   ships the prebuilt CPU, Vulkan and CUDA llama.cpp backends so the right one is picked at runtime.
-  Binaries for other CPU architectures and llama.cpp's build-from-source bundle are excluded.
+  Binaries for other CPU architectures and llama.cpp's build-from-source bundle are excluded. On
+  Windows the Visual C++ runtime goes in next to the backends, taken from Visual Studio or from
+  `WHETPROMPT_VCRUNTIME_DIR`; a build that has neither fails (docs/RELEASING.md).
 - **Packaging fails with `EPERM … rename 'release\win-unpacked.tmp'`** — the project is inside a
   synced folder (OneDrive, Dropbox). The sync agent locks the freshly written tree mid-rename; it
   is timing-dependent, so it can work one time and fail the next. Build to an unsynced folder and
   copy the installer back:
 
   ```bash
-  npm run build && npx electron-builder --win --config.directories.output="$LOCALAPPDATA/PromptFixer/release"
+  npm run build && npx electron-builder --win --config.directories.output="$LOCALAPPDATA/Whetprompt/release"
   ```
 
-  Then copy `PromptFixer-*-win-x64.exe` (and its `.blockmap`) from that folder into `release/`,
+  Then copy `Whetprompt-*-win-x64.exe` (and its `.blockmap`) from that folder into `release/`,
   or move the project out of the synced folder. Before publishing, write the checksum file with
   `npm run release:checksums` (add `-- --dir <folder>` to hash the unsynced folder directly) and
   attach `SHA256SUMS.txt` to the GitHub release next to the installer.
@@ -592,7 +608,7 @@ place, whatever that original happens to contain.
   refuse once it has loaded.
 - The library keeps the 500 most recent entries.
 - Provider requests time out after 120 s. A local fix is stopped after 5 minutes
-  (`PROMPTFIXER_FIX_TIMEOUT_MS`).
+  (`WHETPROMPT_FIX_TIMEOUT_MS`).
 - One model job runs at a time. A second fix waits for the first, and the interface says so.
-- The local model is released after 15 minutes with nothing to do
-  (`PROMPTFIXER_IDLE_UNLOAD_MS`); the next fix loads it again.
+- The local model holds about 2.5–3 GB of memory for as long as the app is open, unless
+  `WHETPROMPT_IDLE_UNLOAD_MS` releases it when idle.

@@ -95,8 +95,8 @@ test('the reader is monotonic: each chunk only ever extends the last', () => {
 // models.js reads MODEL_DIR at import time, so the directory is set before it
 // is imported and the import is deferred to here.
 
-const tmp = fs.mkdtempSync(path.join(os.tmpdir(), 'promptfixer-models-'))
-process.env.PROMPTFIXER_MODEL_DIR = tmp
+const tmp = fs.mkdtempSync(path.join(os.tmpdir(), 'whetprompt-models-'))
+process.env.WHETPROMPT_MODEL_DIR = tmp
 const { MODELS, bytesOnDisk, deleteModel, filesFor, freeSpaceBytes, spaceForDownload } = await import(
   './models.js'
 )

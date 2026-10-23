@@ -17,15 +17,15 @@ import { MODEL_DIR_PREFIX } from './acceptance/support/app.js'
 import { markPassage, marking, runFix, typePrompt, ui } from './acceptance/support/browser.js'
 import { BLOG_PROMPT, DISLIKED, LOVED } from './acceptance/support/fixtures.js'
 
-const BASE = (process.env.PROMPTFIXER_VISUAL_URL ?? '').replace(/\/+$/, '')
+const BASE = (process.env.WHETPROMPT_VISUAL_URL ?? '').replace(/\/+$/, '')
 if (!BASE) {
   throw new Error(
-    'PROMPTFIXER_VISUAL_URL is not set. The visual check needs the real server and the stub provider running: use "npm run visual" (or "npm run visual:approve"), which starts both.'
+    'WHETPROMPT_VISUAL_URL is not set. The visual check needs the real server and the stub provider running: use "npm run visual" (or "npm run visual:approve"), which starts both.'
   )
 }
 
 // Deliberate regressions, so the check can be shown to notice one:
-// PROMPTFIXER_VISUAL_VARIANT=<name> restyles the page before it is captured.
+// WHETPROMPT_VISUAL_VARIANT=<name> restyles the page before it is captured.
 const VARIANTS = {
   // the keep highlight loses its green; only the marked screen has one
   'keep-colour': 'pre.output mark.keep { background: #6b5200 !important; color: #fff !important; }',
@@ -37,12 +37,19 @@ const VARIANTS = {
   // the Fix prompt button turns red; every screen shows it, the library's through the backdrop
   'fix-button': '.action-row .btn.primary { background: #c0392b !important; }',
 }
-const VARIANT = process.env.PROMPTFIXER_VISUAL_VARIANT ?? ''
+const VARIANT = process.env.WHETPROMPT_VISUAL_VARIANT ?? ''
 if (VARIANT && !VARIANTS[VARIANT]) {
-  throw new Error(`PROMPTFIXER_VISUAL_VARIANT="${VARIANT}" is not a variant (known: ${Object.keys(VARIANTS).join(', ')})`)
+  throw new Error(`WHETPROMPT_VISUAL_VARIANT="${VARIANT}" is not a variant (known: ${Object.keys(VARIANTS).join(', ')})`)
 }
 
 // --- steps ---------------------------------------------------------------------
+
+/**
+ * The throwaway model folders the harness names. A commit from before the
+ * rename (`npm run visual -- --against <ref>`) is served by its own harness,
+ * which named them for PromptFixer.
+ */
+const HARNESS_MODEL_DIRS = [MODEL_DIR_PREFIX, 'promptfixer-acc-models-']
 
 /**
  * The library belongs to the server, not to the browser context: a prompt saved
@@ -53,7 +60,7 @@ if (VARIANT && !VARIANTS[VARIANT]) {
  */
 const emptyLibrary = async (page) => {
   const status = await (await page.request.get(`${BASE}/api/local/status`)).json()
-  if (!String(status.modelDir).includes(MODEL_DIR_PREFIX)) {
+  if (!HARNESS_MODEL_DIRS.some((prefix) => String(status.modelDir).includes(prefix))) {
     throw new Error(`${BASE} was not started by the acceptance harness, so its library is left alone. Use "npm run visual".`)
   }
   await page.request.delete(`${BASE}/api/library/all`)
@@ -125,7 +132,7 @@ const screen = (name, ...steps) => ({
 
 export default {
   // set but empty counts as not set, as for the URL and the variant: '' would resolve to the project root
-  baselineDir: (process.env.PROMPTFIXER_VISUAL_BASELINES ?? '').trim() || '.elastishot/baselines',
+  baselineDir: (process.env.WHETPROMPT_VISUAL_BASELINES ?? '').trim() || '.elastishot/baselines',
   outDir: '.elastishot/runs',
   threshold: 0.98,
   viewports: [
@@ -139,7 +146,7 @@ export default {
     hide: ['[data-testid="toasts"]', '[data-testid="library-entry-date"]'],
     mask: ['[data-testid="run-details"]'],
   },
-  report: { title: 'PromptFixer visual check' },
+  report: { title: 'Whetprompt visual check' },
   targets: [
     screen('empty'),
     screen('issues', typeSample),

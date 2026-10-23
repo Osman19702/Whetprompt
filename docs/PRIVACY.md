@@ -1,6 +1,6 @@
 # What does and does not leave your machine
 
-This page is for whoever approves software where you work. It states exactly what PromptFixer
+This page is for whoever approves software where you work. It states exactly what Whetprompt
 sends, where it stores what you write, and which of those statements is checked automatically on
 every build.
 
@@ -8,7 +8,7 @@ As of version 0.4.0.
 
 ## The short version
 
-Out of the box, PromptFixer scores and rewrites prompts using a model that runs on your own
+Out of the box, Whetprompt scores and rewrites prompts using a model that runs on your own
 machine. The prompt you type, the rewrite it produces, your saved library and your scores are
 written to your own disk and are sent nowhere.
 
@@ -26,8 +26,8 @@ There is no telemetry, no analytics, no crash reporting, no licence check and no
 
 | What | Where |
 | --- | --- |
-| Your prompt library (originals, rewrites, scores) | `%APPDATA%\PromptFixer\data\library.json` on Windows; `~/Library/Application Support/PromptFixer/data/library.json` on macOS; `~/.config/PromptFixer/data/library.json` on Linux. Override with `PROMPTFIXER_DATA_DIR`. |
-| The model file | `~/.promptfixer/models`. Override with `PROMPTFIXER_MODEL_DIR`. |
+| Your prompt library (originals, rewrites, scores) | `%APPDATA%\Whetprompt\data\library.json` on Windows; `~/Library/Application Support/Whetprompt/data/library.json` on macOS; `~/.config/Whetprompt/data/library.json` on Linux. Override with `WHETPROMPT_DATA_DIR`. |
+| The model file | `~/.whetprompt/models`. Override with `WHETPROMPT_MODEL_DIR`. |
 | Your settings and the draft in the editor | Your browser profile's local storage for this app, on your machine. |
 | API keys, if you add any | A `.env` file you create, read on the server side only. Keys are never sent to the interface. |
 
@@ -51,9 +51,12 @@ This is the complete list. Every one is in the source and nothing else is.
 With no key configured and the built-in model selected — the default — none of these is contacted.
 
 The **What's new** link in the top bar opens
-[osman19702.github.io/PromptFixer](https://osman19702.github.io/PromptFixer/) in your own browser
+[osman19702.github.io/Whetprompt](https://osman19702.github.io/Whetprompt/) in your own browser
 when you click it; that is where the latest release and its notes are. The app itself never
-requests that address: there is still no update check, and scenario F11 still holds.
+requests that address: there is still no update check, and scenario F11 still holds. In the same
+way, when the built-in model cannot start because Windows lacks the Microsoft Visual C++ runtime,
+the error links to Microsoft's download of it, `aka.ms/vc14/vc_redist.x64.exe`, which opens in
+your browser if you click it and is never requested by the app.
 
 ## How the claim is checked
 

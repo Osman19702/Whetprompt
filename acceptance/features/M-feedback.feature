@@ -4,7 +4,7 @@ Feature: M — Marking a rewrite and fixing it again
   So that the next rewrite keeps the first and changes the second without my starting over
 
   Background:
-    Given PromptFixer is running against a scripted model
+    Given Whetprompt is running against a scripted model
     And the blog prompt has been fixed once, giving a rewrite I can mark
 
   @api

@@ -51,7 +51,7 @@ const DECENT =
 /** Exactly 11 words: one under the "very short" threshold, so any leaked comment text would hide that finding. */
 const ELEVEN_WORDS = 'Write a haiku about autumn leaves falling in a quiet park\n'
 
-const INTENT_CODE = '<!-- promptfixer: intent=code -->\n'
+const INTENT_CODE = '<!-- whetprompt: intent=code -->\n'
 
 function write(rel, content) {
   const file = path.join(dir, rel)
@@ -74,7 +74,7 @@ function run(args) {
 }
 
 before(() => {
-  dir = fs.mkdtempSync(path.join(os.tmpdir(), 'promptfixer-cli-'))
+  dir = fs.mkdtempSync(path.join(os.tmpdir(), 'whetprompt-cli-'))
 })
 
 after(() => {
@@ -194,6 +194,15 @@ test('a first-line intent comment sets the intent and is stripped before linting
   const forcedByPath = Object.fromEntries(JSON.parse(forced.stdout).files.map((f) => [f.path, f]))
   assert.equal(forcedByPath['intent/code.md'].intent, 'code')
   assert.equal(forcedByPath['intent/plain.md'].intent, 'writing')
+})
+
+test("a prompt file written for PromptFixer keeps its intent comment", async () => {
+  write('legacy/code.md', '<!-- promptfixer: intent=code -->\n' + DECENT)
+  const { code, stdout } = await run(['legacy', '--json', '--fail-on', 'none'])
+  assert.equal(code, 0, stdout)
+  const [file] = JSON.parse(stdout).files
+  assert.equal(file.intent, 'code', 'the old spelling of the comment is read the same way')
+  assert.equal(file.issues.find((i) => i.id === 'no-audience'), undefined, 'and linted as code')
 })
 
 test('--quiet prints only the summary line', async () => {

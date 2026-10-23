@@ -6,20 +6,31 @@
  * (node-llama-cpp is a Node-API module, so it works inside Electron).
  */
 
-import { app, BrowserWindow, shell } from 'electron'
+import { app, BrowserWindow, screen, shell } from 'electron'
 import path from 'node:path'
 import { fileURLToPath } from 'node:url'
 
 import { loadDesktopEnv } from './env.js'
-import { installQuitHandler, willNavigateGuard, windowOpenGuard } from './handlers.js'
+import { fitToWorkArea, installQuitHandler, willNavigateGuard, WINDOW_SIZE, windowOpenGuard } from './handlers.js'
+import { migrateLegacyUserData } from './migrate.js'
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
 
+// Before the data folder and `.env` are read from user-data: the first start
+// as Whetprompt brings what PromptFixer kept there. A failed copy must not
+// stop the app from opening; the library would then start empty.
+try {
+  const moved = migrateLegacyUserData({ appDataDir: app.getPath('appData'), userDataDir: app.getPath('userData') })
+  if (moved) console.log(`Copied ${moved.library ? 'the library' : ''}${moved.library && moved.env ? ' and ' : ''}${moved.env ? '.env' : ''} from ${moved.from}`)
+} catch (err) {
+  console.error(`Could not copy PromptFixer's library and settings: ${err.message}`)
+}
+
 // Must be set before the server module is imported — it reads these at load.
 // These two are deliberate overrides, not defaults, so they go before `.env`.
-process.env.PROMPTFIXER_DESKTOP = '1'
-process.env.PROMPTFIXER_DATA_DIR = path.join(app.getPath('userData'), 'data')
-// Installed app: %APPDATA%/PromptFixer/.env. Dev: the project .env wins.
+process.env.WHETPROMPT_DESKTOP = '1'
+process.env.WHETPROMPT_DATA_DIR = path.join(app.getPath('userData'), 'data')
+// Installed app: %APPDATA%/Whetprompt/.env. Dev: the project .env wins.
 loadDesktopEnv({ userDataDir: app.getPath('userData'), packaged: app.isPackaged })
 
 let mainWindow = null
@@ -30,11 +41,9 @@ async function createWindow() {
   const origin = `http://127.0.0.1:${port}`
 
   mainWindow = new BrowserWindow({
-    width: 1360,
-    height: 880,
-    minWidth: 900,
-    minHeight: 600,
-    title: 'PromptFixer',
+    // Electron opens it on the primary screen, so that is the one it must fit.
+    ...fitToWorkArea(WINDOW_SIZE, screen.getPrimaryDisplay().workAreaSize),
+    title: 'Whetprompt',
     backgroundColor: '#0b0e14',
     autoHideMenuBar: true,
     show: false,

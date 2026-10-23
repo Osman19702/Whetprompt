@@ -86,6 +86,32 @@ export function localTierAction(model: string, status: LocalStatus): TierAction 
   return { kind: 'push', tier: model }
 }
 
+export interface TextPart {
+  text: string
+  /** Set when the part is an https address to open. */
+  href?: string
+}
+
+/**
+ * A server message split into text and https addresses, so an address in it
+ * (the Visual C++ runtime download in a "cannot start" error) can be clicked
+ * rather than retyped. Punctuation that ends a sentence after an address stays
+ * text; nothing but https becomes a link.
+ */
+export function linkParts(text: string): TextPart[] {
+  const parts: TextPart[] = []
+  let last = 0
+  for (const match of text.matchAll(/https:\/\/[^\s<>"']+/g)) {
+    const href = match[0].replace(/[.,;:!?)\]]+$/, '')
+    const start = match.index ?? 0
+    if (start > last) parts.push({ text: text.slice(last, start) })
+    parts.push({ text: href, href })
+    last = start + href.length
+  }
+  if (last < text.length) parts.push({ text: text.slice(last) })
+  return parts
+}
+
 export interface ResultView {
   /** The editor no longer holds the text the fix was made for. */
   edited: boolean
@@ -230,7 +256,7 @@ export function undoAvailable(undo: UndoApply | null, prompt: string): boolean {
 export function exportFilename(exportedAt: string): string {
   const d = new Date(exportedAt)
   const day = Number.isNaN(d.getTime()) ? new Date() : d
-  return `promptfixer-library-${day.toISOString().slice(0, 10)}.json`
+  return `whetprompt-library-${day.toISOString().slice(0, 10)}.json`
 }
 
 /** Accept our own export ({ entries }) or a bare array; anything else is a clear error, not a 400 from the server. */
@@ -242,7 +268,7 @@ export function parseImportFile(text: string): LibraryEntry[] {
     throw new Error('That file is not valid JSON')
   }
   const entries = Array.isArray(data) ? data : (data as { entries?: unknown })?.entries
-  if (!Array.isArray(entries)) throw new Error('Expected a PromptFixer export with an "entries" list')
+  if (!Array.isArray(entries)) throw new Error('Expected a Whetprompt export with an "entries" list')
   return entries as LibraryEntry[]
 }
 

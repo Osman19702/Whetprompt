@@ -256,9 +256,9 @@ test('the CLI fixtures keep their shape', () => {
 test('a rewrite that only drops filler words never scores below the original', () => {
   // Same findings, two fewer words: the ceiling must not turn a tidy-up into a regression.
   const original =
-    'Try to find bugs, apply tests, and try to make extra enhancements without breaking existing functionalities. Also, promptfixer always requests an output limit for return.'
+    'Try to find bugs, apply tests, and try to make extra enhancements without breaking existing functionalities. Also, whetprompt always requests an output limit for return.'
   const tidied =
-    'Try to find bugs, apply tests, and make extra enhancements without breaking existing functionalities. Also, promptfixer always requests an output limit for return.'
+    'Try to find bugs, apply tests, and make extra enhancements without breaking existing functionalities. Also, whetprompt always requests an output limit for return.'
   const before = analyzePrompt(original, { intent: 'code' })
   const after = analyzePrompt(tidied, { intent: 'code', rewrite: true })
   assert.deepEqual(after.issues.map((i) => i.id).sort(), before.issues.map((i) => i.id).sort())

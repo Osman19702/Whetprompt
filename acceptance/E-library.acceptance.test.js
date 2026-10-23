@@ -122,7 +122,7 @@ test('E5 — A library moves between machines', async () => {
   const exported = await app.raw('GET', '/api/library/export')
   assert.equal(exported.status, 200)
   const today = new Date().toISOString().slice(0, 10)
-  assert.match(exported.headers.get('content-disposition'), new RegExp(`promptfixer-library-${today}\\.json`))
+  assert.match(exported.headers.get('content-disposition'), new RegExp(`whetprompt-library-${today}\\.json`))
   assert.equal(exported.body.version, 1)
   assert.equal(exported.body.entries.length, 2)
 

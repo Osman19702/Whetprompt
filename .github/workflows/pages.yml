@@ -1,6 +1,6 @@
 name: Pages
 
-# Deploys site/ to GitHub Pages, at https://osman19702.github.io/PromptFixer/,
+# Deploys site/ to GitHub Pages, at https://osman19702.github.io/Whetprompt/,
 # with a fresh site/releases.json in it: the page reads that file to show the
 # release notes and the download for every published release, and to point
 # its download button at the newest one. scripts/site-releases.mjs writes the
@@ -49,7 +49,7 @@ name: Pages
 # failed". Setting it also creates the github-pages environment with its
 # master-only rule, which is what the `redeploy` job is for; nothing else in
 # the repository or its settings needs to change. The site is served under
-# /PromptFixer/, which is what package.json "homepage" says and what the
+# /Whetprompt/, which is what package.json "homepage" says and what the
 # page's links are written for.
 
 on:

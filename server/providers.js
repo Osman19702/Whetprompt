@@ -412,7 +412,7 @@ export const PROVIDERS = {
     baseUrl: 'https://openrouter.ai/api/v1',
     keyEnv: 'OPENROUTER_API_KEY',
     docs: 'https://openrouter.ai/keys',
-    extraHeaders: { 'HTTP-Referer': 'http://localhost:5173', 'X-Title': 'PromptFixer' },
+    extraHeaders: { 'HTTP-Referer': 'http://localhost:5173', 'X-Title': 'Whetprompt' },
     models: ['anthropic/claude-sonnet-4.5', 'openai/gpt-4.1', 'google/gemini-2.5-pro'],
   }),
   google,

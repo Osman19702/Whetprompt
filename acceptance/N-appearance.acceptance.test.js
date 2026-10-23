@@ -48,7 +48,7 @@ before(async () => {
   stub = await startStub()
   apps = []
   for (let i = 0; i < LANES.length; i++) apps.push(await startApp({ stub }))
-  tmp = fs.mkdtempSync(path.join(os.tmpdir(), 'promptfixer-acc-visual-'))
+  tmp = fs.mkdtempSync(path.join(os.tmpdir(), 'whetprompt-acc-visual-'))
   // The Background: every screen approved, at both sizes, from nothing.
   approved = emptyFolder('pictures')
   const runs = await everyScreen('approve', { update: true })
@@ -84,8 +84,8 @@ const answers = (url) =>
     () => true,
     () => false
   )
-// The harness's folders (promptfixer-acc-*) and the runner's own (promptfixer-visual-*).
-const leftIn = (dir) => fs.readdirSync(dir).filter((entry) => entry.startsWith('promptfixer-'))
+// The harness's folders (whetprompt-acc-*) and the runner's own (whetprompt-visual-*).
+const leftIn = (dir) => fs.readdirSync(dir).filter((entry) => entry.startsWith('whetprompt-'))
 /** Commits that "--against" checked out and did not put away again. */
 const stillCheckedOut = () => {
   const folder = path.join(root, '.elastishot', 'against')
@@ -306,9 +306,9 @@ test('N7 — Pointed at the wrong place, the check says so and harms nothing', a
   assert.match(nowhere.output, /npm run visual/)
   assert.deepEqual(nowhere.pairs, [], 'nothing was captured')
 
-  // A PromptFixer that was not started for a test: its models live in a folder of its own.
+  // A Whetprompt that was not started for a test: its models live in a folder of its own.
   const models = fs.mkdtempSync(path.join(tmp, 'somebodys-models-'))
-  const inUse = await startApp({ stub, env: { PROMPTFIXER_MODEL_DIR: models } })
+  const inUse = await startApp({ stub, env: { WHETPROMPT_MODEL_DIR: models } })
   try {
     const mine = (await inUse.post('/api/library', libraryEntry())).body.entry
     const run = await check('in-use', { app: inUse, baselines: approved, screens: ['empty/small'] })

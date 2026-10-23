@@ -13,10 +13,10 @@ import path from 'node:path'
 import { after, before, test } from 'node:test'
 
 // An empty model dir so the local provider reports "not downloaded" whatever
-// this machine has under ~/.promptfixer.
-const modelDir = fs.mkdtempSync(path.join(os.tmpdir(), 'promptfixer-providers-models-'))
-process.env.PROMPTFIXER_MODEL_DIR = modelDir
-process.env.PROMPTFIXER_MODEL = 'default'
+// this machine has under ~/.whetprompt.
+const modelDir = fs.mkdtempSync(path.join(os.tmpdir(), 'whetprompt-providers-models-'))
+process.env.WHETPROMPT_MODEL_DIR = modelDir
+process.env.WHETPROMPT_MODEL = 'default'
 process.env.OPENAI_API_KEY = 'sk-test-must-not-leak'
 process.env.COMPATIBLE_API_KEY = ''
 

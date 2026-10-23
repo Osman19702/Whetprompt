@@ -23,7 +23,7 @@ import {
 } from './site-releases.mjs'
 
 const SCRIPT = path.join(path.dirname(fileURLToPath(import.meta.url)), 'site-releases.mjs')
-const REPO = 'Osman19702/PromptFixer'
+const REPO = 'Osman19702/Whetprompt'
 const GH = `https://github.com/${REPO}`
 
 // The hashes of the three real releases, so a fixture reads like the release page it is modelled on.
@@ -278,12 +278,12 @@ function outDir() {
 }
 
 test('repoFromPackage reads owner/name out of every spelling package.json may hold', () => {
-  assert.equal(repoFromPackage('git+https://github.com/Osman19702/PromptFixer.git'), REPO)
-  assert.equal(repoFromPackage('https://github.com/Osman19702/PromptFixer'), REPO)
-  assert.equal(repoFromPackage('https://github.com/Osman19702/PromptFixer/'), REPO)
-  assert.equal(repoFromPackage('git@github.com:Osman19702/PromptFixer.git'), REPO)
-  assert.equal(repoFromPackage('git+ssh://git@github.com/Osman19702/PromptFixer.git'), REPO)
-  assert.equal(repoFromPackage('https://gitlab.com/Osman19702/PromptFixer.git'), null)
+  assert.equal(repoFromPackage('git+https://github.com/Osman19702/Whetprompt.git'), REPO)
+  assert.equal(repoFromPackage('https://github.com/Osman19702/Whetprompt'), REPO)
+  assert.equal(repoFromPackage('https://github.com/Osman19702/Whetprompt/'), REPO)
+  assert.equal(repoFromPackage('git@github.com:Osman19702/Whetprompt.git'), REPO)
+  assert.equal(repoFromPackage('git+ssh://git@github.com/Osman19702/Whetprompt.git'), REPO)
+  assert.equal(repoFromPackage('https://gitlab.com/Osman19702/Whetprompt.git'), null)
   assert.equal(repoFromPackage(''), null)
   assert.equal(repoFromPackage(undefined), null)
 })
@@ -356,6 +356,20 @@ test('macImagesOf takes the uploaded disk image of each architecture, and the bl
   assert.equal(hasDownload([arm64]), true)
   assert.equal(hasDownload([v030.assets[1], v030.assets[2]]), false)
   assert.equal(hasDownload(undefined), false)
+})
+
+test('Whetprompt files are downloads too, beside the releases published as PromptFixer', () => {
+  const file = (name, size) => ({ name, state: 'uploaded', size, browser_download_url: `${GH}/releases/download/v0.5.0/${name}` })
+  const assets = [
+    file('Whetprompt-0.5.0-win-x64.exe', 356190534),
+    file('Whetprompt-0.5.0-win-x64.exe.blockmap', 372646),
+    file('Whetprompt-0.5.0-mac-arm64.dmg', 145600000),
+    file('Whetprompt-0.5.0-mac-x64.dmg', 151100000),
+  ]
+  assert.equal(installerOf(assets).name, 'Whetprompt-0.5.0-win-x64.exe')
+  assert.equal(macImagesOf(assets).arm64.name, 'Whetprompt-0.5.0-mac-arm64.dmg')
+  assert.equal(macImagesOf(assets).x64.name, 'Whetprompt-0.5.0-mac-x64.dmg')
+  assert.equal(installerOf([file('Other-0.5.0-win-x64.exe', 1)]), null, 'only the two names the app has had')
 })
 
 test('toSiteReleases drops drafts, orders newest first and never makes a pre-release "latest"', () => {
@@ -450,7 +464,7 @@ test('collectReleases asks the API with the headers GitHub wants and downloads t
   assert.deepEqual(calls[0].headers, {
     Accept: 'application/vnd.github+json',
     'X-GitHub-Api-Version': '2022-11-28',
-    'User-Agent': 'PromptFixer-site-releases',
+    'User-Agent': 'Whetprompt-site-releases',
     Authorization: 'Bearer secret',
   })
   assert.equal(calls[1].headers.Authorization, undefined, 'a public asset gets no token; its download leaves github.com')
@@ -562,7 +576,7 @@ test('CLI: writes the contract shape, two-space indented with a trailing newline
     assert.equal(mine[0].headers.authorization, 'Bearer test-token')
     assert.equal(mine[0].headers.accept, 'application/vnd.github+json')
     assert.equal(mine[0].headers['x-github-api-version'], '2022-11-28')
-    assert.equal(mine[0].headers['user-agent'], 'PromptFixer-site-releases')
+    assert.equal(mine[0].headers['user-agent'], 'Whetprompt-site-releases')
     assert.equal(mine[1].headers.authorization, undefined)
   } finally {
     done()

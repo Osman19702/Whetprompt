@@ -8,7 +8,7 @@
 (() => {
   'use strict';
 
-  const REPO = 'Osman19702/PromptFixer';
+  const REPO = 'Osman19702/Whetprompt';
   const REPO_URL = 'https://github.com/' + REPO;
   const RELEASES_URL = REPO_URL + '/releases';
   const LATEST_URL = RELEASES_URL + '/latest';
@@ -229,7 +229,9 @@
     heroButton.textContent = hasFile ? 'Download ' + version + ' for Windows' : 'Release ' + version + ' on GitHub';
     byId('dl-hero-size').textContent = size ? size + ' installer. ' : '';
 
-    byId('dl-title').textContent = 'PromptFixer ' + version;
+    // The release's own name, as the list below shows it: the ones published before the rename
+    // are PromptFixer's, and their file is still called that.
+    byId('dl-title').textContent = text(release.name) || 'Whetprompt ' + version;
 
     const time = byId('dl-date');
     setHidden(time.parentElement, !date);
@@ -326,7 +328,7 @@
   function releaseArticle(release, isLatest, open) {
     const version = versionOf(release);
     const tag = text(release.tag);
-    const name = text(release.name) || ('PromptFixer ' + version);
+    const name = text(release.name) || ('Whetprompt ' + version);
     const date = formatDate(release.publishedAt);
     const installer = installerOf(release);
     const pageUrl = httpUrl(release.url);

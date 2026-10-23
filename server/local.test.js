@@ -14,9 +14,11 @@ import os from 'node:os'
 import path from 'node:path'
 import { after, test } from 'node:test'
 
-const modelDir = fs.mkdtempSync(path.join(os.tmpdir(), 'promptfixer-local-'))
-process.env.PROMPTFIXER_MODEL_DIR = modelDir
-process.env.PROMPTFIXER_MODEL = 'default'
+import { VC_REDIST_URL, VC_RUNTIME_DLLS } from './vcruntime.js'
+
+const modelDir = fs.mkdtempSync(path.join(os.tmpdir(), 'whetprompt-local-'))
+process.env.WHETPROMPT_MODEL_DIR = modelDir
+process.env.WHETPROMPT_MODEL = 'default'
 
 // --- mock backend ------------------------------------------------------------
 //
@@ -27,6 +29,7 @@ process.env.PROMPTFIXER_MODEL = 'default'
 const MOCK_SOURCE = `
 const m = (globalThis.__llamaMock = {
   downloaders: [], models: [], contexts: [], sessions: [], holdLoad: false, contextSize: 8192,
+  noBinary: false,
 })
 function deferred() {
   let resolve, reject
@@ -47,7 +50,11 @@ export async function createModelDownloader(opts) {
   m.downloaders.push(dl)
   return dl
 }
+export class NoBinaryFoundError extends Error {
+  constructor(message = 'NoBinaryFoundError') { super(message) }
+}
 export async function getLlama() {
+  if (m.noBinary) throw new NoBinaryFoundError()
   return {
     gpu: 'cpu',
     getGpuDeviceNames: async () => ['mock-gpu'],
@@ -128,6 +135,18 @@ test('recommendedTier() treats what the OS reports for an 8 GB machine as 8 GB',
   }
 })
 
+// --- where the model lives -----------------------------------------------------
+
+test("defaultModelDir() keeps using PromptFixer's folder when the model is already there", () => {
+  const home = path.join('C:', 'Users', 'me')
+  const fresh = path.join(home, '.whetprompt', 'models')
+  const legacy = path.join(home, '.promptfixer', 'models')
+  const has = (...dirs) => (dir) => dirs.includes(dir)
+  assert.equal(models.defaultModelDir({ home, exists: has() }), fresh, 'a new install')
+  assert.equal(models.defaultModelDir({ home, exists: has(legacy) }), legacy, 'an upgrade from PromptFixer: no second 2.5 GB download')
+  assert.equal(models.defaultModelDir({ home, exists: has(fresh, legacy) }), fresh, 'once Whetprompt has its own, that one')
+})
+
 // --- pure budget maths (finding 26) -----------------------------------------
 
 test('outputBudget() clamps the reply to the context so the input budget never goes negative', () => {
@@ -193,6 +212,46 @@ test('a download that finishes without a valid file ends in phase error with a m
   placeModel('default')
   assert.equal(llm.finishDownload('default', dl.entrypointFilePath).phase, 'downloaded')
   assert.equal(llm.getStatus().error, null)
+})
+
+// --- no llama.cpp binary starts --------------------------------------------------
+//
+// Before the first successful load on purpose: local-llm.js keeps the llama
+// instance once it has one and never asks node-llama-cpp again, and the next
+// test's load is the proof that a failed one leaves nothing behind.
+
+test('a load whose binaries all fail to start says why, not "NoBinaryFoundError"', async () => {
+  const systemRoot = fs.mkdtempSync(path.join(os.tmpdir(), 'whetprompt-windows-'))
+  const saved = process.env.SystemRoot
+  process.env.SystemRoot = systemRoot
+  mock().noBinary = true
+  try {
+    llm.selectTier('default')
+    await assert.rejects(llm.ensureLoaded(), (err) => {
+      assert.equal(err.code, 'LOAD_FAILED')
+      return true
+    })
+    const status = llm.getStatus()
+    assert.equal(status.phase, 'error')
+    if (process.platform === 'win32') {
+      // A Windows folder with nothing in it: the runtime was never installed.
+      assert.match(status.error, /Microsoft Visual C\+\+ runtime/)
+      assert.ok(status.error.includes(VC_REDIST_URL), 'with the link to install it')
+    }
+
+    // With the runtime in System32 the message stops blaming it.
+    fs.mkdirSync(path.join(systemRoot, 'System32'))
+    for (const dll of VC_RUNTIME_DLLS) fs.writeFileSync(path.join(systemRoot, 'System32', dll), '')
+    await assert.rejects(llm.ensureLoaded(), /NoBinaryFoundError/)
+    assert.doesNotMatch(llm.getStatus().error, /Visual C\+\+/)
+    assert.match(llm.getStatus().error, /cannot start on this computer/)
+  } finally {
+    mock().noBinary = false
+    if (saved === undefined) delete process.env.SystemRoot
+    else process.env.SystemRoot = saved
+    fs.rmSync(systemRoot, { recursive: true, force: true })
+  }
+  assert.equal(mock().models.length, 0, 'nothing was loaded, so the tests below start clean')
 })
 
 // --- serialized load/unload/generate (findings 23, 24) -----------------------

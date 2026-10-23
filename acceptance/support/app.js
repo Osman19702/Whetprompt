@@ -1,5 +1,5 @@
 /**
- * Boots the real PromptFixer server as a child process, the way a user's
+ * Boots the real Whetprompt server as a child process, the way a user's
  * machine would run it, with a private data directory, an empty model
  * directory and an OS-assigned port so runs never collide.
  *
@@ -28,7 +28,7 @@ export const CANARY_KEY = 'canary-compatible-key-7f3a'
  * folder. The visual check empties the library before every picture, and only
  * ever does that to a server with this in its model folder's name.
  */
-export const MODEL_DIR_PREFIX = 'promptfixer-acc-models-'
+export const MODEL_DIR_PREFIX = 'whetprompt-acc-models-'
 
 /**
  * @param stub    The stub provider from stub-provider.js, or omitted for a
@@ -38,11 +38,11 @@ export const MODEL_DIR_PREFIX = 'promptfixer-acc-models-'
  *                is not this machine; read them back with app.netAttempts().
  */
 export async function startApp({ stub, env = {}, netwatch = false } = {}) {
-  const dataDir = fs.mkdtempSync(path.join(os.tmpdir(), 'promptfixer-acc-data-'))
+  const dataDir = fs.mkdtempSync(path.join(os.tmpdir(), 'whetprompt-acc-data-'))
   const modelDir = fs.mkdtempSync(path.join(os.tmpdir(), MODEL_DIR_PREFIX))
   // Written by the child, read by the test; outside both temp dirs above so
   // cleanUp() cannot remove the evidence before a failure is reported.
-  const netLog = netwatch ? path.join(os.tmpdir(), `promptfixer-acc-net-${process.pid}-${Date.now()}.jsonl`) : null
+  const netLog = netwatch ? path.join(os.tmpdir(), `whetprompt-acc-net-${process.pid}-${Date.now()}.jsonl`) : null
   if (netLog) fs.writeFileSync(netLog, '')
 
   const childEnv = {
@@ -64,14 +64,14 @@ export async function startApp({ stub, env = {}, netwatch = false } = {}) {
     // under test, not just watched ones, so the two behave the same. The list
     // is the watcher's own, so a variable can never be checked but not blanked.
     ...blankedProxyEnv(),
-    PROMPTFIXER_MODEL: '',
-    PROMPTFIXER_PRELOAD: '0',
-    PROMPTFIXER_DESKTOP: '0',
-    PROMPTFIXER_MODEL_DIR: modelDir,
-    PROMPTFIXER_DATA_DIR: dataDir,
+    WHETPROMPT_MODEL: '',
+    WHETPROMPT_PRELOAD: '0',
+    WHETPROMPT_DESKTOP: '0',
+    WHETPROMPT_MODEL_DIR: modelDir,
+    WHETPROMPT_DATA_DIR: dataDir,
     ...(netLog
       ? {
-          PROMPTFIXER_NETWATCH_LOG: netLog,
+          WHETPROMPT_NETWATCH_LOG: netLog,
           // Through the environment rather than argv: a worker created with
           // `execArgv: []` and a spawned node child both escape a command-line
           // --import, and both inherit NODE_OPTIONS.
@@ -115,7 +115,7 @@ export async function startApp({ stub, env = {}, netwatch = false } = {}) {
     child = spawn(process.execPath, [SERVER], { env: childEnv, stdio: ['ignore', 'pipe', 'pipe'] })
     child.stdout.on('data', (d) => {
       stdout += d
-      const m = stdout.match(/PromptFixer API\s+→\s+http:\/\/localhost:(\d+)/)
+      const m = stdout.match(/Whetprompt API\s+→\s+http:\/\/localhost:(\d+)/)
       if (m) {
         base = `http://127.0.0.1:${m[1]}`
         clearTimeout(timer)

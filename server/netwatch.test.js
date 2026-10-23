@@ -43,7 +43,7 @@ test('anything else is not', () => {
 })
 
 test('a named pipe is this machine but a UNC share is another one', () => {
-  assert.equal(isLocalPath('\\\\.\\pipe\\promptfixer'), true)
+  assert.equal(isLocalPath('\\\\.\\pipe\\whetprompt'), true)
   assert.equal(isLocalPath('\\\\?\\C:\\x'), true)
   assert.equal(isLocalPath('/tmp/app.sock'), true)
   // \\server\share carries bytes to another host over SMB.

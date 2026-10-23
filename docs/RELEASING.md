@@ -1,6 +1,6 @@
 # Releasing
 
-PromptFixer is never published to npm (`"private": true`); what it releases is the Windows
+Whetprompt is never published to npm (`"private": true`); what it releases is the Windows
 installer. A release is cut by pushing a tag. The `Release` workflow checks that the tag,
 `package.json`, `package-lock.json` and `CHANGELOG.md` agree, runs the typecheck, the build and the
 unit and component tests, builds the installer, writes `SHA256SUMS.txt` and puts all of it on a
@@ -47,22 +47,22 @@ entry: the same check wants a dated section for exactly that version.
    `npm ci`, the typecheck, the build, the tests, the installer, the checksums, the notes — on the
    same Windows runner, but it looks at no release and creates none. The notes appear on the
    run's summary page, and the installer is kept for three days as the run's artifact
-   (`gh run download <run id> -n PromptFixer-vx.y.z-rehearsal`). CI has already put `npm ci` and
+   (`gh run download <run id> -n Whetprompt-vx.y.z-rehearsal`). CI has already put `npm ci` and
    the tests on a runner; electron-builder, the checksums and the notes are what only this
    workflow does there, so without this step the pushed tag is the first time they meet one, and
    a failure there means moving a public tag. A patch release
    that changes no dependency, nothing under `build` in `package.json` and nothing in the workflow
    may skip it. GitHub offers a workflow for a manual run only once the file is on the default
    branch.
-7. Tag and push the tag: `git tag -a vx.y.z -m "PromptFixer x.y.z" && git push origin vx.y.z`.
+7. Tag and push the tag: `git tag -a vx.y.z -m "Whetprompt x.y.z" && git push origin vx.y.z`.
 8. Watch the Release workflow (`gh run watch`, or the Actions tab). Its first check refuses a tag
    that does not match `package.json`; the installer build is the long part.
 9. Verify the draft. Download its three files into an empty folder and check them, then install
    that very file, open it and fix one prompt with the local model:
 
    ```bash
-   gh release download vx.y.z --dir ../promptfixer-vx.y.z
-   npm run release:checksums -- --dir ../promptfixer-vx.y.z --check
+   gh release download vx.y.z --dir ../whetprompt-vx.y.z
+   npm run release:checksums -- --dir ../whetprompt-vx.y.z --check
    git rev-parse "vx.y.z^{commit}"
    ```
 
@@ -71,7 +71,9 @@ entry: the same check wants a dated section for exactly that version.
    has to be the one `git rev-parse` prints. Leave that line in when editing the notes: the
    workflow reads it back to tell a draft of this commit from a draft of an earlier one.
    Installing over the previous version is the upgrade everybody else will do: the library and
-   the model must still be there afterwards.
+   the model must still be there afterwards. A machine that has never had the Visual C++
+   Redistributable is the other install to try, and Windows Sandbox is one: 0.4.0 worked on every
+   development machine and failed at the model on a fresh Windows install.
 10. Publish the draft: `gh release edit vx.y.z --draft=false`, or **Publish release** on its page.
 11. Then, and only then, point the documentation at it: the link, the size and the SHA-256 in the
     README's "Download (Windows)" block and in `docs/INSTALL.md`, and `docs/releases/vx.y.z.md`
@@ -96,12 +98,27 @@ npm run dist:win -- --publish never
 npm run release:checksums
 ```
 
-The first writes `release/PromptFixer-x.y.z-win-x64.exe` and its `.blockmap`; the version in the
+The first writes `release/Whetprompt-x.y.z-win-x64.exe` and its `.blockmap`; the version in the
 name is `package.json`'s, so bump first. `--publish never` keeps electron-builder from uploading
 anything on its own: `package.json` has a `build.publish` block, and creating the release is this
 checklist's job, after the checksums exist. The second writes `release/SHA256SUMS.txt` over every
-`PromptFixer-*` installer in the folder. `release/` is git-ignored and keeps what earlier builds
+`Whetprompt-*` installer in the folder. `release/` is git-ignored and keeps what earlier builds
 left there, so move older versions out first if the file is going onto a release.
+
+A Windows build needs Visual Studio, or at least its Build Tools with the C++ workload, for the
+Microsoft Visual C++ runtime. The llama.cpp binaries import `msvcp140.dll`, `vcruntime140.dll` and
+`vcruntime140_1.dll`, which a fresh Windows install does not have, so the `afterPack` hook in
+`package.json` (`scripts/bundle-vcruntime.js`) copies them next to each binary from Visual
+Studio's `VC\Redist\MSVC` folder, found with `vswhere`. Microsoft lets licensed Visual Studio users
+redistribute these files, which is why they come from there and not from a machine's System32.
+To take them from another folder, set `WHETPROMPT_VCRUNTIME_DIR` to it. The build fails when
+there is neither, or when the copy is x86 or older than the binaries need; its log says which
+version went in and from where (`bundled the Visual C++ runtime …`).
+
+`build.nsis.guid` in `package.json` is PromptFixer's uninstall ID, kept when the app became
+Whetprompt so that the Windows installer replaces an installed PromptFixer instead of installing
+beside it. Leave it alone: with any other ID, the next installer is a separate app, and the one
+installed before it stays on the machine.
 
 A build inside a synced folder (OneDrive, Dropbox) can fail with
 `EPERM … rename 'release\win-unpacked.tmp'`; the README's
@@ -116,10 +133,10 @@ npm run dist:mac
 npm run release:checksums
 ```
 
-It writes `release/PromptFixer-x.y.z-mac-arm64.dmg` and `release/PromptFixer-x.y.z-mac-x64.dmg`
+It writes `release/Whetprompt-x.y.z-mac-arm64.dmg` and `release/Whetprompt-x.y.z-mac-x64.dmg`
 from one machine of either kind, ad-hoc signed (`mac.identity` in `package.json`; put a
 Developer ID Application certificate in the keychain and drop that line to sign and notarize for
-real). `release:checksums` hashes every `PromptFixer-*` file in the folder, so run it once with
+real). `release:checksums` hashes every `Whetprompt-*` file in the folder, so run it once with
 the installer and both images present, and upload the `SHA256SUMS.txt` it writes in place of the
 workflow's.
 
@@ -142,7 +159,7 @@ the workflow's. The hash that counts is the one on the release.
   changing it: removing or renaming an `/api` route or field, changing a field's type or meaning,
   making an optional field required; a `library.json` or library export that the previous version
   wrote and this one cannot read (the envelope's own `"version": 1` would have to become 2, with
-  a migration); moving where the library, the model or `.env` live; renaming a `PROMPTFIXER_*`
+  a migration); moving where the library, the model or `.env` live; renaming a `WHETPROMPT_*`
   variable; changing the flags or exit codes of `npm run lint:prompts`. Semantic Versioning
   allows anything in 0.x, but here a breaking change bumps the minor, never the patch, and its
   changelog entry starts with **Breaking:** and says what to do about it. `1.0.0` is the
@@ -186,8 +203,8 @@ draft.
   and carry on from step 9:
 
   ```bash
-  node scripts/changelog-section.mjs x.y.z --links https://github.com/Osman19702/PromptFixer/blob/vx.y.z > release/RELEASE_NOTES.md
-  gh release create vx.y.z --draft --verify-tag --title "PromptFixer x.y.z" --notes-file release/RELEASE_NOTES.md release/PromptFixer-x.y.z-win-x64.exe release/PromptFixer-x.y.z-win-x64.exe.blockmap release/SHA256SUMS.txt
+  node scripts/changelog-section.mjs x.y.z --links https://github.com/Osman19702/Whetprompt/blob/vx.y.z > release/RELEASE_NOTES.md
+  gh release create vx.y.z --draft --verify-tag --title "Whetprompt x.y.z" --notes-file release/RELEASE_NOTES.md release/Whetprompt-x.y.z-win-x64.exe release/Whetprompt-x.y.z-win-x64.exe.blockmap release/SHA256SUMS.txt
   ```
 
   Add `--prerelease` for a pre-release. If the workflow later runs for this tag after all, it

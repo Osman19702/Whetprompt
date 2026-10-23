@@ -21,7 +21,7 @@ const CLI = path.join(__dirname, '..', 'scripts', 'lint-prompts.js')
 
 let dir
 before(() => {
-  dir = fs.mkdtempSync(path.join(os.tmpdir(), 'promptfixer-acc-cli-'))
+  dir = fs.mkdtempSync(path.join(os.tmpdir(), 'whetprompt-acc-cli-'))
 })
 after(() => fs.rmSync(dir, { recursive: true, force: true }))
 
@@ -37,7 +37,7 @@ const run = (args) =>
   new Promise((resolve, reject) => {
     const child = spawn(process.execPath, [CLI, ...args], {
       cwd: dir,
-      env: { ...process.env, PROMPTFIXER_DATA_DIR: dir, PROMPTFIXER_MODEL_DIR: dir },
+      env: { ...process.env, WHETPROMPT_DATA_DIR: dir, WHETPROMPT_MODEL_DIR: dir },
       stdio: ['ignore', 'pipe', 'pipe'],
     })
     let stdout = ''
@@ -64,7 +64,7 @@ test('J1 — A team can gate its prompts in CI with no server, no model and no k
 test('J2 — The gate uses the same rules as the app', async () => {
   const app = await startApp()
   try {
-    write('same.md', `<!-- promptfixer: intent=code -->\n${CODE_PROMPT}\n`)
+    write('same.md', `<!-- whetprompt: intent=code -->\n${CODE_PROMPT}\n`)
     const { stdout } = await run(['same.md', '--json'])
     const cli = JSON.parse(stdout).files[0]
     const api = (await app.analyze(CODE_PROMPT, { intent: 'code' })).body.analysis
@@ -96,7 +96,7 @@ test('J3 — Directories are searched the way the documentation says', async () 
 })
 
 test('J4 — A file can declare its own task type', async () => {
-  write('declared.md', `<!-- promptfixer: intent=code -->\n${CODE_PROMPT}\n`)
+  write('declared.md', `<!-- whetprompt: intent=code -->\n${CODE_PROMPT}\n`)
   write('undeclared.md', `${CODE_PROMPT}\n`)
   const declared = JSON.parse((await run(['declared.md', '--json'])).stdout).files[0]
   const undeclared = JSON.parse((await run(['undeclared.md', '--json', '--intent', 'code'])).stdout).files[0]

@@ -1,4 +1,4 @@
-/* The PromptFixer site. Dark first, on the app's own palette from src/styles.css, so the page
+/* The Whetprompt site. Dark first, on the app's own palette from src/styles.css, so the page
    and the screenshot on it look like one product; the light theme keeps every text and
    background pairing at 4.5:1 or better, which is why its accent and status colours are darker
    than the app's. Everything is a token on :root so both themes share every rule below. */

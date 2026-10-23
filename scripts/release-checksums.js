@@ -3,8 +3,9 @@
  * Write SHA256SUMS.txt for the release artifacts, in `sha256sum` format
  * (`<hex>  <filename>`, lowercase, two spaces, LF) so `sha256sum -c` accepts it.
  *
- *   npm run release:checksums                  hash release/PromptFixer-* into release/SHA256SUMS.txt
- *   npm run release:checksums -- --dir <dir>   another folder (e.g. %LOCALAPPDATA%\PromptFixer\release)
+ *   npm run release:checksums                  hash release/Whetprompt-* (and PromptFixer-*, the
+ *                                              name of the releases before the rename) into release/SHA256SUMS.txt
+ *   npm run release:checksums -- --dir <dir>   another folder (e.g. %LOCALAPPDATA%\Whetprompt\release)
  *   npm run release:checksums -- --check       verify SHA256SUMS.txt; exit 1 on any mismatch or missing file
  */
 import { createHash } from 'node:crypto'
@@ -14,7 +15,7 @@ import path from 'node:path'
 import { fileURLToPath } from 'node:url'
 
 export const SUMS_FILE = 'SHA256SUMS.txt'
-const ARTIFACT = /^PromptFixer-.*\.(exe|blockmap|dmg|AppImage)$/
+const ARTIFACT = /^(?:Whetprompt|PromptFixer)-.*\.(exe|blockmap|dmg|AppImage)$/
 
 export async function sha256File(file) {
   const hash = createHash('sha256')

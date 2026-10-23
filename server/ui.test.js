@@ -26,6 +26,7 @@ import {
   holdsFixShortcut,
   importSummary,
   learnedNote,
+  linkParts,
   markButton,
   markCapReached,
   markCapTitle,
@@ -157,8 +158,8 @@ test('undo: available once after Apply, and only while the editor still holds th
 // --- library export / import ---------------------------------------------------------
 
 test('export: the download name mirrors the server Content-Disposition date', () => {
-  assert.equal(exportFilename('2026-09-05T14:03:00.000Z'), 'promptfixer-library-2026-09-05.json')
-  assert.match(exportFilename('garbage'), /^promptfixer-library-\d{4}-\d{2}-\d{2}\.json$/)
+  assert.equal(exportFilename('2026-09-05T14:03:00.000Z'), 'whetprompt-library-2026-09-05.json')
+  assert.match(exportFilename('garbage'), /^whetprompt-library-\d{4}-\d{2}-\d{2}\.json$/)
 })
 
 test('import: accepts our export shape or a bare list and rejects the rest with a readable message', () => {
@@ -496,6 +497,31 @@ test('marks: a feedback warning gets its own headline', () => {
   const meta = { warning: 'The rewrite did not follow all of your marks.', warningKind: 'feedback' }
   assert.equal(warningKind(meta), 'feedback')
   assert.equal(warningHeadline(meta), 'Did not follow all of your marks')
+})
+
+// --- links in a server message ----------------------------------------------------------
+
+test('linkParts: the runtime download in a load error becomes a link, its full stop does not', () => {
+  const error = 'Install it from https://aka.ms/vc14/vc_redist.x64.exe, then press Retry.'
+  assert.deepEqual(linkParts(error), [
+    { text: 'Install it from ' },
+    { text: 'https://aka.ms/vc14/vc_redist.x64.exe', href: 'https://aka.ms/vc14/vc_redist.x64.exe' },
+    { text: ', then press Retry.' },
+  ])
+  assert.deepEqual(linkParts('See https://example.com/a.'), [
+    { text: 'See ' },
+    { text: 'https://example.com/a', href: 'https://example.com/a' },
+    { text: '.' },
+  ])
+  assert.equal(linkParts(error).map((part) => part.text).join(''), error, 'nothing is lost or added')
+})
+
+test('linkParts: text without an https address stays one part, and only https is linked', () => {
+  assert.deepEqual(linkParts('Could not load the model: out of memory'), [{ text: 'Could not load the model: out of memory' }])
+  assert.deepEqual(linkParts(''), [])
+  for (const text of ['http://example.com', 'file:///C:/x', 'javascript:alert(1)']) {
+    assert.deepEqual(linkParts(text), [{ text }], text)
+  }
 })
 
 // --- api client ----------------------------------------------------------------------

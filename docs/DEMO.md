@@ -1,4 +1,4 @@
-# PromptFixer demo
+# Whetprompt demo
 
 Eight prompts through the local model (Qwen3 4B Instruct (2507)), with the linter's before/after scores. Nothing
 below was edited by hand. Average improvement in this run: +12 points; 0 of 8 needed the
@@ -9,7 +9,7 @@ Load any of them in the app from **Try an example** in the editor pane, or fetch
 
 ## The five-minute walkthrough
 
-1. 0:00 Open PromptFixer. Point at the top bar: brand 'PromptFixer lint · score · rewrite', the provider select (show the green status dot and, for the local provider, the tier select with '✓' next to the downloaded model), and the Library button. Say: linting and scoring are deterministic and happen locally with no model call; only 'Fix prompt' talks to a model.
+1. 0:00 Open Whetprompt. Point at the top bar: brand 'Whetprompt lint · score · rewrite', the provider select (show the green status dot and, for the local provider, the tier select with '✓' next to the downloaded model), and the Library button. Say: linting and scoring are deterministic and happen locally with no model call; only 'Fix prompt' talks to a model.
 2. 0:20 The editor is empty, so the 'Try a sample' button is visible in the Your prompt pane header. Click it. The blog-post sample loads and within ~350 ms the metastrip under the editor updates: 27 words, ~40 tokens, score 60/100, 11 issues. Say: this is live linting, it re-runs on every keystroke.
 3. 0:45 The result pane opens on the Issues tab (count badge 11). Walk down the ScorePanel: overall 60/D and the five category bars (Clarity 46, Specificity 47, Context 60, Format & limits 69, Structure 91). Then the IssueList, sorted high to low: 'Conflicting instructions' with evidence chips 'brief' and 'comprehensive'; 'Asks for facts or sources with nothing to ground them'; 'Emphasis by shouting'. Read one issue's detail + suggestion aloud to show they are actionable, not generic.
 4. 1:15 Set the presets: Task type = Writing & content, Target model = Any model, Strength = Balanced. Press Ctrl+Enter (or click 'Fix prompt ⌃⏎'). The button shows a spinner and 'Fixing…' with a Cancel button beside it; with the local provider the local chip in the metastrip shows model · CUDA · tok/s afterwards.

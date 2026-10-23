@@ -23,6 +23,7 @@ import {
   selectedTier,
   spaceForDownload,
 } from './models.js'
+import { missingVcRuntime, noBinaryMessage } from './vcruntime.js'
 
 /**
 /**
@@ -37,17 +38,16 @@ import {
  * that has emitted no token for five minutes is the feature. The timer is
  * reset by every chunk the sampler produces.
  */
-const GENERATION_STALL_MS = Number(process.env.PROMPTFIXER_FIX_TIMEOUT_MS) || 5 * 60_000
+const GENERATION_STALL_MS = Number(process.env.WHETPROMPT_FIX_TIMEOUT_MS) || 5 * 60_000
 
 /**
  * Drop the model after this long with nothing to do, so an app left open next
- * to a browser and an IDE stops holding 2.5 GB it is not using. The next fix
- * pays the load again, which is why the default is generous. 0 disables it.
+ * to a browser and an IDE stops holding 2.5 GB it is not using. Off unless
+ * WHETPROMPT_IDLE_UNLOAD_MS sets it: the next fix pays the whole load again,
+ * about 40 s on a laptop with integrated graphics, and the builds before 0.3.0,
+ * which kept the model until the app quit, felt faster for it.
  */
-const IDLE_UNLOAD_MS =
-  process.env.PROMPTFIXER_IDLE_UNLOAD_MS !== undefined
-    ? Number(process.env.PROMPTFIXER_IDLE_UNLOAD_MS)
-    : 15 * 60_000
+const IDLE_UNLOAD_MS = Number(process.env.WHETPROMPT_IDLE_UNLOAD_MS) || 0
 
 export class LocalModelError extends Error {
   constructor(message, code, status = 400) {
@@ -391,10 +391,22 @@ async function loadNow(tier) {
   } catch (err) {
     state.loadPercent = 0
     state.phase = 'error'
-    state.error = `Could not load the model: ${err.message}`
+    state.error = await loadFailureMessage(err)
     await unloadNow()
     throw new LocalModelError(state.error, 'LOAD_FAILED', 500)
   }
+}
+
+/**
+ * "Could not load the model: NoBinaryFoundError" was all a fresh Windows
+ * install ever said. The error means no bundled llama.cpp binary passed its
+ * start-up check, and its message is its own class name; say why instead when
+ * the reason is one that can be seen from here.
+ */
+async function loadFailureMessage(err) {
+  const { NoBinaryFoundError } = await native().catch(() => ({}))
+  if (NoBinaryFoundError && err instanceof NoBinaryFoundError) return noBinaryMessage(missingVcRuntime())
+  return `Could not load the model: ${err.message}`
 }
 
 /**
@@ -536,7 +548,7 @@ export async function complete({
     } catch (err) {
       if (stalled) {
         throw new LocalModelError(
-          `The local model produced nothing for ${Math.round(GENERATION_STALL_MS / 1000)}s and was stopped. A slow machine is not the cause — this only fires when generation has halted. Try a smaller model tier (PROMPTFIXER_FIX_TIMEOUT_MS changes the limit).`,
+          `The local model produced nothing for ${Math.round(GENERATION_STALL_MS / 1000)}s and was stopped. A slow machine is not the cause — this only fires when generation has halted. Try a smaller model tier (WHETPROMPT_FIX_TIMEOUT_MS changes the limit).`,
           'STALLED',
           504
         )

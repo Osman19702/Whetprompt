@@ -12,7 +12,7 @@
 | `quality` | Qwen2.5-7B-Instruct | 4.7 GB | 12 GB RAM, or a 6 GB+ GPU | Slightly more nuanced. |
 
 The app picks `default` unless the machine has under 8 GB of RAM. Override with
-`PROMPTFIXER_MODEL=lite|default|quality`, `npm run setup -- <tier>`, or the dropdown in the UI.
+`WHETPROMPT_MODEL=lite|default|quality`, `npm run setup -- <tier>`, or the dropdown in the UI.
 
 ### Why this model
 
@@ -52,9 +52,10 @@ roughly doubles those.
 These are two runs, in one session, on one machine, and nothing in the test suite fails when the
 app gets slower. Treat them as a starting point rather than a baseline.
 
-**The model does not stay loaded.** It is released after 15 minutes with nothing to do
-(`PROMPTFIXER_IDLE_UNLOAD_MS`), so a fix after a long gap pays the load again. A fix that has
-produced nothing for 5 minutes is stopped (`PROMPTFIXER_FIX_TIMEOUT_MS`); every chunk the model
+**The model stays loaded until the app quits.** Set `WHETPROMPT_IDLE_UNLOAD_MS` to release it
+after that many milliseconds with nothing to do; a fix after the gap then pays the load again,
+about 40 s on a laptop with integrated graphics. A fix that has
+produced nothing for 5 minutes is stopped (`WHETPROMPT_FIX_TIMEOUT_MS`); every chunk the model
 emits resets that timer, so it ends a halted generation and never a slow one. Measured on the
 CPU-only configuration, a first fix takes about 100 s and a "fix again" — which sends the whole
 previous rewrite back, and may be retried once — takes considerably longer than that.
@@ -89,7 +90,7 @@ This is the only realistic training path, so here is the honest accounting.
 that fits a 6 GB consumer GPU; on the 4B you want 8–12 GB, so this machine's 1660 Ti is marginal
 for the 4B and fine for the 1.5B. A few thousand examples train in 1–3 hours. Tooling is mature:
 [Unsloth](https://github.com/unslothai/unsloth) or Hugging Face TRL, then merge the adapter and
-convert with llama.cpp's `convert_hf_to_gguf.py`, drop the `.gguf` into `~/.promptfixer/models`,
+convert with llama.cpp's `convert_hf_to_gguf.py`, drop the `.gguf` into `~/.whetprompt/models`,
 and register it as a tier in `server/models.js`.
 
 **What you'd need.** 2,000–10,000 pairs of *(weak prompt, options) → (rewritten prompt, change
@@ -172,10 +173,10 @@ behaviour a fine-tune would bake in — and the kind that a deterministic check 
 
 ## Privacy and offline behaviour
 
-- The model file lives at `~/.promptfixer/models` (override: `PROMPTFIXER_MODEL_DIR`).
+- The model file lives at `~/.whetprompt/models` (override: `WHETPROMPT_MODEL_DIR`).
 - The library lives in Electron's user-data directory whenever the app runs as a desktop app
   (`npm run desktop`, `npm run desktop:dev`, or the installed build) — e.g.
-  `%APPDATA%\PromptFixer\data\library.json` on Windows — and in `server/data/` in browser mode
-  (`npm run dev`, `npm start`). Override with `PROMPTFIXER_DATA_DIR`.
+  `%APPDATA%\Whetprompt\data\library.json` on Windows — and in `server/data/` in browser mode
+  (`npm run dev`, `npm start`). Override with `WHETPROMPT_DATA_DIR`.
 - After the one-time download, no network is used unless you deliberately select a cloud provider.
   There is no telemetry.

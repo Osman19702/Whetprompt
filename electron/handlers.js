@@ -33,6 +33,26 @@ export function windowOpenGuard(shell) {
   }
 }
 
+/** The size the window is designed for, and the smallest it may be dragged to. */
+export const WINDOW_SIZE = { width: 1360, height: 880, minWidth: 900, minHeight: 600 }
+
+/**
+ * The window's size, no larger than the work area of the screen it opens on.
+ * Windows does not shrink a window that is too tall for the screen: 880 is
+ * more than the 816 a 1080p screen at 125% scaling leaves above the taskbar,
+ * so the bottom of the interface (the Fix button, and the toasts that report a
+ * failed Retry) was drawn underneath it. The minimums are clamped as well, or
+ * they would push the window past the screen all over again.
+ */
+export function fitToWorkArea(size, workArea) {
+  return {
+    width: Math.min(size.width, workArea.width),
+    height: Math.min(size.height, workArea.height),
+    minWidth: Math.min(size.minWidth, workArea.width),
+    minHeight: Math.min(size.minHeight, workArea.height),
+  }
+}
+
 /**
  * Deterministic shutdown. Electron does not await an async `before-quit`
  * listener, so `await unload()` there just races process teardown. Instead:

@@ -2,7 +2,7 @@
 /**
  * Download the local model from the command line.
  *
- *   npm run setup            → PROMPTFIXER_MODEL from .env, else the tier
+ *   npm run setup            → WHETPROMPT_MODEL from .env, else the tier
  *                              recommended for this machine's RAM
  *   npm run setup -- quality → a specific tier: lite | default | quality
  *
@@ -10,16 +10,17 @@
  * an already-downloaded model is skipped.
  */
 
-// First, so PROMPTFIXER_MODEL_DIR / PROMPTFIXER_MODEL from .env are visible to
-// models.js, which reads them at import time — the same order the server uses.
-import 'dotenv/config'
+// First, so WHETPROMPT_MODEL_DIR / WHETPROMPT_MODEL from .env (or their old
+// PROMPTFIXER_ names) are visible to models.js, which reads them at import
+// time — the same order the server uses.
+import '../server/env.js'
 import { createModelDownloader } from 'node-llama-cpp'
 import { MODELS, MODEL_DIR, isDownloaded, modelPath, selectedTier, totalRamGb } from '../server/models.js'
 
 const gb = (n) => (n / 1024 ** 3).toFixed(2)
 const requested = process.argv[2]
 const tier = requested && MODELS[requested] ? requested : selectedTier()
-const source = requested ? '' : process.env.PROMPTFIXER_MODEL ? ' (from PROMPTFIXER_MODEL)' : ' (recommended)'
+const source = requested ? '' : process.env.WHETPROMPT_MODEL ? ' (from WHETPROMPT_MODEL)' : ' (recommended)'
 
 if (requested && !MODELS[requested]) {
   console.error(`Unknown tier "${requested}". Choose one of: ${Object.keys(MODELS).join(', ')}`)
@@ -27,7 +28,7 @@ if (requested && !MODELS[requested]) {
 }
 
 const spec = MODELS[tier]
-console.log(`\nPromptFixer local model setup`)
+console.log(`\nWhetprompt local model setup`)
 console.log(`  Machine RAM : ${totalRamGb().toFixed(1)} GB`)
 console.log(`  Tier        : ${tier}${source} — ${spec.label}`)
 console.log(`  Size        : ${gb(spec.bytes)} GB`)

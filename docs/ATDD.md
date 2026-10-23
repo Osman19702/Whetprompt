@@ -1,4 +1,4 @@
-# Acceptance test-driven development for PromptFixer
+# Acceptance test-driven development for Whetprompt
 
 > **Status (2026-09-27):** the scenarios in Part 3 exist as Gherkin in `acceptance/features/` and
 > as executable tests in `acceptance/*.acceptance.test.js` (`npm run test:acceptance`). The first
@@ -10,7 +10,7 @@
 > `npm run test:trace` prints the list. Parts 1 and 2 describe the conversion as it was planned
 > and are kept as written, apart from the counts and the visual seam.
 
-This document converts PromptFixer's development strategy to ATDD. It has three parts: an honest
+This document converts Whetprompt's development strategy to ATDD. It has three parts: an honest
 read of where the test strategy stands today, the target shape and the way of working that gets us
 there, and the acceptance test cases themselves — end-to-end scenarios in prose, covering every
 requirement the product currently makes, written in the language of the person using the app rather
@@ -20,7 +20,7 @@ than the language of the code.
 
 ## Part 1 — Where we are today
 
-PromptFixer has roughly 130 automated tests across twelve files, all on Node's built-in test runner
+Whetprompt has roughly 130 automated tests across twelve files, all on Node's built-in test runner
 with no external framework, and they are better than most projects this size manage. They are fast,
 they are hermetic — the provider is stubbed by a local HTTP server, data and model directories are
 freshly created per run under the OS temp directory, ports are OS-assigned so two runs never collide
@@ -65,7 +65,7 @@ The **acceptance tier** is new. It lives in `acceptance/`, one file per capabili
 product through the seams a real user touches: the HTTP API for server behaviour, the built React app
 in a real browser for the interface, the packaged Electron app for the desktop story, and the CLI as
 a spawned subprocess for the CI linter. Group N adds a fifth seam, and its user is a developer of
-PromptFixer rather than a user of it: the Elastishot command line and the two npm scripts around it
+Whetprompt rather than a user of it: the Elastishot command line and the two npm scripts around it
 (`npm run visual`, `npm run visual:approve`), run as subprocesses against the built app, with the
 report they write as the thing asserted on. An acceptance test never imports an internal module. If a
 scenario needs to reach into `metaprompt.js` to assert something, that scenario is in the wrong tier.
@@ -103,7 +103,7 @@ it still costs time to maintain.
 ### The way of working
 
 For each story, three people have the conversation before anyone opens an editor: whoever decides
-what the product should do, whoever will implement it, and the SDET. For PromptFixer a fourth voice
+what the product should do, whoever will implement it, and the SDET. For Whetprompt a fourth voice
 is sometimes needed — anything that touches the linter rules or the metaprompt is a
 prompt-engineering judgement, and the person who owns those rules should be in the room, because
 "is a missing audience a defect for a code prompt?" is exactly the kind of question that produced two
@@ -950,7 +950,7 @@ nothing, or if a slip on the keyboard costs them their marks.
 
 ### Group N — Looking the same every time
 
-The user in this group is a developer of PromptFixer who has changed something and wants to know
+The user in this group is a developer of Whetprompt who has changed something and wants to know
 what it did to the interface. The check is Elastishot: every screen is reached by driving the built
 app the way a user would, against the scripted model, and compared with a picture that was approved
 on the same machine. The scenarios run the real command-line tool and the two npm scripts around it,
@@ -1027,7 +1027,7 @@ got as far as a capture.
 
 **N7 — Pointed at the wrong place, the check says so and harms nothing.** When the check is run with
 no server to look at, then it stops with an error that says to use `npm run visual`. Given a
-PromptFixer that somebody is using, with a prompt saved in its library, when the check is pointed at
+Whetprompt that somebody is using, with a prompt saved in its library, when the check is pointed at
 it, then it stops with an error and the saved prompt is still there. Every screen starts from an
 empty library so that one capture cannot leak into the next, and emptying a library is the one
 destructive thing this tool does; it may only ever do it to a server that was started for the

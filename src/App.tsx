@@ -20,6 +20,7 @@ import {
   historyPush,
   historyStep,
   learnedNote,
+  linkParts,
   localIdle,
   localTierAction,
   marksAfterSelect,
@@ -37,8 +38,11 @@ import type { Analysis, AppConfig, ExamplePrompt, FixOptions, LibraryEntry, Loca
 
 const gb = (bytes: number) => (bytes / 1024 ** 3).toFixed(1)
 
-const PREFS_KEY = 'promptfixer.prefs.v1'
-const DRAFT_KEY = 'promptfixer.draft.v1'
+const PREFS_KEY = 'whetprompt.prefs.v1'
+const DRAFT_KEY = 'whetprompt.draft.v1'
+// What PromptFixer saved under its own name, read when nothing new is there yet.
+const LEGACY_PREFS_KEY = 'promptfixer.prefs.v1'
+const LEGACY_DRAFT_KEY = 'promptfixer.draft.v1'
 
 const SAMPLE = `write a blog post about our new feature, make it good and professional. keep it brief but comprehensive, and cite some stats about the latest AI trends!!`
 
@@ -63,7 +67,7 @@ const DEFAULT_OPTIONS: FixOptions = {
 
 function loadPrefs(): Partial<Prefs> {
   try {
-    return JSON.parse(localStorage.getItem(PREFS_KEY) || '{}')
+    return JSON.parse(localStorage.getItem(PREFS_KEY) || localStorage.getItem(LEGACY_PREFS_KEY) || '{}')
   } catch {
     return {}
   }
@@ -73,7 +77,7 @@ export default function App() {
   const [config, setConfig] = useState<AppConfig | null>(null)
   const [configError, setConfigError] = useState<string | null>(null)
 
-  const [prompt, setPrompt] = useState(() => localStorage.getItem(DRAFT_KEY) ?? '')
+  const [prompt, setPrompt] = useState(() => localStorage.getItem(DRAFT_KEY) ?? localStorage.getItem(LEGACY_DRAFT_KEY) ?? '')
   const [analysis, setAnalysis] = useState<Analysis | null>(null)
   // The last HISTORY_LIMIT fix results; `result` is whichever one is selected.
   const [history, setHistory] = useState(EMPTY_HISTORY)
@@ -91,6 +95,8 @@ export default function App() {
   const [modelsError, setModelsError] = useState<string | null>(null)
   const [localStatus, setLocalStatus] = useState<LocalStatus | null>(null)
   const [localTick, setLocalTick] = useState(0)
+  // True while Retry on the local model banner waits for the server.
+  const [retrying, setRetrying] = useState(false)
   const [options, setOptions] = useState<FixOptions>(DEFAULT_OPTIONS)
 
   const [tab, setTab] = useState<Tab>('issues')
@@ -415,29 +421,26 @@ export default function App() {
     if (provider === 'local') setCancelling(true)
   }
 
-  // Give the memory back without closing the app. The server can already do
-  // this; until now nothing on screen asked it to.
-  const releaseModel = async () => {
+  // Retry used to look dead when the load failed again at once: the banner
+  // stayed exactly as it was, and the only answer was a toast. Now the button
+  // says it is working, the poller follows the load while it runs, and the
+  // banner is redrawn from the server's answer when it ends.
+  const retryLocal = async () => {
+    if (!localStatus) return
+    setRetrying(true)
+    setLocalTick((t) => t + 1)
     try {
-      setLocalStatus(await api.local.unload())
-      setLocalTick((t) => t + 1)
-      toast('Model released. The next fix loads it again.')
+      setLocalStatus(await (localStatus.downloaded ? api.local.load() : api.local.download(model || undefined)))
     } catch (err) {
-      toast((err as Error).message, 'error')
-    }
-  }
-
-  // Reclaim the disk from here rather than by hunting through a hidden folder.
-  const deleteModel = async (tier: string, label: string, bytes: number) => {
-    const size = bytes ? ` (${gb(bytes)} GB)` : ''
-    if (!window.confirm(`Delete ${label}${size}? You can download it again later.`)) return
-    try {
-      const { freed, status } = await api.local.remove(tier)
-      setLocalStatus(status)
+      const message = (err as Error).message
+      const status = await api.local.status().catch(() => null)
+      if (status) setLocalStatus(status)
+      // When the banner shows the same message again, the toast only has to say
+      // that the retry happened; anything else (no disk space, say) is news.
+      toast(status?.phase === 'error' && status.error === message ? 'Retry failed for the same reason.' : message, 'error')
+    } finally {
+      setRetrying(false)
       setLocalTick((t) => t + 1)
-      toast(freed ? `Deleted ${label} — ${gb(freed)} GB freed.` : `Nothing of ${label} was on disk.`)
-    } catch (err) {
-      toast((err as Error).message, 'error')
     }
   }
 
@@ -522,7 +525,7 @@ export default function App() {
     return (
       <div className="empty" style={{ height: '100vh' }}>
         <div className="big">⚠</div>
-        <h3>Cannot reach the PromptFixer server</h3>
+        <h3>Cannot reach the Whetprompt server</h3>
         <p>{configError}</p>
         <p>
           Start it with <code>npm run dev</code> in the project folder.
@@ -574,12 +577,12 @@ export default function App() {
     <div className="app">
       <header className="topbar">
         <div className="brand">
-          <span className="mark">P</span>
-          PromptFixer
+          <span className="mark">W</span>
+          Whetprompt
           {config.version && (
             // Beside the name so a bug report can name the build without
             // hunting for it. Selectable, because that is how it gets copied.
-            <span className="version" data-testid="app-version" title={`PromptFixer ${config.version}`}>
+            <span className="version" data-testid="app-version" title={`Whetprompt ${config.version}`}>
               v{config.version}
             </span>
           )}
@@ -668,7 +671,7 @@ export default function App() {
               target="_blank"
               rel="noreferrer"
               data-testid="site-link"
-              title="Latest updates and downloads on the PromptFixer website (opens in your browser)"
+              title="Latest updates and downloads on the Whetprompt website (opens in your browser)"
             >
               What's new
               <span className="site-link-glyph" aria-hidden="true">
@@ -1077,7 +1080,7 @@ export default function App() {
                       </strong>
                       {localStatus.autoUnloaded
                         ? 'It had nothing to do for a while, so the memory went back. Your next fix loads it again — a few seconds.'
-                        : 'It loads into memory on your first fix — a few seconds — and is released again after a spell with nothing to do.'}
+                        : 'It loads into memory on your first fix and stays there until you quit, so only that fix waits for it.'}
                       <div className="actions">
                         <button
                           className="btn sm"
@@ -1114,63 +1117,23 @@ export default function App() {
                   {localStatus.phase === 'error' && (
                     <>
                       <strong>Local model problem</strong>
-                      {localStatus.error}
+                      {linkParts(localStatus.error ?? '').map((part, i) =>
+                        part.href ? (
+                          <a key={i} href={part.href} target="_blank" rel="noreferrer">
+                            {part.text}
+                          </a>
+                        ) : (
+                          <span key={i}>{part.text}</span>
+                        )
+                      )}
                       <div className="actions">
-                        <button
-                          className="btn sm"
-                          onClick={() =>
-                            (localStatus.downloaded ? api.local.load() : api.local.download(model || undefined))
-                              .then(setLocalStatus)
-                              .then(() => setLocalTick((t) => t + 1))
-                              .catch((err) => toast((err as Error).message, 'error'))
-                          }
-                        >
-                          Retry
+                        <button className="btn sm" onClick={retryLocal} disabled={retrying}>
+                          {retrying ? 'Retrying…' : 'Retry'}
                         </button>
                       </div>
                     </>
                   )}
                 </div>
-              </div>
-            )}
-
-            {/* Holding the model and holding the disk are the two ways this app
-                costs a tester something while they are not using it. Both are
-                now visible, and both can be given back from here. */}
-            {provider === 'local' && localStatus && (localStatus.disk?.used ?? 0) > 0 && (
-              <div className="disk-row" data-testid="model-disk">
-                <span className="metastrip">
-                  <span>
-                    models on disk <b>{gb(localStatus.disk?.used ?? 0)} GB</b>
-                  </span>
-                  {localStatus.disk?.free != null && <span>{gb(localStatus.disk.free)} GB free</span>}
-                  {localStatus.loaded && <span>loaded in memory</span>}
-                </span>
-                <span className="disk-actions">
-                  {localStatus.loaded && (
-                    <button
-                      className="btn ghost sm"
-                      onClick={releaseModel}
-                      disabled={fixing || localStatus.busy}
-                      title="Free the memory now. The next fix loads the model again."
-                    >
-                      Release model
-                    </button>
-                  )}
-                  {(localStatus.catalog ?? [])
-                    .filter((c) => (c.onDisk ?? 0) > 0)
-                    .map((c) => (
-                      <button
-                        key={c.id}
-                        className="btn ghost sm"
-                        onClick={() => deleteModel(c.id, c.label, c.onDisk ?? 0)}
-                        disabled={fixing || localStatus.phase === 'downloading'}
-                        title={`Delete ${c.label} and reclaim ${gb(c.onDisk ?? 0)} GB`}
-                      >
-                        Delete {c.label} ({gb(c.onDisk ?? 0)} GB)
-                      </button>
-                    ))}
-                </span>
               </div>
             )}
 

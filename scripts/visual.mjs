@@ -214,7 +214,7 @@ export async function main(argv) {
       const child = spawn(process.execPath, [bin, ...cliArgs], {
         cwd: root,
         stdio: 'inherit',
-        env: { ...process.env, ...env, PROMPTFIXER_VISUAL_URL: app.base },
+        env: { ...process.env, ...env, WHETPROMPT_VISUAL_URL: app.base },
       })
       const stop = async () => child.kill()
       undo.push(stop)
@@ -295,13 +295,13 @@ async function against(args, { serve, elastishot, undo, cleanUp }) {
     undo.push(async () => fs.rmSync(dir, { recursive: true, force: true, maxRetries: 10, retryDelay: 100 }))
     return dir
   }
-  const pictures = { PROMPTFIXER_VISUAL_BASELINES: scratch('promptfixer-visual-pictures-') }
+  const pictures = { WHETPROMPT_VISUAL_BASELINES: scratch('whetprompt-visual-pictures-') }
   // Its own folder, outside .elastishot/runs: that folder, and the CI artifact made of it, hold the comparison only.
-  const taking = scratch('promptfixer-visual-taking-')
+  const taking = scratch('whetprompt-visual-taking-')
 
   const before = await serve(checkout)
-  // A deliberate regression (PROMPTFIXER_VISUAL_VARIANT) is the working tree's: restyling both sides would cancel it out.
-  const took = await elastishot(before, ['run', '--config', CONFIG, '--update', '--out', taking, ...args.targets], { ...pictures, PROMPTFIXER_VISUAL_VARIANT: '' })
+  // A deliberate regression (WHETPROMPT_VISUAL_VARIANT) is the working tree's: restyling both sides would cancel it out.
+  const took = await elastishot(before, ['run', '--config', CONFIG, '--update', '--out', taking, ...args.targets], { ...pictures, WHETPROMPT_VISUAL_VARIANT: '' })
   if (!fs.existsSync(path.join(taking, 'report.json'))) {
     console.error(`visual: capturing ${args.against} wrote no report (exit ${took}); the lines above say why`)
     return 2

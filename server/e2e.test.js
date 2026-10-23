@@ -22,8 +22,8 @@ let BASE = '' // set once the server reports the port it was given
 // Fresh, private directories per run: a PID-named dir can be inherited from an
 // earlier run (PIDs are reused) and a fixed shared path can be populated by
 // anything. Both are removed in after().
-const dataDir = fs.mkdtempSync(path.join(os.tmpdir(), 'promptfixer-test-data-'))
-const modelDir = fs.mkdtempSync(path.join(os.tmpdir(), 'promptfixer-test-models-'))
+const dataDir = fs.mkdtempSync(path.join(os.tmpdir(), 'whetprompt-test-data-'))
+const modelDir = fs.mkdtempSync(path.join(os.tmpdir(), 'whetprompt-test-models-'))
 
 // A key value nothing legitimate would ever echo back. If it shows up in any
 // response body, a key has left the server.
@@ -336,15 +336,15 @@ function startServer() {
         // The developer's .env and shell must not steer the server under test.
         DEFAULT_MODEL: '',
         OLLAMA_BASE_URL: '',
-        PROMPTFIXER_MODEL: '',
-        PROMPTFIXER_PRELOAD: '0',
-        PROMPTFIXER_DESKTOP: '0',
+        WHETPROMPT_MODEL: '',
+        WHETPROMPT_PRELOAD: '0',
+        WHETPROMPT_DESKTOP: '0',
         // An empty models dir so "model missing" assertions hold regardless of
         // what this machine has downloaded.
-        PROMPTFIXER_MODEL_DIR: modelDir,
+        WHETPROMPT_MODEL_DIR: modelDir,
         // A private library per test run, so a dev server or a second test
         // process writing to server/data/library.json can never flake this.
-        PROMPTFIXER_DATA_DIR: dataDir,
+        WHETPROMPT_DATA_DIR: dataDir,
       },
       stdio: ['ignore', 'pipe', 'pipe'],
     })
@@ -352,7 +352,7 @@ function startServer() {
     server.stdout.on('data', (d) => {
       stdout += d
       // The server prints the port it actually got (we asked for 0).
-      const m = stdout.match(/PromptFixer API\s+→\s+http:\/\/localhost:(\d+)/)
+      const m = stdout.match(/Whetprompt API\s+→\s+http:\/\/localhost:(\d+)/)
       if (m) {
         BASE = `http://127.0.0.1:${m[1]}`
         ready()
@@ -646,7 +646,7 @@ test('library export round-trips through import, skipping duplicates and malform
     // Raw fetch: the download header is part of the contract.
     const res = await fetch(BASE + '/api/library/export')
     assert.equal(res.status, 200)
-    assert.match(res.headers.get('content-disposition'), /^attachment; filename="promptfixer-library-\d{4}-\d{2}-\d{2}\.json"$/)
+    assert.match(res.headers.get('content-disposition'), /^attachment; filename="whetprompt-library-\d{4}-\d{2}-\d{2}\.json"$/)
     const exported = await res.json()
     assert.equal(exported.version, 1)
     assert.ok(!Number.isNaN(Date.parse(exported.exportedAt)), 'exportedAt must be an ISO date')

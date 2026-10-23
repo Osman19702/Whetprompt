@@ -41,9 +41,9 @@ const git = (cmd) => {
   }
 }
 const installer = (() => {
-  const dir = path.join(process.env.LOCALAPPDATA || '', 'PromptFixer', 'release')
+  const dir = path.join(process.env.LOCALAPPDATA || '', 'Whetprompt', 'release')
   try {
-    const exe = fs.readdirSync(dir).find((f) => /^PromptFixer-.*\.exe$/.test(f))
+    const exe = fs.readdirSync(dir).find((f) => /^Whetprompt-.*\.exe$/.test(f))
     if (!exe) return null
     const st = fs.statSync(path.join(dir, exe))
     return { file: exe, mb: Math.round(st.size / 1e6), builtAt: st.mtime.toISOString() }
@@ -72,7 +72,7 @@ const ms = (n) => (n >= 1000 ? `${(n / 1000).toFixed(1)} s` : `${n} ms`)
 const step = (s) => s.replace(/^(Given|When|Then|And|But)\b/, '<b>$1</b>')
 
 const html = `<!doctype html>
-<html lang="en"><head><meta charset="utf-8"><title>PromptFixer — Acceptance test results</title>
+<html lang="en"><head><meta charset="utf-8"><title>Whetprompt — Acceptance test results</title>
 <style>
   @page { size: A4; margin: 16mm 14mm; }
   body { font: 10.5pt/1.45 "Segoe UI", system-ui, sans-serif; color: #1a1d23; margin: 0; }
@@ -106,7 +106,7 @@ const html = `<!doctype html>
 </style></head><body>
 
 <div class="cover">
-  <div class="muted">PromptFixer · Acceptance test-driven development</div>
+  <div class="muted">Whetprompt · Acceptance test-driven development</div>
   <h1>Acceptance test results</h1>
   <div class="muted">Run ${esc(generatedAt.replace('T', ' ').slice(0, 19))} UTC · commit ${esc(git('rev-parse --short HEAD'))} (${esc(git('rev-parse --abbrev-ref HEAD'))}) · v${esc(pkg.version)}</div>
   <div class="verdict ${verdict}">${verdict}</div>
@@ -149,7 +149,7 @@ ${findings.defects
   <tr><td>Playwright / Chromium</td><td>${esc(pkg.devDependencies?.playwright || '')} / ${esc(chromiumVersion())}</td></tr>
   <tr><td>Electron</td><td>${esc(pkg.devDependencies?.electron || '')}</td></tr>
   <tr><td>Model provider under test</td><td>Scripted OpenAI-compatible stub (no key, no model file); the local model tier is nightly on the GPU machine</td></tr>
-  <tr><td>Packaged installer</td><td>${installer ? `${esc(installer.file)} · ${installer.mb} MB · built ${esc(installer.builtAt.replace('T', ' ').slice(0, 19))} UTC · %LOCALAPPDATA%\\PromptFixer\\release` : 'not built in this run'}</td></tr>
+  <tr><td>Packaged installer</td><td>${installer ? `${esc(installer.file)} · ${installer.mb} MB · built ${esc(installer.builtAt.replace('T', ' ').slice(0, 19))} UTC · %LOCALAPPDATA%\\Whetprompt\\release` : 'not built in this run'}</td></tr>
   <tr><td>Isolation</td><td>Each test file boots its own server on an OS-assigned port with private data and model directories</td></tr>
 </table>
 

@@ -1,6 +1,6 @@
 /**
  * Records every attempt the process makes to reach an address that is not this
- * machine. Inert unless PROMPTFIXER_NETWATCH_LOG names a file, so leaving it on
+ * machine. Inert unless WHETPROMPT_NETWATCH_LOG names a file, so leaving it on
  * a command line can never change how the server behaves.
  *
  * Installed through NODE_OPTIONS rather than a bare CLI flag, because the
@@ -100,7 +100,7 @@ export const parseNdjson = (text) =>
     .filter((line) => line.trim())
     .map((line) => JSON.parse(line))
 
-const LOG = process.env.PROMPTFIXER_NETWATCH_LOG
+const LOG = process.env.WHETPROMPT_NETWATCH_LOG
 if (LOG) install(LOG)
 
 /** Addresses that are this machine, and therefore not "leaving" it. */
@@ -307,7 +307,7 @@ export async function runWatched(source, { env = {} } = {}) {
           env: {
             ...process.env,
             NODE_OPTIONS: `--import ${import.meta.url}`,
-            PROMPTFIXER_NETWATCH_LOG: log,
+            WHETPROMPT_NETWATCH_LOG: log,
             ...blankedProxyEnv(),
             ...env,
           },

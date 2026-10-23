@@ -10,8 +10,8 @@ import os from 'node:os'
 import path from 'node:path'
 import { after, test } from 'node:test'
 
-const dataDir = fs.mkdtempSync(path.join(os.tmpdir(), 'promptfixer-store-'))
-process.env.PROMPTFIXER_DATA_DIR = dataDir
+const dataDir = fs.mkdtempSync(path.join(os.tmpdir(), 'whetprompt-store-'))
+process.env.WHETPROMPT_DATA_DIR = dataDir
 const FILE = path.join(dataDir, 'library.json')
 
 const store = await import('./store.js')

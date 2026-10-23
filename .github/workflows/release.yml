@@ -94,7 +94,7 @@ jobs:
           case "${TAG%%+*}" in *-*) PRERELEASE=true ;; *) PRERELEASE=false ;; esac
           {
             echo "TAG=$TAG"
-            echo "INSTALLER=PromptFixer-${TAG#v}-win-x64.exe"
+            echo "INSTALLER=Whetprompt-${TAG#v}-win-x64.exe"
             echo "COMMIT=$COMMIT"
             echo "LINKS=$GITHUB_SERVER_URL/$GITHUB_REPOSITORY/blob/$REF"
             echo "PRERELEASE=$PRERELEASE"
@@ -229,7 +229,7 @@ jobs:
           GH_TOKEN: ${{ github.token }}
         run: |
           gh release create "$TAG" --draft --verify-tag --prerelease="$PRERELEASE" \
-            --title "PromptFixer ${TAG#v}" --notes-file release/RELEASE_NOTES.md \
+            --title "Whetprompt ${TAG#v}" --notes-file release/RELEASE_NOTES.md \
             "release/$INSTALLER" "release/$INSTALLER.blockmap" release/SHA256SUMS.txt
 
       # The files first and the notes last: the notes name the commit, and
@@ -252,7 +252,7 @@ jobs:
         if: env.MODE == 'rehearse'
         uses: actions/upload-artifact@v7
         with:
-          name: PromptFixer-${{ env.TAG }}-rehearsal
+          name: Whetprompt-${{ env.TAG }}-rehearsal
           path: |
             release/${{ env.INSTALLER }}
             release/${{ env.INSTALLER }}.blockmap

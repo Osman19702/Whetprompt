@@ -125,7 +125,7 @@ export function Library({ onClose, onLoad, refreshKey, onError, onNotice }: Prop
             className="btn ghost sm"
             onClick={() => fileInput.current?.click()}
             disabled={busy != null}
-            title="Add prompts from a PromptFixer export; entries you already have are kept"
+            title="Add prompts from a Whetprompt export; entries you already have are kept"
           >
             {busy === 'import' ? 'Importing…' : 'Import'}
           </button>
@@ -203,8 +203,8 @@ export function Library({ onClose, onLoad, refreshKey, onError, onNotice }: Prop
                       data-testid="library-entry-version"
                       title={
                         entry.appVersion
-                          ? `Saved by PromptFixer ${entry.appVersion}`
-                          : 'Saved before PromptFixer recorded which build produced a result'
+                          ? `Saved by Whetprompt ${entry.appVersion}`
+                          : 'Saved before Whetprompt recorded which build produced a result'
                       }
                     >
                       {entry.appVersion ? `v${entry.appVersion}` : 'version unknown'}

@@ -12,12 +12,23 @@
  * before the JSON.
  */
 
-import { readdirSync, rmSync, statfsSync, statSync } from 'node:fs'
+import { existsSync, readdirSync, rmSync, statfsSync, statSync } from 'node:fs'
 import os from 'node:os'
 import path from 'node:path'
 
-export const MODEL_DIR =
-  process.env.PROMPTFIXER_MODEL_DIR || path.join(os.homedir(), '.promptfixer', 'models')
+/**
+ * Where models live unless WHETPROMPT_MODEL_DIR says otherwise:
+ * ~/.whetprompt/models, or PromptFixer's ~/.promptfixer/models when the model
+ * is already there. 2.5 GB is not worth downloading again for a new name, and
+ * a PromptFixer that is still installed goes on sharing the same files.
+ */
+export function defaultModelDir({ home = os.homedir(), exists = existsSync } = {}) {
+  const fresh = path.join(home, '.whetprompt', 'models')
+  const legacy = path.join(home, '.promptfixer', 'models')
+  return !exists(fresh) && exists(legacy) ? legacy : fresh
+}
+
+export const MODEL_DIR = process.env.WHETPROMPT_MODEL_DIR || defaultModelDir()
 
 export const MODELS = {
   lite: {
@@ -68,7 +79,7 @@ export function recommendedTier() {
 
 /** Explicit choice via env wins; otherwise recommend from RAM. */
 export function selectedTier() {
-  const wanted = process.env.PROMPTFIXER_MODEL
+  const wanted = process.env.WHETPROMPT_MODEL
   return wanted && MODELS[wanted] ? wanted : recommendedTier()
 }
 

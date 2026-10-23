@@ -1,18 +1,18 @@
 {
-  "name": "promptfixer",
+  "name": "whetprompt",
   "private": true,
-  "version": "0.4.0",
+  "version": "0.5.0",
   "type": "module",
   "description": "Lint, score and rewrite LLM prompts. Desktop app with a built-in local model; cloud providers optional.",
   "author": "Osman Turalioglu",
   "license": "MIT",
-  "homepage": "https://osman19702.github.io/PromptFixer/",
+  "homepage": "https://osman19702.github.io/Whetprompt/",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/Osman19702/PromptFixer.git"
+    "url": "git+https://github.com/Osman19702/Whetprompt.git"
   },
   "bugs": {
-    "url": "https://github.com/Osman19702/PromptFixer/issues"
+    "url": "https://github.com/Osman19702/Whetprompt/issues"
   },
   "scripts": {
     "dev": "concurrently -n server,web -c cyan,magenta \"npm:dev:server\" \"npm:dev:web\"",
@@ -69,8 +69,8 @@
   },
   "main": "electron/main.js",
   "build": {
-    "appId": "com.promptfixer.desktop",
-    "productName": "PromptFixer",
+    "appId": "com.whetprompt.desktop",
+    "productName": "Whetprompt",
     "artifactName": "${productName}-${version}-${os}-${arch}.${ext}",
     "directories": {
       "output": "release"
@@ -78,7 +78,7 @@
     "publish": {
       "provider": "github",
       "owner": "Osman19702",
-      "repo": "PromptFixer",
+      "repo": "Whetprompt",
       "releaseType": "draft"
     },
     "files": [
@@ -98,6 +98,7 @@
       "node_modules/node-llama-cpp/**",
       "node_modules/@node-llama-cpp/**"
     ],
+    "afterPack": "./scripts/bundle-vcruntime.js",
     "win": {
       "target": [
         "nsis"
@@ -105,7 +106,8 @@
     },
     "nsis": {
       "oneClick": false,
-      "allowToChangeInstallationDirectory": true
+      "allowToChangeInstallationDirectory": true,
+      "guid": "04364fcb-646a-5b33-9819-792e8bbde3d3"
     },
     "mac": {
       "target": [

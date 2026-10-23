@@ -45,7 +45,7 @@ test('F2 — The download is visible, resumable and cancellable', { todo: NIGHTL
 test('F3 — A download that produced no usable file says so', { todo: NIGHTLY }, () => {})
 
 test('F4 — The machine picks a sensible model on its own', async () => {
-  const chosen = await startApp({ env: { PROMPTFIXER_MODEL: 'lite' } })
+  const chosen = await startApp({ env: { WHETPROMPT_MODEL: 'lite' } })
   try {
     const status = (await chosen.get('/api/local/status')).body
     assert.equal(status.tier, 'lite', 'an explicit choice always wins')

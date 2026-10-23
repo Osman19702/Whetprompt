@@ -17,8 +17,8 @@ function banner(cwd, args = [], env = {}) {
   return new Promise((resolve, reject) => {
     // Strip the keys under test from the inherited env so only the temp .env speaks.
     const clean = { ...process.env }
-    delete clean.PROMPTFIXER_MODEL
-    delete clean.PROMPTFIXER_MODEL_DIR
+    delete clean.WHETPROMPT_MODEL
+    delete clean.WHETPROMPT_MODEL_DIR
     const child = spawn(process.execPath, [SCRIPT, ...args], { cwd, env: { ...clean, ...env } })
     let out = ''
     let killed = false
@@ -41,24 +41,24 @@ function banner(cwd, args = [], env = {}) {
   })
 }
 
-test('npm run setup honours PROMPTFIXER_MODEL_DIR and PROMPTFIXER_MODEL from .env', async () => {
+test('npm run setup honours WHETPROMPT_MODEL_DIR and WHETPROMPT_MODEL from .env', async () => {
   const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'pf-setup-'))
   const modelDir = path.join(dir, 'm')
-  fs.writeFileSync(path.join(dir, '.env'), `PROMPTFIXER_MODEL_DIR=${modelDir}\nPROMPTFIXER_MODEL=lite\n`)
+  fs.writeFileSync(path.join(dir, '.env'), `WHETPROMPT_MODEL_DIR=${modelDir}\nWHETPROMPT_MODEL=lite\n`)
   try {
     const out = await banner(dir)
     const location = out.match(/Location\s*:\s*(.+)/)?.[1].trim()
     assert.ok(location, out)
     assert.ok(location.startsWith(modelDir), `expected ${location} to start with ${modelDir}`)
-    assert.match(out, /Tier\s*:\s*lite \(from PROMPTFIXER_MODEL\)/)
+    assert.match(out, /Tier\s*:\s*lite \(from WHETPROMPT_MODEL\)/)
   } finally {
     fs.rmSync(dir, { recursive: true, force: true })
   }
 })
 
-test('an explicit CLI tier still wins over PROMPTFIXER_MODEL', async () => {
+test('an explicit CLI tier still wins over WHETPROMPT_MODEL', async () => {
   const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'pf-setup-'))
-  fs.writeFileSync(path.join(dir, '.env'), `PROMPTFIXER_MODEL=lite\n`)
+  fs.writeFileSync(path.join(dir, '.env'), `WHETPROMPT_MODEL=lite\n`)
   try {
     const out = await banner(dir, ['quality'])
     assert.match(out, /Tier\s*:\s*quality —/)

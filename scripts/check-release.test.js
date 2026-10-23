@@ -13,7 +13,7 @@ const CHECK = path.join(HERE, 'check-release.mjs')
 const SECTION = path.join(HERE, 'changelog-section.mjs')
 const run = (script, args) => spawnSync(process.execPath, [script, ...args], { encoding: 'utf8' })
 
-const REPO = 'https://github.com/Osman19702/PromptFixer'
+const REPO = 'https://github.com/Osman19702/Whetprompt'
 const CHANGELOG = `# Changelog
 
 ## [Unreleased]
@@ -58,13 +58,13 @@ const STALE_HANDLER = `app.get('/api/health', (_req, res) => {
 })
 `
 
-const lock = (top, inner = top) => JSON.stringify({ name: 'promptfixer', version: top, lockfileVersion: 3, packages: { '': { name: 'promptfixer', version: inner } } })
+const lock = (top, inner = top) => JSON.stringify({ name: 'whetprompt', version: top, lockfileVersion: 3, packages: { '': { name: 'whetprompt', version: inner } } })
 
 /** A checkout that passes; `files` replaces a file, or removes it with null. */
 function checkout(files = {}) {
   const root = fs.mkdtempSync(path.join(os.tmpdir(), 'pf-release-'))
   const all = {
-    'package.json': JSON.stringify({ name: 'promptfixer', version: '0.2.0' }),
+    'package.json': JSON.stringify({ name: 'whetprompt', version: '0.2.0' }),
     'package-lock.json': lock('0.2.0'),
     'CHANGELOG.md': CHANGELOG,
     'server/index.js': SERVER,
@@ -117,7 +117,7 @@ test('package.json: a missing file, broken JSON and a version that is not SemVer
   assertOne(problemsOf({ 'package.json': null }), /^package\.json: missing$/)
   assertOne(problemsOf({ 'package.json': '{ nope' }), /^package\.json: cannot be read/)
   assertOne(problemsOf({ 'package.json': JSON.stringify({ version: '0.2' }) }), /^package\.json: version "0\.2" is not a Semantic Version/)
-  assertOne(problemsOf({ 'package.json': JSON.stringify({ name: 'promptfixer' }) }), /version undefined is not a Semantic Version/)
+  assertOne(problemsOf({ 'package.json': JSON.stringify({ name: 'whetprompt' }) }), /version undefined is not a Semantic Version/)
 })
 
 test('package-lock.json must carry the version in both places', () => {

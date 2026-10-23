@@ -33,10 +33,17 @@ export const USAGE = 'usage: site-releases.mjs [--out <file>] [--repo owner/name
 export const API_BASE = 'https://api.github.com'
 export const OUT_FILE = 'site/releases.json'
 
-/** The Windows installer; the .blockmap beside it is electron-builder's. */
-const INSTALLER = /^PromptFixer-.+-win-x64\.exe$/
+/**
+ * The Windows installer; the .blockmap beside it is electron-builder's. The
+ * releases published before the rename carry the old name, PromptFixer, and
+ * stay on the page under it.
+ */
+const INSTALLER = /^(?:Whetprompt|PromptFixer)-.+-win-x64\.exe$/
 /** The macOS disk images, one per architecture (docs/RELEASING.md, Building the installer locally). */
-const MAC_IMAGES = { arm64: /^PromptFixer-.+-mac-arm64\.dmg$/, x64: /^PromptFixer-.+-mac-x64\.dmg$/ }
+const MAC_IMAGES = {
+  arm64: /^(?:Whetprompt|PromptFixer)-.+-mac-arm64\.dmg$/,
+  x64: /^(?:Whetprompt|PromptFixer)-.+-mac-x64\.dmg$/,
+}
 export const MAC_ARCHES = Object.keys(MAC_IMAGES)
 const SUMS_FILE = 'SHA256SUMS.txt'
 /** One line of SHA256SUMS.txt as scripts/release-checksums.js writes it; "*" marks binary mode in sha256sum's own output. */
@@ -163,7 +170,7 @@ function headers(token) {
   const h = {
     Accept: 'application/vnd.github+json',
     'X-GitHub-Api-Version': '2022-11-28',
-    'User-Agent': 'PromptFixer-site-releases',
+    'User-Agent': 'Whetprompt-site-releases',
   }
   if (token) h.Authorization = `Bearer ${token}`
   return h

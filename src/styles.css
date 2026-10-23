@@ -923,6 +923,13 @@ select:disabled {
   display: block;
   margin-bottom: 2px;
 }
+/* An address in a banner (the Visual C++ runtime download) is a plain link in
+   the accent colour, which reads as one on every banner tint, and may break
+   anywhere so that a long one cannot widen the pane. */
+.banner a {
+  color: var(--accent);
+  overflow-wrap: anywhere;
+}
 .banner code {
   font-family: var(--mono);
   font-size: 12px;
@@ -1342,25 +1349,6 @@ select:disabled {
 .fit-note.over {
   color: var(--warn);
   border-left-color: var(--warn);
-}
-
-/* Models on disk, and the controls that give the memory and the disk back. */
-.disk-row {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 12px;
-  flex-wrap: wrap;
-  padding: 8px 12px;
-  border: 1px solid var(--border-soft);
-  border-radius: var(--radius-sm);
-  background: var(--bg-soft);
-}
-.disk-actions {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  flex-wrap: wrap;
 }
 
 /* The rewrite as it arrives. Plain text on purpose: scores, the diff and the

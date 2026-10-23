@@ -1,6 +1,6 @@
 # Changelog
 
-All notable changes to PromptFixer are recorded here. The format follows
+All notable changes to Whetprompt, called PromptFixer until 0.5.0, are recorded here. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and the project uses
 [Semantic Versioning](https://semver.org/). How a release is cut, and what counts as a patch, a
 minor or a breaking change while the version starts with 0, is in
@@ -8,10 +8,12 @@ minor or a breaking change while the version starts with 0, is in
 
 ## [Unreleased]
 
+## [0.5.0] - 2026-10-23
+
 ### Added
 
 - **A macOS build.** `npm run dist:mac` writes two disk images into `release/`,
-  `PromptFixer-<version>-mac-arm64.dmg` for Apple Silicon and `PromptFixer-<version>-mac-x64.dmg`
+  `Whetprompt-<version>-mac-arm64.dmg` for Apple Silicon and `Whetprompt-<version>-mac-x64.dmg`
   for Intel, both from one machine of either kind. The app is signed with an ad-hoc signature
   (there is no Apple Developer ID yet, and without any signature it would not start on Apple
   Silicon) and not notarized, so the first launch goes through **System Settings → Privacy &
@@ -30,6 +32,91 @@ minor or a breaking change while the version starts with 0, is in
   images, the hero names them under the Windows button, the release list links every file a
   release has, and "Before you run it" gives the `shasum` command and the Gatekeeper steps. A
   release without an image, which is every one before 0.4.0, looks as it did.
+
+### Changed
+
+- **PromptFixer is now Whetprompt.** The app and its window, the installer
+  (`Whetprompt-<version>-win-x64.exe`), the Start menu entry, the website
+  (<https://osman19702.github.io/Whetprompt/>), the repository
+  (<https://github.com/Osman19702/Whetprompt>), the package name, a library export
+  (`whetprompt-library-<date>.json`), the configuration variables (`WHETPROMPT_*`) and the data
+  folders (`%APPDATA%\Whetprompt`, `~/.whetprompt/models`) all carry the new name. Nothing a
+  PromptFixer user has stops working:
+  - The installer replaces PromptFixer instead of installing beside it: `nsis.guid` in
+    `package.json` keeps PromptFixer's uninstall ID. Its folder page suggests the folder
+    PromptFixer was in, and puts the app in a `Whetprompt` folder inside any folder that is not
+    already one, so the default after an upgrade is `C:\Program Files\PromptFixer\Whetprompt`;
+    choose `C:\Program Files` there for `C:\Program Files\Whetprompt`.
+  - The first start copies the library and `.env` from PromptFixer's user-data folder
+    (`electron/migrate.js`, with tests). They are copied, not moved, so a PromptFixer that is
+    still installed keeps its own, and nothing Whetprompt already has is written over.
+  - A model PromptFixer downloaded into `~/.promptfixer/models` is used from there, not
+    downloaded again (`defaultModelDir()` in `server/models.js`).
+  - `PROMPTFIXER_*` variables are read under their `WHETPROMPT_*` names, a new name winning when
+    both are set (`server/legacy-env.js`); `<!-- promptfixer: intent=… -->` still sets a prompt
+    file's intent; and preferences or a draft the browser kept under the old keys are read when
+    there is nothing under the new ones.
+  - The releases published as PromptFixer keep their file names, and the website and
+    `npm run release:checksums` recognise both names.
+
+  What does not follow is the old website address: GitHub does not redirect a project site once
+  its repository is renamed, so osman19702.github.io/PromptFixer stops answering, and with it
+  **What's new** in PromptFixer 0.4.0 and earlier. The repository's own addresses, downloads
+  included, are redirected.
+- **The local model stays loaded until the app quits, as it did before 0.3.0.** Since 0.3.0 it
+  was released after 15 minutes with nothing to do, and the next fix waited for the whole load
+  again, about 40 s on a laptop with integrated graphics, so a fix after a pause was much slower
+  than in the builds before. `WHETPROMPT_IDLE_UNLOAD_MS` still releases it after that many
+  milliseconds for whoever needs the memory back (`900000` for the old fifteen minutes).
+
+### Deprecated
+
+- The `PROMPTFIXER_*` environment variables and the `<!-- promptfixer: … -->` prompt-file
+  comment, in favour of `WHETPROMPT_*` and `<!-- whetprompt: … -->`. Both still work; a later
+  release will stop reading the old names.
+
+### Removed
+
+- **The models-on-disk row above the results.** Added in 0.3.0, it showed how much disk the
+  downloaded models take and whether the model was in memory, and offered **Release model** and
+  **Delete**. It stood on the main screen through every fix, its "loaded in memory" appeared when a
+  fix started and read as the model being loaded again for each request, and **Release model**
+  made the next fix load it again for real (about 40 s on a laptop with integrated graphics). Its
+  own work was not the cost: the disk figures behind it take about 0.2 ms per status poll. Nothing
+  else goes with it: a download that will not fit is still refused, and `POST /api/local/unload`
+  and `DELETE /api/local/model/:tier` still do what the two buttons did.
+
+### Fixed
+
+- **The local model starts on a Windows machine that never had the Visual C++ runtime.** On a
+  fresh Windows install, 0.4.0 opened as usual and then showed "Local model problem: Could not
+  load the model: NoBinaryFoundError" for good. The prebuilt llama.cpp binaries import
+  `MSVCP140.dll`, `VCRUNTIME140.dll` and `VCRUNTIME140_1.dll` from Microsoft's Visual C++
+  Redistributable, which Electron itself does not need, so on a machine without it every binary
+  failed its start-up check and nothing said why. The installer now carries those DLLs next to
+  each llama.cpp binary. `scripts/bundle-vcruntime.js`, an electron-builder `afterPack` hook with
+  tests, reads which runtime DLLs the binaries import and copies them from Visual Studio's
+  redistributable folder (the Release workflow's runner has one) or from the folder in
+  `WHETPROMPT_VCRUNTIME_DIR`. It refuses an x86 copy, or one older than the binaries were built
+  for (and never older than 14.40, below which they can crash), and a Windows build that finds
+  none fails instead of writing an installer that only works where the runtime is installed
+  already. Checked on such a machine: the packaged app loads the model and fixes a prompt.
+- **A model that cannot start says why.** When none of the bundled llama.cpp binaries starts,
+  node-llama-cpp's error is its own class name, `NoBinaryFoundError`, and that was the whole
+  message. Now, when System32 lacks the Visual C++ runtime too (running from source on such a
+  machine, say), the message names the missing DLLs and links to Microsoft's download; otherwise
+  it says that no bundled build passed its start-up check (`server/vcruntime.js`, with tests).
+  Retry works once the runtime is installed, without a restart. An `https://` address in the
+  local model banner is a link.
+- **Retry on the local model banner answers.** A retry that failed at once left the banner exactly
+  as it was, with a toast as the only sign, so the button looked dead. It now says *Retrying…*
+  while it waits, the banner follows the load, and the banner is redrawn from the server's answer;
+  a failure the banner already explains gets a one-line toast instead of the same text twice.
+- **The window fits the screen.** It opened 880 pixels tall whatever the screen, more than the 816
+  that a 1080p display at 125% scaling leaves above the taskbar, so the bottom of the interface
+  was under the taskbar: the Fix button, and every toast, the one a failed Retry showed included.
+  The opening and minimum sizes are now clamped to the primary screen's work area
+  (`fitToWorkArea` in `electron/handlers.js`, with tests).
 
 ## [0.4.0] - 2026-09-27
 
@@ -299,8 +386,9 @@ First public release: a Windows x64 installer.
   (`npm run test:acceptance`), a traceability matrix (`npm run test:trace`) and a results report
   (`npm run test:report`).
 
-[Unreleased]: https://github.com/Osman19702/PromptFixer/compare/v0.4.0...HEAD
-[0.4.0]: https://github.com/Osman19702/PromptFixer/compare/v0.3.0...v0.4.0
-[0.3.0]: https://github.com/Osman19702/PromptFixer/compare/v0.2.0...v0.3.0
-[0.2.0]: https://github.com/Osman19702/PromptFixer/compare/v0.1.0...v0.2.0
-[0.1.0]: https://github.com/Osman19702/PromptFixer/releases/tag/v0.1.0
+[Unreleased]: https://github.com/Osman19702/Whetprompt/compare/v0.5.0...HEAD
+[0.5.0]: https://github.com/Osman19702/Whetprompt/compare/v0.4.0...v0.5.0
+[0.4.0]: https://github.com/Osman19702/Whetprompt/compare/v0.3.0...v0.4.0
+[0.3.0]: https://github.com/Osman19702/Whetprompt/compare/v0.2.0...v0.3.0
+[0.2.0]: https://github.com/Osman19702/Whetprompt/compare/v0.1.0...v0.2.0
+[0.1.0]: https://github.com/Osman19702/Whetprompt/releases/tag/v0.1.0

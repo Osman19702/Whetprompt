@@ -209,7 +209,7 @@ test('H9 — A remembered model choice is reconciled with the server', async () 
   const before = (await app.get('/api/local/status')).body.tier
   assert.notEqual(before, 'quality')
   const { page, close } = await openApp(app, {
-    initScript: () => localStorage.setItem('promptfixer.prefs.v1', JSON.stringify({ provider: 'local', model: 'quality', options: {} })),
+    initScript: () => localStorage.setItem('whetprompt.prefs.v1', JSON.stringify({ provider: 'local', model: 'quality', options: {} })),
   })
   try {
     await page.locator('select[aria-label="Local model tier"]').waitFor()

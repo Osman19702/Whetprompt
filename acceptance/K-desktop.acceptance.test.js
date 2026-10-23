@@ -23,7 +23,7 @@ const NIGHTLY = 'desktop tier, nightly: needs the packaged installer on a clean 
 
 /** Launch the app from source with an empty model directory and no keys. */
 async function launchDesktop() {
-  const modelDir = fs.mkdtempSync(path.join(os.tmpdir(), 'promptfixer-acc-electron-'))
+  const modelDir = fs.mkdtempSync(path.join(os.tmpdir(), 'whetprompt-acc-electron-'))
   // Some tool shells export ELECTRON_RUN_AS_NODE=1, which makes Electron start
   // as plain Node and reject the debugging flags Playwright needs.
   const env = { ...process.env }
@@ -33,8 +33,8 @@ async function launchDesktop() {
     cwd: ROOT,
     env: {
       ...env,
-      PROMPTFIXER_PRELOAD: '0',
-      PROMPTFIXER_MODEL_DIR: modelDir,
+      WHETPROMPT_PRELOAD: '0',
+      WHETPROMPT_MODEL_DIR: modelDir,
       ANTHROPIC_API_KEY: '',
       OPENAI_API_KEY: '',
       OPENROUTER_API_KEY: '',

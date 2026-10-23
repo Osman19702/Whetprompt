@@ -16,7 +16,7 @@ import { VERSION } from './version.js'
 // Packaged desktop builds run from a read-only archive, so Electron points this
 // at the per-user data directory instead.
 const DIR =
-  process.env.PROMPTFIXER_DATA_DIR || path.join(path.dirname(fileURLToPath(import.meta.url)), 'data')
+  process.env.WHETPROMPT_DATA_DIR || path.join(path.dirname(fileURLToPath(import.meta.url)), 'data')
 const FILE = path.join(DIR, 'library.json')
 const MAX_ENTRIES = 500
 

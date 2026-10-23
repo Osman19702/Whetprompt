@@ -21,6 +21,23 @@ function releaseDir() {
   return dir
 }
 
+test("Whetprompt's own files are artifacts, as the PromptFixer releases' still are", async () => {
+  const dir = releaseDir()
+  try {
+    fs.writeFileSync(path.join(dir, 'Whetprompt-0.5.0-win-x64.exe'), 'abc')
+    fs.writeFileSync(path.join(dir, 'Whetprompt-0.5.0-mac-arm64.dmg'), 'abc')
+    const names = (await writeSums(dir)).trim().split('\n').map((line) => line.split('  ')[1])
+    assert.deepEqual(names, [
+      'PromptFixer-0.1.0-win-x64.exe',
+      'PromptFixer-0.1.0-win-x64.exe.blockmap',
+      'Whetprompt-0.5.0-mac-arm64.dmg',
+      'Whetprompt-0.5.0-win-x64.exe',
+    ])
+  } finally {
+    fs.rmSync(dir, { recursive: true, force: true })
+  }
+})
+
 test('sha256File matches the FIPS test vector', async () => {
   const dir = releaseDir()
   try {

@@ -17,9 +17,9 @@ const run = (args) => spawnSync(process.execPath, [SCRIPT, ...args], { encoding:
 let imports = 0
 async function loadConfig(env) {
   const saved = { ...process.env }
-  delete process.env.PROMPTFIXER_VISUAL_URL
-  delete process.env.PROMPTFIXER_VISUAL_BASELINES
-  delete process.env.PROMPTFIXER_VISUAL_VARIANT
+  delete process.env.WHETPROMPT_VISUAL_URL
+  delete process.env.WHETPROMPT_VISUAL_BASELINES
+  delete process.env.WHETPROMPT_VISUAL_VARIANT
   Object.assign(process.env, env)
   try {
     return (await import(`${pathToFileURL(CONFIG).href}?load=${++imports}`)).default
@@ -158,11 +158,11 @@ test('--help prints the usage and starts nothing; a bad option exits 2 with it',
 })
 
 test('the config without a server URL says how to run the check', async () => {
-  await assert.rejects(loadConfig({}), /PROMPTFIXER_VISUAL_URL is not set.*npm run visual/s)
+  await assert.rejects(loadConfig({}), /WHETPROMPT_VISUAL_URL is not set.*npm run visual/s)
 })
 
 test('the config: seven screens at two sizes, each reached by a driver, against the given server', async () => {
-  const config = await loadConfig({ PROMPTFIXER_VISUAL_URL: 'http://127.0.0.1:4321/' })
+  const config = await loadConfig({ WHETPROMPT_VISUAL_URL: 'http://127.0.0.1:4321/' })
   assert.deepEqual(config.targets.map((t) => t.name), ['empty', 'issues', 'fixed', 'marked', 'diff', 'changes', 'library'])
   for (const t of config.targets) {
     assert.equal(t.url, 'http://127.0.0.1:4321/')
@@ -183,18 +183,18 @@ test('the config: seven screens at two sizes, each reached by a driver, against 
 
 test('the config takes its baselines folder and its variant from the environment', async () => {
   const config = await loadConfig({
-    PROMPTFIXER_VISUAL_URL: 'http://127.0.0.1:4321',
-    PROMPTFIXER_VISUAL_BASELINES: '.elastishot/runs/acceptance-baselines',
-    PROMPTFIXER_VISUAL_VARIANT: 'keep-colour',
+    WHETPROMPT_VISUAL_URL: 'http://127.0.0.1:4321',
+    WHETPROMPT_VISUAL_BASELINES: '.elastishot/runs/acceptance-baselines',
+    WHETPROMPT_VISUAL_VARIANT: 'keep-colour',
   })
   assert.equal(config.baselineDir, '.elastishot/runs/acceptance-baselines')
-  // "PROMPTFIXER_VISUAL_BASELINES= npm run visual:approve" must not approve into the project root
+  // "WHETPROMPT_VISUAL_BASELINES= npm run visual:approve" must not approve into the project root
   for (const blank of ['', '   ']) {
-    const unset = await loadConfig({ PROMPTFIXER_VISUAL_URL: 'http://127.0.0.1:4321', PROMPTFIXER_VISUAL_BASELINES: blank })
+    const unset = await loadConfig({ WHETPROMPT_VISUAL_URL: 'http://127.0.0.1:4321', WHETPROMPT_VISUAL_BASELINES: blank })
     assert.equal(unset.baselineDir, '.elastishot/baselines', `baselines folder for ${JSON.stringify(blank)}`)
   }
   await assert.rejects(
-    loadConfig({ PROMPTFIXER_VISUAL_URL: 'http://127.0.0.1:4321', PROMPTFIXER_VISUAL_VARIANT: 'nope' }),
+    loadConfig({ WHETPROMPT_VISUAL_URL: 'http://127.0.0.1:4321', WHETPROMPT_VISUAL_VARIANT: 'nope' }),
     /"nope" is not a variant \(known: keep-colour, marks-plain, rewrite-type, fix-button\)/
   )
 })
@@ -204,7 +204,7 @@ test('the config takes its baselines folder and its variant from the environment
 // A start that fails hands its caller no stop(), so startApp has to leave nothing
 // behind by itself. The temp folder is pointed at an empty one to see what it left.
 async function inEmptyTemp(body) {
-  const tmp = fs.mkdtempSync(path.join(os.tmpdir(), 'promptfixer-visual-test-'))
+  const tmp = fs.mkdtempSync(path.join(os.tmpdir(), 'whetprompt-visual-test-'))
   const saved = { TMP: process.env.TMP, TEMP: process.env.TEMP, TMPDIR: process.env.TMPDIR }
   Object.assign(process.env, { TMP: tmp, TEMP: tmp, TMPDIR: tmp })
   try {

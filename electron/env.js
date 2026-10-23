@@ -12,19 +12,24 @@
 import path from 'node:path'
 import dotenv from 'dotenv'
 
+import { applyLegacyEnv } from '../server/legacy-env.js'
+
 /**
  * Load `.env` files in precedence order, then fill in the desktop defaults.
- * Returns the user-data `.env` path (also exported as PROMPTFIXER_ENV_FILE so
+ * Returns the user-data `.env` path (also exported as WHETPROMPT_ENV_FILE so
  * the server can name it in its "add a key" hints).
  */
 export function loadDesktopEnv({ userDataDir, packaged = false, cwd = process.cwd() }) {
   const userEnvFile = path.join(userDataDir, '.env')
   const files = packaged ? [userEnvFile] : [path.join(cwd, '.env'), userEnvFile]
   for (const file of files) dotenv.config({ path: file })
+  // Before the defaults, or a PROMPTFIXER_PRELOAD=0 kept from PromptFixer's
+  // .env would lose to the default it was written to turn off.
+  applyLegacyEnv()
 
-  process.env.PROMPTFIXER_ENV_FILE = userEnvFile
+  process.env.WHETPROMPT_ENV_FILE = userEnvFile
   // Defaults for desktop mode; `.env` (loaded above) wins over these.
-  process.env.PROMPTFIXER_PRELOAD ??= '1'
+  process.env.WHETPROMPT_PRELOAD ??= '1'
   process.env.DEFAULT_PROVIDER ??= 'local'
   return userEnvFile
 }

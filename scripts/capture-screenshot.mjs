@@ -7,7 +7,8 @@
  * Two modes:
  *   default       the acceptance stub provider answers the fix (no model needed); the header
  *                 shows the stub's label, so this is for layout checks, not publishing.
- *   SHOT_REAL=1   the real local model from %USERPROFILE%\.promptfixer\models answers the fix,
+ *   SHOT_REAL=1   the real local model, from wherever the app finds it (%USERPROFILE%\.whetprompt\models,
+ *                 or PromptFixer's .promptfixer\models), answers the fix,
  *                 so every pixel is what a user sees. Slower (model load + inference).
  *
  * SHOT_PROMPT overrides the prompt typed into the editor (default: the blog-post sample) and
@@ -22,9 +23,8 @@
  *
  * The website image is
  *   SHOT_REAL=1 SHOT_MARKS=1 SHOT_PROMPT="explain how machine learning works" SHOT_INTENT=general \
- *     node scripts/capture-screenshot.mjs ../my-portfolio/img/promptfixer.png 1200 750
+ *     node scripts/capture-screenshot.mjs ../my-portfolio/img/whetprompt.png 1200 750
  */
-import os from 'node:os'
 import path from 'node:path'
 import { fileURLToPath } from 'node:url'
 
@@ -58,8 +58,9 @@ async function main() {
     '../acceptance/support/browser.js'
   )
   const { BLOG_PROMPT } = await import('../acceptance/support/fixtures.js')
+  const { defaultModelDir } = await import('../server/models.js')
 
-  const out = path.resolve(process.argv[2] || 'docs/screenshots/promptfixer.png')
+  const out = path.resolve(process.argv[2] || 'docs/screenshots/whetprompt.png')
   const width = Number(process.argv[3] || 1200)
   const height = Number(process.argv[4] || 750)
   const real = process.env.SHOT_REAL === '1'
@@ -120,7 +121,8 @@ async function main() {
   const stub = real ? null : await startStub()
   const app = await startApp(
     real
-      ? { env: { PROMPTFIXER_MODEL_DIR: path.join(os.homedir(), '.promptfixer', 'models') } }
+      ? // Wherever the app itself would find it, PromptFixer's old folder included.
+        { env: { WHETPROMPT_MODEL_DIR: defaultModelDir() } }
       : { stub, env: { COMPATIBLE_LABEL: process.env.SHOT_LABEL || 'Stub' } },
   )
   await launchBrowser()

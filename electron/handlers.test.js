@@ -2,10 +2,10 @@ import { test } from 'node:test'
 import assert from 'node:assert/strict'
 import { EventEmitter } from 'node:events'
 
-import { installQuitHandler, willNavigateGuard, windowOpenGuard } from './handlers.js'
+import { fitToWorkArea, installQuitHandler, willNavigateGuard, WINDOW_SIZE, windowOpenGuard } from './handlers.js'
 
 const ORIGIN = 'http://127.0.0.1:4321'
-const SITE = 'https://osman19702.github.io/PromptFixer/'
+const SITE = 'https://osman19702.github.io/Whetprompt/'
 
 function fakeShell() {
   const opened = []
@@ -75,6 +75,29 @@ test('window-open: the answer is deny whatever the URL', () => {
     assert.deepEqual(guard({ url }), { action: 'deny' }, url)
   }
   assert.deepEqual(shell.opened, ['http://example.com/', SITE], 'only the http(s) ones reached the shell')
+})
+
+test('window size: a 1080p screen at 125% (816 px above the taskbar) gets a window that fits it', () => {
+  assert.deepEqual(fitToWorkArea(WINDOW_SIZE, { width: 1536, height: 816 }), {
+    width: 1360,
+    height: 816,
+    minWidth: 900,
+    minHeight: 600,
+  })
+})
+
+test('window size: a screen with room for it keeps the designed size', () => {
+  assert.deepEqual(fitToWorkArea(WINDOW_SIZE, { width: 2560, height: 1392 }), WINDOW_SIZE)
+})
+
+test('window size: on a small screen the minimums give way as well', () => {
+  // 1366x768 at 125%, less the taskbar.
+  assert.deepEqual(fitToWorkArea(WINDOW_SIZE, { width: 1093, height: 566 }), {
+    width: 1093,
+    height: 566,
+    minWidth: 900,
+    minHeight: 566,
+  })
 })
 
 /** An `app` that behaves like Electron's: quit() re-emits before-quit. */

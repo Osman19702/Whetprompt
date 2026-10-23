@@ -2,7 +2,7 @@ import fs from 'node:fs'
 import path from 'node:path'
 import { fileURLToPath } from 'node:url'
 import cors from 'cors'
-import 'dotenv/config'
+import './env.js'
 import express from 'express'
 
 import { CATEGORIES, analyzePrompt } from './analyze.js'
@@ -176,7 +176,7 @@ app.get('/api/config', (_req, res) => {
     homepage: HOMEPAGE,
     providers: providerStatus(),
     defaultProvider: DEFAULT_PROVIDER,
-    desktop: process.env.PROMPTFIXER_DESKTOP === '1',
+    desktop: process.env.WHETPROMPT_DESKTOP === '1',
     defaultModel: process.env.DEFAULT_MODEL || '',
     categories: CATEGORIES,
     presets: presets(),
@@ -468,7 +468,7 @@ app.get(
   wrap(async (_req, res) => {
     const exportedAt = new Date().toISOString()
     // The same envelope as library.json on disk, so either file imports.
-    res.setHeader('Content-Disposition', `attachment; filename="promptfixer-library-${exportedAt.slice(0, 10)}.json"`)
+    res.setHeader('Content-Disposition', `attachment; filename="whetprompt-library-${exportedAt.slice(0, 10)}.json"`)
     // `version` is the file format, unchanged since the first release.
     // `appVersion` is the build that wrote the file — a different question, and
     // the one that explains why an old entry scores differently today.
@@ -481,7 +481,7 @@ app.post(
   wrap(async (req, res) => {
     const entries = req.body?.entries
     if (!Array.isArray(entries)) {
-      const err = new Error('Expected a JSON body of the form { "entries": [...] } — a PromptFixer library export.')
+      const err = new Error('Expected a JSON body of the form { "entries": [...] } — a Whetprompt library export.')
       err.status = 400
       throw err
     }
@@ -609,12 +609,12 @@ app.use((err, _req, res, _next) => {
  * Start listening. Electron calls this in-process with `port: 0` to get a free
  * port; `node server/index.js` calls it with the configured PORT.
  */
-export function start({ port = PORT, preload = process.env.PROMPTFIXER_PRELOAD === '1' } = {}) {
+export function start({ port = PORT, preload = process.env.WHETPROMPT_PRELOAD === '1' } = {}) {
   return new Promise((resolve, reject) => {
     const server = app.listen(port, '127.0.0.1', () => {
       const actualPort = server.address().port
       const configured = providerStatus().filter((p) => p.configured)
-      console.log(`\n  PromptFixer API  →  http://localhost:${actualPort}`)
+      console.log(`\n  Whetprompt API  →  http://localhost:${actualPort}`)
       console.log(
         `  Providers ready  →  ${configured.length ? configured.map((p) => p.label).join(', ') : 'none (download the local model or add a key to .env)'}\n`
       )

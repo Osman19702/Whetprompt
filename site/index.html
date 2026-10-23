@@ -6,26 +6,26 @@
        GitHub API, and nothing else, which is the promise the README makes and this enforces. -->
   <meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self'; style-src 'self'; img-src 'self'; connect-src 'self' https://api.github.com; base-uri 'none'; form-action 'none'">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>PromptFixer — lint, score and rewrite LLM prompts, offline</title>
-  <meta name="description" content="PromptFixer is a desktop app that lints, scores and rewrites LLM prompts with a built-in local model. It works offline and nothing you type leaves your machine. Download it for Windows or macOS, check the file's SHA-256 and read what changed in each release.">
+  <title>Whetprompt — lint, score and rewrite LLM prompts, offline</title>
+  <meta name="description" content="Whetprompt (formerly PromptFixer) is a desktop app that lints, scores and rewrites LLM prompts with a built-in local model. It works offline and nothing you type leaves your machine. Download it for Windows or macOS, check the file's SHA-256 and read what changed in each release.">
   <meta name="color-scheme" content="dark light">
   <meta name="author" content="Osman Turalioglu">
-  <link rel="canonical" href="https://osman19702.github.io/PromptFixer/">
+  <link rel="canonical" href="https://osman19702.github.io/Whetprompt/">
   <link rel="icon" href="./icon.svg" type="image/svg+xml">
   <meta property="og:type" content="website">
-  <meta property="og:site_name" content="PromptFixer">
-  <meta property="og:title" content="PromptFixer — lint, score and rewrite LLM prompts, offline">
+  <meta property="og:site_name" content="Whetprompt">
+  <meta property="og:title" content="Whetprompt — lint, score and rewrite LLM prompts, offline">
   <meta property="og:description" content="A desktop app that lints, scores and rewrites LLM prompts with a built-in local model. Works offline; nothing you type leaves your machine.">
-  <meta property="og:url" content="https://osman19702.github.io/PromptFixer/">
-  <meta property="og:image" content="https://osman19702.github.io/PromptFixer/promptfixer.png">
+  <meta property="og:url" content="https://osman19702.github.io/Whetprompt/">
+  <meta property="og:image" content="https://osman19702.github.io/Whetprompt/whetprompt.png">
   <meta property="og:image:width" content="1200">
   <meta property="og:image:height" content="750">
-  <meta property="og:image:alt" content="The PromptFixer window: a prompt scored 42 in the editor and its rewrite scored 93 on the Fixed tab, with one passage marked to keep and one to change.">
+  <meta property="og:image:alt" content="The Whetprompt window: a prompt scored 42 in the editor and its rewrite scored 93 on the Fixed tab, with one passage marked to keep and one to change.">
   <meta name="twitter:card" content="summary_large_image">
-  <meta name="twitter:title" content="PromptFixer — lint, score and rewrite LLM prompts, offline">
+  <meta name="twitter:title" content="Whetprompt — lint, score and rewrite LLM prompts, offline">
   <meta name="twitter:description" content="A desktop app that lints, scores and rewrites LLM prompts with a built-in local model. Works offline; nothing you type leaves your machine.">
-  <meta name="twitter:image" content="https://osman19702.github.io/PromptFixer/promptfixer.png">
-  <meta name="twitter:image:alt" content="The PromptFixer window: a prompt scored 42 in the editor and its rewrite scored 93 on the Fixed tab, with one passage marked to keep and one to change.">
+  <meta name="twitter:image" content="https://osman19702.github.io/Whetprompt/whetprompt.png">
+  <meta name="twitter:image:alt" content="The Whetprompt window: a prompt scored 42 in the editor and its rewrite scored 93 on the Fixed tab, with one passage marked to keep and one to change.">
   <link rel="stylesheet" href="./styles.css">
   <script src="./site.js" defer></script>
 </head>
@@ -36,7 +36,7 @@
     <div class="container header-row">
       <a class="brand" href="./">
         <img src="./icon.svg" alt="" width="32" height="32">
-        <span class="brand-name">PromptFixer</span>
+        <span class="brand-name">Whetprompt</span>
         <span class="brand-tagline">lint · score · rewrite</span>
       </a>
       <!-- The links follow the page's order, and the download is the header's one button so
@@ -44,7 +44,7 @@
       <nav aria-label="Site">
         <a href="#how-it-works">How it works</a>
         <a href="#whats-new">What's new</a>
-        <a href="https://github.com/Osman19702/PromptFixer">GitHub</a>
+        <a href="https://github.com/Osman19702/Whetprompt">GitHub</a>
         <a class="button primary small" href="#download">Download</a>
       </nav>
     </div>
@@ -56,14 +56,15 @@
         <p class="eyebrow"><span class="nowrap">Desktop app for Windows and macOS</span> · <span class="nowrap">Open source, MIT</span></p>
         <h1 id="hero-title">Lint, score and rewrite your LLM prompts. Offline.</h1>
         <p class="lede">
-          PromptFixer scores a prompt against about thirty <span class="nowrap">prompt-engineering</span> rules, then a
+          Whetprompt scores a prompt against about thirty <span class="nowrap">prompt-engineering</span> rules, then a
           <strong>built-in local model</strong> rewrites it and the rewrite is scored again, so you can
           see whether it really got better. It works offline, nothing you type leaves your machine, and
           an automated test checks that on every push.
         </p>
+        <p class="requirements">Formerly PromptFixer: the same app under a new name, and your library and model come with it.</p>
         <div class="cta">
-          <a id="download-button" class="button primary" href="https://github.com/Osman19702/PromptFixer/releases/latest">Download for Windows</a>
-          <a class="button" href="https://github.com/Osman19702/PromptFixer">View on GitHub</a>
+          <a id="download-button" class="button primary" href="https://github.com/Osman19702/Whetprompt/releases/latest">Download for Windows</a>
+          <a class="button" href="https://github.com/Osman19702/Whetprompt">View on GitHub</a>
         </div>
         <p class="requirements">
           <span id="dl-hero-size"></span>Windows 10 or 11, 64-bit. The 2.5 GB model downloads on first run; after that it works offline.
@@ -71,8 +72,8 @@
         <!-- Filled by site.js from releases.json; a release without a macOS image leaves it hidden. -->
         <p class="requirements mac-line needs-data" id="dl-hero-mac" hidden></p>
         <figure class="screenshot">
-          <img src="./promptfixer.png" width="1200" height="750"
-               alt="The PromptFixer window: a prompt scored 42 in the editor and its rewrite scored 93 on the Fixed tab, with one passage marked to keep and one to change.">
+          <img src="./whetprompt.png" width="1200" height="750"
+               alt="The Whetprompt window: a prompt scored 42 in the editor and its rewrite scored 93 on the Fixed tab, with one passage marked to keep and one to change.">
           <figcaption>
             A five-word prompt scored 42; its rewrite scored 93. One passage is marked to keep and one to
             change, ready for <strong>Fix again with my marks</strong>.
@@ -131,7 +132,7 @@
             <p>
               The default model runs on your machine. There is no telemetry, no analytics, no crash
               reporting, no licence check and no update check.
-              <a href="https://github.com/Osman19702/PromptFixer/blob/master/docs/PRIVACY.md">docs/PRIVACY.md</a>
+              <a href="https://github.com/Osman19702/Whetprompt/blob/master/docs/PRIVACY.md">docs/PRIVACY.md</a>
               names every host the app can reach, and when.
             </p>
           </li>
@@ -203,7 +204,7 @@
             <h3 id="dl-title">Latest release</h3>
             <p class="muted needs-data">Published <time id="dl-date"></time></p>
             <p class="cta-row">
-              <a id="dl-link" class="button primary" href="https://github.com/Osman19702/PromptFixer/releases/latest">Download the latest release from GitHub</a>
+              <a id="dl-link" class="button primary" href="https://github.com/Osman19702/Whetprompt/releases/latest">Download the latest release from GitHub</a>
             </p>
             <dl class="facts needs-data">
               <div class="fact">
@@ -221,7 +222,7 @@
                   <span class="hash-tools">
                     <button type="button" id="dl-copy" class="button small">Copy</button>
                     <span id="dl-copied" class="status" role="status" aria-live="polite"></span>
-                    <a id="dl-sums" href="https://github.com/Osman19702/PromptFixer/releases">SHA256SUMS.txt</a>
+                    <a id="dl-sums" href="https://github.com/Osman19702/Whetprompt/releases">SHA256SUMS.txt</a>
                   </span>
                 </dd>
               </div>
@@ -232,7 +233,7 @@
               <p class="muted">macOS 13 or later. Two images: pick the one for your Mac (Apple menu, About This Mac).</p>
               <div class="mac-image" id="dl-mac-arm64" hidden>
                 <p class="cta-row">
-                  <a id="dl-mac-arm64-link" class="button" href="https://github.com/Osman19702/PromptFixer/releases/latest">Apple Silicon</a>
+                  <a id="dl-mac-arm64-link" class="button" href="https://github.com/Osman19702/Whetprompt/releases/latest">Apple Silicon</a>
                 </p>
                 <dl class="facts">
                   <div class="fact">
@@ -247,7 +248,7 @@
               </div>
               <div class="mac-image" id="dl-mac-x64" hidden>
                 <p class="cta-row">
-                  <a id="dl-mac-x64-link" class="button" href="https://github.com/Osman19702/PromptFixer/releases/latest">Intel</a>
+                  <a id="dl-mac-x64-link" class="button" href="https://github.com/Osman19702/Whetprompt/releases/latest">Intel</a>
                 </p>
                 <dl class="facts">
                   <div class="fact">
@@ -262,8 +263,8 @@
               </div>
             </div>
             <p class="links">
-              <a href="https://github.com/Osman19702/PromptFixer/blob/master/docs/INSTALL.md">Full install guide</a>
-              <a href="https://github.com/Osman19702/PromptFixer/releases">All releases</a>
+              <a href="https://github.com/Osman19702/Whetprompt/blob/master/docs/INSTALL.md">Full install guide</a>
+              <a href="https://github.com/Osman19702/Whetprompt/releases">All releases</a>
             </p>
           </div>
 
@@ -289,9 +290,9 @@ npm run desktop</code></pre>
                   release<span class="needs-data" id="dl-sha-note">, shown on the download card</span>, which is also in
                   <code>SHA256SUMS.txt</code> on its release page.
                 </p>
-                <pre><code id="dl-verify">(Get-FileHash .\PromptFixer-&lt;version&gt;-win-x64.exe).Hash.ToLower()</code></pre>
+                <pre><code id="dl-verify">(Get-FileHash .\Whetprompt-&lt;version&gt;-win-x64.exe).Hash.ToLower()</code></pre>
                 <p>On a Mac, in Terminal; the other image differs only in its file name.</p>
-                <pre><code id="dl-verify-mac">shasum -a 256 ~/Downloads/PromptFixer-&lt;version&gt;-mac-arm64.dmg</code></pre>
+                <pre><code id="dl-verify-mac">shasum -a 256 ~/Downloads/Whetprompt-&lt;version&gt;-mac-arm64.dmg</code></pre>
               </div>
               <div>
                 <h4>Not code-signed yet</h4>
@@ -301,7 +302,7 @@ npm run desktop</code></pre>
                   anyway</strong>, once the hash matches.
                 </p>
                 <p>
-                  macOS refuses the first launch with <strong>"Apple could not verify PromptFixer is free
+                  macOS refuses the first launch with <strong>"Apple could not verify Whetprompt is free
                   of malware"</strong>: the app is ad-hoc signed, not notarized. Click <strong>Done</strong>,
                   open <strong>System Settings, Privacy &amp; Security</strong>, and press <strong>Open
                   Anyway</strong>. Once.
@@ -326,11 +327,11 @@ npm run desktop</code></pre>
         <p class="section-lede">Every release, newest first, with the notes as they were published.</p>
         <p id="releases-fallback" class="fallback">
           The release notes could not be loaded on this page. Read them on the
-          <a href="https://github.com/Osman19702/PromptFixer/releases">GitHub releases page</a>.
+          <a href="https://github.com/Osman19702/Whetprompt/releases">GitHub releases page</a>.
         </p>
         <div id="releases" class="releases"></div>
         <p class="links">
-          <a href="https://github.com/Osman19702/PromptFixer/blob/master/CHANGELOG.md">Full changelog on GitHub</a>
+          <a href="https://github.com/Osman19702/Whetprompt/blob/master/CHANGELOG.md">Full changelog on GitHub</a>
         </p>
       </div>
     </section>
@@ -339,14 +340,14 @@ npm run desktop</code></pre>
   <footer class="site-footer">
     <div class="container footer-row">
       <nav aria-label="Project links" class="footer-links">
-        <a href="https://github.com/Osman19702/PromptFixer">GitHub</a>
-        <a href="https://github.com/Osman19702/PromptFixer/issues">Issues</a>
-        <a href="https://github.com/Osman19702/PromptFixer/blob/master/CHANGELOG.md">Changelog</a>
-        <a href="https://github.com/Osman19702/PromptFixer/blob/master/docs/PRIVACY.md">Privacy</a>
-        <a href="https://github.com/Osman19702/PromptFixer/blob/master/docs/INSTALL.md">Install guide</a>
-        <a href="https://github.com/Osman19702/PromptFixer/blob/master/LICENSE">MIT licence</a>
+        <a href="https://github.com/Osman19702/Whetprompt">GitHub</a>
+        <a href="https://github.com/Osman19702/Whetprompt/issues">Issues</a>
+        <a href="https://github.com/Osman19702/Whetprompt/blob/master/CHANGELOG.md">Changelog</a>
+        <a href="https://github.com/Osman19702/Whetprompt/blob/master/docs/PRIVACY.md">Privacy</a>
+        <a href="https://github.com/Osman19702/Whetprompt/blob/master/docs/INSTALL.md">Install guide</a>
+        <a href="https://github.com/Osman19702/Whetprompt/blob/master/LICENSE">MIT licence</a>
       </nav>
-      <p class="byline">PromptFixer by <a href="https://www.osmanturalioglu.com/">Osman Turalioglu</a></p>
+      <p class="byline">Whetprompt by <a href="https://www.osmanturalioglu.com/">Osman Turalioglu</a></p>
     </div>
   </footer>
 </body>

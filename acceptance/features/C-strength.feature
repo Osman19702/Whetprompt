@@ -5,7 +5,7 @@ Feature: C — The strength contract and the rewrite guard
   So that "Light touch" means what it says
 
   Background:
-    Given PromptFixer is running against a scripted model
+    Given Whetprompt is running against a scripted model
 
   Scenario: C1 — Strength is a promise about the user's own words
     When I fix the same prompt at Light touch, Balanced and Full rebuild

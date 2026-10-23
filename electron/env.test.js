@@ -6,7 +6,7 @@ import path from 'node:path'
 
 import { loadDesktopEnv } from './env.js'
 
-const KEYS = ['DEFAULT_PROVIDER', 'PROMPTFIXER_PRELOAD', 'PROMPTFIXER_ENV_FILE', 'COMPATIBLE_BASE_URL']
+const KEYS = ['DEFAULT_PROVIDER', 'WHETPROMPT_PRELOAD', 'WHETPROMPT_ENV_FILE', 'COMPATIBLE_BASE_URL', 'PROMPTFIXER_PRELOAD']
 
 function scratch(files) {
   const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'pf-env-'))
@@ -32,14 +32,14 @@ function withCleanEnv(fn) {
 
 test('packaged: reads .env from the user-data dir and lets it override the desktop defaults', () => {
   const userData = scratch({
-    '.env': 'DEFAULT_PROVIDER=anthropic\nPROMPTFIXER_PRELOAD=0\nCOMPATIBLE_BASE_URL=http://127.0.0.1:9911\n',
+    '.env': 'DEFAULT_PROVIDER=anthropic\nWHETPROMPT_PRELOAD=0\nCOMPATIBLE_BASE_URL=http://127.0.0.1:9911\n',
   })
   withCleanEnv(() => {
     const file = loadDesktopEnv({ userDataDir: userData, packaged: true, cwd: scratch({}) })
     assert.equal(file, path.join(userData, '.env'))
-    assert.equal(process.env.PROMPTFIXER_ENV_FILE, file)
+    assert.equal(process.env.WHETPROMPT_ENV_FILE, file)
     assert.equal(process.env.DEFAULT_PROVIDER, 'anthropic')
-    assert.equal(process.env.PROMPTFIXER_PRELOAD, '0')
+    assert.equal(process.env.WHETPROMPT_PRELOAD, '0')
     assert.equal(process.env.COMPATIBLE_BASE_URL, 'http://127.0.0.1:9911')
   })
 })
@@ -49,7 +49,7 @@ test('defaults apply only when .env is silent', () => {
   withCleanEnv(() => {
     loadDesktopEnv({ userDataDir: userData, packaged: true, cwd: scratch({}) })
     assert.equal(process.env.DEFAULT_PROVIDER, 'local')
-    assert.equal(process.env.PROMPTFIXER_PRELOAD, '1')
+    assert.equal(process.env.WHETPROMPT_PRELOAD, '1')
   })
 })
 
@@ -58,18 +58,26 @@ test('missing .env is not an error and still yields the defaults', () => {
     const file = loadDesktopEnv({ userDataDir: scratch({}), packaged: true, cwd: scratch({}) })
     assert.ok(!fs.existsSync(file))
     assert.equal(process.env.DEFAULT_PROVIDER, 'local')
-    assert.equal(process.env.PROMPTFIXER_PRELOAD, '1')
+    assert.equal(process.env.WHETPROMPT_PRELOAD, '1')
   })
 })
 
 test('dev: the project .env wins over user-data, and a shell variable wins over both', () => {
   const project = scratch({ '.env': 'DEFAULT_PROVIDER=openai\n' })
-  const userData = scratch({ '.env': 'DEFAULT_PROVIDER=anthropic\nPROMPTFIXER_PRELOAD=0\n' })
+  const userData = scratch({ '.env': 'DEFAULT_PROVIDER=anthropic\nWHETPROMPT_PRELOAD=0\n' })
   withCleanEnv(() => {
-    process.env.PROMPTFIXER_PRELOAD = '1'
+    process.env.WHETPROMPT_PRELOAD = '1'
     loadDesktopEnv({ userDataDir: userData, packaged: false, cwd: project })
     assert.equal(process.env.DEFAULT_PROVIDER, 'openai')
-    assert.equal(process.env.PROMPTFIXER_PRELOAD, '1')
+    assert.equal(process.env.WHETPROMPT_PRELOAD, '1')
+  })
+})
+
+test("a .env written for PromptFixer still turns off what it turned off", () => {
+  const userData = scratch({ '.env': 'PROMPTFIXER_PRELOAD=0\n' })
+  withCleanEnv(() => {
+    loadDesktopEnv({ userDataDir: userData, packaged: true, cwd: scratch({}) })
+    assert.equal(process.env.WHETPROMPT_PRELOAD, '0', 'read under the new name, before the default of 1 applies')
   })
 })
 

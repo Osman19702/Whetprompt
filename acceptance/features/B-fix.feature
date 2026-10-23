@@ -5,7 +5,7 @@ Feature: B — Fixing a prompt
   So that I can trust the rewrite instead of taking it on faith
 
   Background:
-    Given PromptFixer is running against a scripted model
+    Given Whetprompt is running against a scripted model
 
   Scenario: B1 — The whole journey, end to end
     Given the blog prompt that scores 60 with eleven issues

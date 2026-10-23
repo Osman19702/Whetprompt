@@ -1,6 +1,6 @@
 @visual
 Feature: N — Looking the same every time
-  As a developer changing PromptFixer's interface
+  As a developer changing Whetprompt's interface
   I want one command to tell me which screens look different, and which element changed
   So that a change to the look is something I approve, never something a user finds
 
@@ -63,6 +63,6 @@ Feature: N — Looking the same every time
   Scenario: N7 — Pointed at the wrong place, the check says so and harms nothing
     When the check is run with no server to look at
     Then it stops with an error that says to use "npm run visual"
-    Given a PromptFixer that somebody is using, with a prompt saved in its library
+    Given a Whetprompt that somebody is using, with a prompt saved in its library
     When the check is pointed at it
     Then it stops with an error, and the saved prompt is still there

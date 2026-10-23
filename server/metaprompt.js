@@ -1,5 +1,5 @@
 /**
- * The meta-prompt: how PromptFixer asks a model to rewrite the user's prompt.
+ * The meta-prompt: how Whetprompt asks a model to rewrite the user's prompt.
  *
  * The presets here are the single source of truth — the UI fetches them from
  * /api/presets rather than hardcoding its own copy.

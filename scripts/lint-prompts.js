@@ -19,17 +19,18 @@ const FAIL_ON = ['high', 'medium', 'low', 'none']
 const SEVERITY_RANK = { high: 0, medium: 1, low: 2 }
 const PROMPT_EXTENSIONS = new Set(['.md', '.txt', '.prompt'])
 const SKIP_DIRS = new Set(['node_modules'])
-// First-line directive, e.g. `<!-- promptfixer: intent=code -->`, stripped before linting.
-const INTENT_COMMENT = /^[ \t]*<!--\s*promptfixer:\s*intent\s*=\s*([\w-]+)\s*-->[ \t]*(?:\r?\n|$)/i
+// First-line directive, e.g. `<!-- whetprompt: intent=code -->`, stripped before linting.
+// Files written for PromptFixer say `<!-- promptfixer: ... -->`, and mean the same.
+const INTENT_COMMENT = /^[ \t]*<!--\s*(?:whetprompt|promptfixer):\s*intent\s*=\s*([\w-]+)\s*-->[ \t]*(?:\r?\n|$)/i
 
 const USAGE = `Usage: node scripts/lint-prompts.js <path...> [--intent <id>] [--min-score <n>] [--fail-on high|medium|low|none] [--json] [--quiet]
 
-Lints each prompt file with PromptFixer's deterministic rules (no server, no model).
+Lints each prompt file with Whetprompt's deterministic rules (no server, no model).
 Directories are searched recursively for *.md, *.txt and *.prompt files
 (node_modules and dot-directories are skipped). Each file is one prompt.
 
 A file may set its own intent with a first-line comment, stripped before linting:
-  <!-- promptfixer: intent=code -->
+  <!-- whetprompt: intent=code -->
 
 Options:
   --intent <id>      Intent for files without a comment: ${INTENTS.join(', ')} (default: general)
@@ -169,7 +170,7 @@ function lintFile(file, defaultIntent) {
   if (directive) {
     intent = directive[1].toLowerCase()
     if (!INTENTS.includes(intent)) {
-      throw new UsageError(`${displayPath(file)}: unknown intent in promptfixer comment: ${directive[1]}`)
+      throw new UsageError(`${displayPath(file)}: unknown intent in whetprompt comment: ${directive[1]}`)
     }
     text = text.slice(directive[0].length)
   }

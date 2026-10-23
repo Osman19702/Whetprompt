@@ -34,7 +34,7 @@ export class ApiError extends Error {
 
 /** The one message for a server that is not answering at all. */
 const unreachable = () =>
-  new ApiError('Cannot reach the PromptFixer server. Is `npm run dev` still running?', 0, true)
+  new ApiError('Cannot reach the Whetprompt server. Is `npm run dev` still running?', 0, true)
 
 async function send(path: string, init?: RequestInit): Promise<Response> {
   try {

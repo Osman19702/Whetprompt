@@ -1,5 +1,5 @@
 Feature: K — The desktop application
-  As a person who installed PromptFixer
+  As a person who installed Whetprompt
   I want it to behave like a well-mannered desktop app
   So that installing, quitting and configuring it hold no surprises
 

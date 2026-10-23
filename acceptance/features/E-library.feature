@@ -5,7 +5,7 @@ Feature: E — The prompt library
   So that my work is never lost and never silently overwritten
 
   Background:
-    Given PromptFixer is running with a private library
+    Given Whetprompt is running with a private library
 
   Scenario: E1 — Save it, find it, reopen it, delete it
     When I save a completed fix
