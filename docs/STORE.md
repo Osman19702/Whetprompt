@@ -23,13 +23,27 @@ shape this listing:
   providers need the user's own key. A dependency like that belongs at the beginning of the
   description, so that is where both are.
 - **10.5.1, privacy policy.** Every desktop app needs one, at a URL entered under **Properties**.
-- **10.8.7, pricing.** The app is open source and free on GitHub, so it is free here too.
+- **10.8.7, pricing.** A price only has to be lawful and not irrationally high; the rule against
+  charging for open-source software was dropped in July 2022 (7.16.1). Whetprompt sells for
+  £0.79 with a 30-day free trial, as decided on 23 October 2026, and its price can change in any
+  later submission. Selling needs a tax profile and then a payout profile in Partner Center
+  (**Account settings → Payout and tax profiles**, up to 48 hours to validate). Microsoft keeps
+  15% of an app's price after VAT.
+- **10.8.4, trials.** The listing must state the trial's terms, and warn in advance when a trial
+  cuts off what the user made. Once a trial has ended unbought, Windows does not start the app and
+  offers to buy it instead, so the library can no longer be opened in it. The description says so,
+  and how to export the library first. The app has no licensing code of its own: Windows enforces
+  the trial at launch, and an app that is open when the trial ends goes on until it is closed.
 
 ## Pricing and availability
 
 - **Markets:** all markets.
 - **Discoverability:** public, discoverable in the Store.
-- **Pricing:** Free. No free trial, no sale.
+- **Pricing:** base price £0.79 (GBP, United Kingdom) for the Default market group, all 240
+  markets, converted for the others (**Review price per market**). The page takes a price tier or
+  a free-form price in a market's own currency. No sale.
+- **Free trial:** Time-limited, 30 days, starting as soon as possible, never ending, offered to
+  everyone.
 - **Schedule:** as soon as the submission passes certification, unless a date is wanted.
 
 ## Properties
@@ -38,12 +52,25 @@ shape this listing:
 - **Privacy policy URL:** <https://github.com/Osman19702/Whetprompt/blob/master/docs/PRIVACY.md>
 - **Website:** <https://osman19702.github.io/Whetprompt/>
 - **Support contact info:** <https://github.com/Osman19702/Whetprompt/issues>
-- **Generative AI:** declare that the product contains live generative AI content.
-- **Product declarations:** leave the defaults. Do not tick that the product has been tested for
-  accessibility: H11 and H12 test the keyboard and the contrast, which is not a full accessibility
-  review.
-- **System requirements**, minimum: Memory 4 GB. Recommended: Memory 8 GB. Graphics, if a field
-  asks: a GPU is used when there is one, and none is required.
+- **Personal information:** "Yes, my product uses personal information". Policy 10.5.1 counts
+  every desktop app as having access to it, and the prompts people type can hold it. The privacy
+  policy URL box appears after this answer.
+- **Display mode:** neither PC nor HoloLens; that is for mixed-reality apps.
+- **Product declarations:**
+  - Ticked: "This product incorporates generative AI features", the policy 11.16 declaration;
+    the notes for certification say it as well.
+  - Ticked: customers can install the product to alternate drives (the default).
+  - Not ticked: automatic backups of the product's data to OneDrive. The library holds what people
+    type, and the privacy page says it stays on the PC.
+  - Not ticked: recording and broadcasting clips, which the page says is for games only.
+  - Not ticked: purchases outside the Store's commerce system (there are none), pen and ink, and
+    tested for accessibility (H11 and H12 test the keyboard and the contrast, which is not a full
+    accessibility review).
+- **System requirements:** Memory, minimum 4 GB and recommended 8 GB. Keyboard and mouse ticked
+  as recommended only: a minimum the device lacks shows customers a warning and stops them rating
+  the app, and a tablet's on-screen keyboard works. Graphics stays empty: the app runs without a
+  GPU, and a technical name there (Vulkan) reads like a requirement most buyers cannot judge. The
+  description says in plain words that a graphics card makes a fix faster.
 
 ## Age ratings
 
@@ -83,6 +110,8 @@ Whetprompt checks and improves the prompts you write for AI models, before you s
 • Library: save the prompts that work, and export or import them.
 • Private by default: the built-in model runs on your PC, and an automated test fails every build in which the app connects to anything but your own machine. No account, no telemetry, no ads.
 • Report: if a rewrite is ever harmful or inappropriate, the Report link beside it opens a report form in your browser.
+
+Try every feature free for 30 days. After the trial, Whetprompt opens only once you have bought it, so if you decide not to, export your library first (Library, then Export) to keep your prompts.
 
 Requirements: 8 GB of memory (4 GB with the lite model) and about 3.5 GB of free disk space. A graphics card is used if you have one (NVIDIA, AMD or Intel); without one, a fix takes longer.
 
@@ -126,7 +155,7 @@ package's own icon: `build/store/AppTileIcon-300.png`, drawn with the package im
 **Short description**
 
 ```text
-Lint, score and rewrite your AI prompts on your own PC. A built-in local model fixes a prompt offline, and nothing you type leaves the machine.
+Lint, score and rewrite your AI prompts. The built-in model runs on your own PC and works offline, so what you type stays on your machine unless you choose a cloud model.
 ```
 
 **Search terms** (seven at most, policy 10.1.3; no other product's name)
@@ -143,7 +172,10 @@ prompt rewriter
 
 **Copyright and trademark info:** `© 2026 Osman Turalioglu`
 
-**Additional license terms:** `MIT License: https://github.com/Osman19702/Whetprompt/blob/master/LICENSE`
+**Additional license terms:** left blank, so the Standard Application License Terms apply to the
+Store copy. Those also protect the Microsoft Visual C++ runtime files the package carries, as
+Microsoft's terms for redistributing them ask, which the MIT licence does not. The source stays
+MIT on GitHub, and the description says so.
 
 **Developed by:** `Osman Turalioglu`
 
@@ -152,6 +184,7 @@ prompt rewriter
 **Notes for certification**
 
 ```text
+Whetprompt uses live generative AI (policy 11.16): a language model, built in and running on the user's PC, rewrites the prompt the user typed. Cloud models are optional and use the user's own API key.
 No account or sign-in is needed.
 Scoring works at once: paste any prompt, for example "explain how machine learning works", and the score and the issues appear with no download.
 To test Fix: pick the lite model in the tier selector next to "Local (built-in)" (1 GB, the quickest to download), press Download in the results pane, and wait until it has downloaded and loaded. Then press "Fix prompt". The rewrite appears in the Fixed tab.
