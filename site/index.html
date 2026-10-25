@@ -7,7 +7,7 @@
   <meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self'; style-src 'self'; img-src 'self'; connect-src 'self' https://api.github.com; base-uri 'none'; form-action 'none'">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Whetprompt — lint, score and rewrite LLM prompts, offline</title>
-  <meta name="description" content="Whetprompt (formerly PromptFixer) is a desktop app that lints, scores and rewrites LLM prompts with a built-in local model. It works offline and nothing you type leaves your machine. Download it for Windows or macOS, check the file's SHA-256 and read what changed in each release.">
+  <meta name="description" content="Whetprompt (formerly PromptFixer) is a desktop app that lints, scores and rewrites LLM prompts with a built-in local model. It works offline and nothing you type leaves your machine. Get the official version from the Microsoft Store, or download it for Windows or macOS, check the file's SHA-256 and read what changed in each release.">
   <meta name="color-scheme" content="dark light">
   <meta name="author" content="Osman Turalioglu">
   <link rel="canonical" href="https://osman19702.github.io/Whetprompt/">
@@ -62,9 +62,13 @@
           an automated test checks that on every push.
         </p>
         <p class="requirements">Formerly PromptFixer: the same app under a new name, and your library and model come with it.</p>
+        <p class="store-note">
+          <strong>Now in the Microsoft Store.</strong> Install the official version, signed by Microsoft:
+          Windows installs it and keeps it up to date, with no security warning. Free to try for 30 days.
+        </p>
         <div class="cta">
-          <a id="download-button" class="button primary" href="https://github.com/Osman19702/Whetprompt/releases/latest">Download for Windows</a>
-          <a class="button" href="https://apps.microsoft.com/detail/9P750H35HR59">Get it from the Microsoft Store</a>
+          <a class="button primary" href="https://apps.microsoft.com/detail/9P750H35HR59">Get it from the Microsoft Store</a>
+          <a id="download-button" class="button" href="https://github.com/Osman19702/Whetprompt/releases/latest">Download for Windows</a>
           <a class="button" href="https://github.com/Osman19702/Whetprompt">View on GitHub</a>
         </div>
         <p class="requirements">
@@ -198,14 +202,25 @@
     <section id="download" class="section" aria-labelledby="download-title">
       <div class="container">
         <h2 id="download-title">Download</h2>
-        <p class="section-lede">One file, no account, nothing to install first. Windows 10 or 11 (64-bit), or macOS 13 or later.</p>
+        <p class="section-lede">From the Microsoft Store, or as one file from GitHub: no account, nothing to install first. Windows 10 or 11 (64-bit), or macOS 13 or later.</p>
         <div class="download-grid">
           <div id="download-card" class="card download-card" data-state="fallback">
             <p id="newer-notice" class="notice" hidden></p>
+            <div class="store-note">
+              <p>
+                <strong>Recommended for Windows: the Microsoft Store.</strong> The official version, signed by
+                Microsoft. Windows installs it and keeps it up to date, with no security warning to click
+                through. Free for 30 days, then a one-off purchase.
+              </p>
+              <p class="cta-row">
+                <a class="button primary" href="https://apps.microsoft.com/detail/9P750H35HR59">Get it from the Microsoft Store</a>
+              </p>
+            </div>
+            <p class="muted">Or download the installer from GitHub, free:</p>
             <h3 id="dl-title">Latest release</h3>
             <p class="muted needs-data">Published <time id="dl-date"></time></p>
             <p class="cta-row">
-              <a id="dl-link" class="button primary" href="https://github.com/Osman19702/Whetprompt/releases/latest">Download the latest release from GitHub</a>
+              <a id="dl-link" class="button" href="https://github.com/Osman19702/Whetprompt/releases/latest">Download the latest release from GitHub</a>
             </p>
             <dl class="facts needs-data">
               <div class="fact">
@@ -228,11 +243,6 @@
                 </dd>
               </div>
             </dl>
-            <p class="muted">
-              Or get the same app from the <a href="https://apps.microsoft.com/detail/9P750H35HR59">Microsoft Store</a>: signed by the Store, so
-              Windows shows no warning, and it updates itself. It is free for 30 days, then a one-off
-              purchase. The download above stays free.
-            </p>
             <!-- The macOS images, from the same release; hidden until site.js finds one. -->
             <div id="dl-mac" class="mac-images needs-data" hidden>
               <h4>For macOS</h4>
@@ -306,6 +316,10 @@ npm run desktop</code></pre>
                   Windows shows a blue <strong>"Windows protected your PC"</strong> screen because the
                   installer is not code-signed. Click <strong>More info</strong>, then <strong>Run
                   anyway</strong>, once the hash matches.
+                </p>
+                <p>
+                  The <a href="https://apps.microsoft.com/detail/9P750H35HR59">Microsoft Store version</a> has none of this: Microsoft signs it,
+                  so Windows installs it without a warning.
                 </p>
                 <p>
                   macOS refuses the first launch with <strong>"Apple could not verify Whetprompt is free

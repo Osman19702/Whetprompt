@@ -88,6 +88,12 @@ The IARC questionnaire, answered for what the app does:
 Policy 11.11.2 asks for the answers to be kept true: a release that changes any of them (a chat, a
 way to share, a store of downloadable prompts) takes the questionnaire again.
 
+The result, confirmed by IARC's Live Rating Notice of 23 October 2026: **IARC 3+**, Microsoft 3+,
+PEGI 3, USK 0 and 0+ in Russia. Global Rating ID `e35a5bc9-48ed-8565-8740-3fb146a9c385`: another
+storefront that uses IARC takes this ID instead of the questionnaire. Under IARC's terms (4 and 5)
+an update keeps the rating unless it changes an answer above; one that does takes the
+questionnaire again.
+
 ## Packages
 
 Upload `Whetprompt-x.y.z-win-x64.appx`, from the Release workflow's artifact
