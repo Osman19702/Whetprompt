@@ -630,3 +630,15 @@ place, whatever that original happens to contain.
 - One model job runs at a time. A second fix waits for the first, and the interface says so.
 - The local model holds about 2.5–3 GB of memory for as long as the app is open, unless
   `WHETPROMPT_IDLE_UNLOAD_MS` releases it when idle.
+
+## Licence
+
+The code is MIT-licensed; see [LICENSE](LICENSE). Two things are not under it:
+
+- **The name and the icon.** The licence covers the code, not Whetprompt as a brand. A fork or a
+  copy is welcome under the licence, under a name and an icon of its own.
+- **The Microsoft Visual C++ runtime** (`msvcp140.dll`, `vcruntime140.dll`, `vcruntime140_1.dll`)
+  that the Windows installer and the Microsoft Store package carry next to the llama.cpp binaries.
+  They are Microsoft's files, redistributed under the Visual Studio licence terms that allow it
+  ([docs/RELEASING.md](docs/RELEASING.md#building-the-installer-locally)), and the MIT licence
+  does not apply to them.
