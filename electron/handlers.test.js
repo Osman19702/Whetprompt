@@ -5,7 +5,7 @@ import { EventEmitter } from 'node:events'
 import { fitToWorkArea, installQuitHandler, willNavigateGuard, WINDOW_SIZE, windowOpenGuard } from './handlers.js'
 
 const ORIGIN = 'http://127.0.0.1:4321'
-const SITE = 'https://osman19702.github.io/Whetprompt/'
+const SITE = 'https://www.whetprompt.com/'
 
 function fakeShell() {
   const opened = []

@@ -8,7 +8,7 @@ A desktop app for Windows and macOS that lints, scores and rewrites LLM prompts 
 not just asserted: see [docs/PRIVACY.md](docs/PRIVACY.md) for what does and does not leave, and how
 the check works.
 
-Website: **[osman19702.github.io/Whetprompt](https://osman19702.github.io/Whetprompt/)** — the
+Website: **[www.whetprompt.com](https://www.whetprompt.com/)** — the
 latest download, and what changed in every release.
 
 Paste a prompt. It's scored instantly against ~30 prompt-engineering rules. Press **Fix prompt**
@@ -150,7 +150,7 @@ Whetprompt/
 │   ├── ATDD.md            Acceptance test-driven development: strategy and the acceptance scenarios
 │   ├── PRIVACY.md         What does and does not leave the machine, and how scenario F11 checks it
 │   └── LOCAL-MODEL.md     Model choice, measured performance, and the train/fine-tune analysis
-├── site/                  The website (https://osman19702.github.io/Whetprompt/): index.html, styles.css, site.js,
+├── site/                  The website (https://www.whetprompt.com/): index.html, styles.css, site.js,
 │                          icon.svg, whetprompt.png, README.md; releases.json is written by npm run site:releases
 │                          and git-ignored
 ├── dist/                  Built frontend (npm run build) — served by the server

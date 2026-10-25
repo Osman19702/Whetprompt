@@ -1,6 +1,6 @@
 # The GitHub Pages site
 
-This folder is the public landing page for Whetprompt, published at https://osman19702.github.io/Whetprompt/: one page (`index.html`), one stylesheet, one script, the app icon and a screenshot. There is no framework, no build step and no external script, font or tracker, because the page belongs to an app whose headline claim is that nothing leaves your machine; the only off-site requests it makes are an optional check of the GitHub API for a newer release and the download links a visitor clicks.
+This folder is the public landing page for Whetprompt, published at https://www.whetprompt.com/ (the custom domain; the old address, https://osman19702.github.io/Whetprompt/, redirects there): one page (`index.html`), one stylesheet, one script, the app icon and a screenshot. There is no framework, no build step and no external script, font or tracker, because the page belongs to an app whose headline claim is that nothing leaves your machine; the only off-site requests it makes are an optional check of the GitHub API for a newer release and the download links a visitor clicks.
 
 It is deployed by `.github/workflows/pages.yml`, which runs on a push to `master` that touches `site/` and again whenever a release is published, so the page catches up with a new installer without anyone editing it.
 

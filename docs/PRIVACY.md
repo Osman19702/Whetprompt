@@ -57,8 +57,9 @@ This is the complete list. Every one is in the source and nothing else is.
 With no key configured and the built-in model selected — the default — none of these is contacted.
 
 The **What's new** link in the top bar opens
-[osman19702.github.io/Whetprompt](https://osman19702.github.io/Whetprompt/) in your own browser
-when you click it; that is where the latest release and its notes are. The app itself never
+[www.whetprompt.com](https://www.whetprompt.com/) in your own browser when you click it (up
+to 0.6.0 it names the old address, osman19702.github.io/Whetprompt, which redirects there); that
+is where the latest release and its notes are. The app itself never
 requests that address: there is still no update check, and scenario F11 still holds. In the same
 way, when the built-in model cannot start because Windows lacks the Microsoft Visual C++ runtime,
 the error links to Microsoft's download of it, `aka.ms/vc14/vc_redist.x64.exe`, which opens in

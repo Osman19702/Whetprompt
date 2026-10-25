@@ -6,7 +6,7 @@
   "description": "Lint, score and rewrite LLM prompts. Desktop app with a built-in local model; cloud providers optional.",
   "author": "Osman Turalioglu",
   "license": "MIT",
-  "homepage": "https://osman19702.github.io/Whetprompt/",
+  "homepage": "https://www.whetprompt.com/",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/Osman19702/Whetprompt.git"

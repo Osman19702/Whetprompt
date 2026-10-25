@@ -50,7 +50,8 @@ shape this listing:
 
 - **Category:** Developer tools. If a subcategory is asked for: Utilities.
 - **Privacy policy URL:** <https://github.com/Osman19702/Whetprompt/blob/master/docs/PRIVACY.md>
-- **Website:** <https://osman19702.github.io/Whetprompt/>
+- **Website:** <https://www.whetprompt.com/>. Submission 1 (0.6.0) went in with the old address,
+  https://osman19702.github.io/Whetprompt/, which redirects here; the next update changes it.
 - **Support contact info:** <https://github.com/Osman19702/Whetprompt/issues>
 - **Personal information:** "Yes, my product uses personal information". Policy 10.5.1 counts
   every desktop app as having access to it, and the prompts people type can hold it. The privacy

@@ -18,7 +18,7 @@ install first, no Node.js, no command line, no account.
 ### Install
 
 1. Download **Whetprompt-0.6.0-win-x64.exe**: press **Download** on
-   [osman19702.github.io/Whetprompt](https://osman19702.github.io/Whetprompt/), or take it from
+   [www.whetprompt.com](https://www.whetprompt.com/), or take it from
    the [v0.6.0 release page](https://github.com/Osman19702/Whetprompt/releases/tag/v0.6.0) or the
    download button on [osmanturalioglu.com](https://www.osmanturalioglu.com/).
 2. Double-click it. Windows may show a blue **"Windows protected your PC"** screen because the
@@ -126,7 +126,7 @@ Store version removes is in [The Microsoft Store version](#the-microsoft-store-v
   **Retry**; the app does not need a restart. Versions after 0.4.0 bring their own copy, and when
   the model cannot start they say why.
 - **Is there a newer version, and what changed?** — The website,
-  [osman19702.github.io/Whetprompt](https://osman19702.github.io/Whetprompt/), has the latest
+  [www.whetprompt.com](https://www.whetprompt.com/), has the latest
   download and the notes of every release; from 0.4.0, **What's new** in the app's top bar opens
   it. The app never checks for updates by itself.
 
@@ -147,7 +147,7 @@ The macOS build is a disk image. There is one for each kind of Mac, and the wron
 
 Apple menu → **About This Mac** says which you have. Both are on the
 [v0.4.0 release page](https://github.com/Osman19702/Whetprompt/releases/tag/v0.4.0) and on
-[osman19702.github.io/Whetprompt](https://osman19702.github.io/Whetprompt/).
+[www.whetprompt.com](https://www.whetprompt.com/).
 
 ### Requirements
 

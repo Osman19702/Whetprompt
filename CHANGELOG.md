@@ -8,6 +8,13 @@ minor or a breaking change while the version starts with 0, is in
 
 ## [Unreleased]
 
+### Changed
+
+- **The website moved to <https://www.whetprompt.com/>.** GitHub Pages serves it at the custom
+  domain now, and the old address, osman19702.github.io/Whetprompt, redirects there, so the
+  **What's new** link of 0.6.0 and earlier still arrives. `homepage` in `package.json`, which
+  that link reads, names the new address.
+
 ## [0.6.0] - 2026-10-23
 
 ### Added
