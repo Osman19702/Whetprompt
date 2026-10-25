@@ -8,7 +8,7 @@ later one starts from what the last one said. How a release gets its package is 
 | | |
 | --- | --- |
 | Product | Whetprompt, an MSIX app; Store ID `9P750H35HR59` |
-| Store page | <https://apps.microsoft.com/detail/9P750H35HR59> (answers once the first submission is published) |
+| Store page | <https://apps.microsoft.com/detail/9P750H35HR59> |
 | Developer account | Turalio Labs, an individual account |
 | Package identity | `TuralioLabs.Whetprompt`, publisher `CN=2983B22E-31A1-4704-9688-153EBAC48AD9`, family name `TuralioLabs.Whetprompt_7a4rf7jk3z6yp` |
 
@@ -181,7 +181,12 @@ MIT on GitHub, and the description says so.
 
 ## Submission options
 
-**Notes for certification**
+**Publishing hold options:** "Don't publish this submission until I select Publish now". A
+certified version then waits for **Publish now**, so that it goes live together with the GitHub
+release, the website and the portfolio, and only once the tax and payout profiles are validated.
+
+**Notes for certification** go on their own page, **Supplemental info → Additional Testing
+Information**, not on Submission options:
 
 ```text
 Whetprompt uses live generative AI (policy 11.16): a language model, built in and running on the user's PC, rewrites the prompt the user typed. Cloud models are optional and use the user's own API key.
@@ -197,5 +202,5 @@ for the Store does. The justification box cuts long text off without saying so, 
 sentences:
 
 ```text
-Whetprompt is a desktop (Electron) app. It needs full trust to run its built-in local language model and its local server.
+Whetprompt is a desktop app built with Electron. It needs full trust to run its built-in local language model (llama.cpp) and the small web server on 127.0.0.1 that only its own window uses.
 ```

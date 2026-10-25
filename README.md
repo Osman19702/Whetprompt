@@ -26,24 +26,30 @@ remain available as an optional switch — but nothing requires them.
 
 ## Download (Windows)
 
-**[Whetprompt-0.5.0-win-x64.exe](https://github.com/Osman19702/Whetprompt/releases/download/v0.5.0/Whetprompt-0.5.0-win-x64.exe)**
-(339.8 MiB, Windows 10/11 64-bit) from the
-[v0.5.0 release](https://github.com/Osman19702/Whetprompt/releases/tag/v0.5.0). The 2.5 GB model
-downloads on first run; after that the app works offline. Installed over PromptFixer, it replaces
-it and keeps your library and the model
+**[Whetprompt-0.6.0-win-x64.exe](https://github.com/Osman19702/Whetprompt/releases/download/v0.6.0/Whetprompt-0.6.0-win-x64.exe)**
+(339.2 MiB, Windows 10/11 64-bit) from the
+[v0.6.0 release](https://github.com/Osman19702/Whetprompt/releases/tag/v0.6.0). The 2.5 GB model
+downloads on first run; after that the app works offline. Installed over an earlier version, or over
+PromptFixer, it keeps your library and the model
 ([Upgrading from PromptFixer](docs/INSTALL.md#upgrading-from-promptfixer)).
 
-- SHA-256: `d420ea0f63cfd623265287dca0d025b8f9f76d9eb22fbf591d60371bea5d7b12`, also in the release's
-  [`SHA256SUMS.txt`](https://github.com/Osman19702/Whetprompt/releases/download/v0.5.0/SHA256SUMS.txt).
-  Check it in PowerShell with `(Get-FileHash .\Whetprompt-0.5.0-win-x64.exe).Hash.ToLower()`.
+- SHA-256: `4f08e8cd18c4ba4589d4b9807bcff6aee3ad0ff413e3c508128db93b42aca907`, also in the release's
+  [`SHA256SUMS.txt`](https://github.com/Osman19702/Whetprompt/releases/download/v0.6.0/SHA256SUMS.txt).
+  Check it in PowerShell with `(Get-FileHash .\Whetprompt-0.6.0-win-x64.exe).Hash.ToLower()`.
 - The installer is not code-signed yet, so SmartScreen shows "Windows protected your PC": click
   **More info**, then **Run anyway**, once the hash matches.
 - Full guide: [docs/INSTALL.md](docs/INSTALL.md).
 
+Or get the same app from the **[Microsoft Store](https://apps.microsoft.com/detail/9P750H35HR59)**: signed by the Store, so
+there is no SmartScreen warning, and it updates itself. It is free to try for 30 days and then a
+one-off purchase (£0.79 in the UK), and it keeps its files a little differently
+([The Microsoft Store version](docs/INSTALL.md#the-microsoft-store-version)). The download above
+stays free.
+
 ## Download (macOS)
 
 There is no macOS build of Whetprompt yet. The newest is 0.4.0, from before the rename, so the
-disk images and the app they install are still called PromptFixer, without the fixes of 0.5.0.
+disk images and the app they install are still called PromptFixer, without what 0.5.0 and 0.6.0 brought.
 Two disk images on the [v0.4.0 release](https://github.com/Osman19702/Whetprompt/releases/tag/v0.4.0),
 for macOS 13 or later. Pick the one for your Mac (Apple menu, About This Mac):
 

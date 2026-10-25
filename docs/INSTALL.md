@@ -17,15 +17,15 @@ install first, no Node.js, no command line, no account.
 
 ### Install
 
-1. Download **Whetprompt-0.5.0-win-x64.exe**: press **Download** on
+1. Download **Whetprompt-0.6.0-win-x64.exe**: press **Download** on
    [osman19702.github.io/Whetprompt](https://osman19702.github.io/Whetprompt/), or take it from
-   the [v0.5.0 release page](https://github.com/Osman19702/Whetprompt/releases/tag/v0.5.0) or the
+   the [v0.6.0 release page](https://github.com/Osman19702/Whetprompt/releases/tag/v0.6.0) or the
    download button on [osmanturalioglu.com](https://www.osmanturalioglu.com/).
 2. Double-click it. Windows may show a blue **"Windows protected your PC"** screen because the
    installer is not yet code-signed. Click **More info**, then **Run anyway**. (To check the file
    first, compare its SHA-256 with the line in `SHA256SUMS.txt` on the same release page. In
-   PowerShell: `(Get-FileHash .\Whetprompt-0.5.0-win-x64.exe).Hash.ToLower()`, which for 0.5.0
-   must print `d420ea0f63cfd623265287dca0d025b8f9f76d9eb22fbf591d60371bea5d7b12`.)
+   PowerShell: `(Get-FileHash .\Whetprompt-0.6.0-win-x64.exe).Hash.ToLower()`, which for 0.6.0
+   must print `4f08e8cd18c4ba4589d4b9807bcff6aee3ad0ff413e3c508128db93b42aca907`.)
 3. Choose an install folder or accept the default, and finish. Whetprompt opens by itself and adds a
    Start menu entry.
 
@@ -75,9 +75,11 @@ doing:
 
 ### The Microsoft Store version
 
-From 0.6.0, Whetprompt is also in the Microsoft Store. It is the same app as the download above,
-built in the same run from the same release, but the Store installs and updates it, and it opens
-without the "Windows protected your PC" screen. Windows gives a Store app storage of its own, and
+From 0.6.0, Whetprompt is also [in the Microsoft Store](https://apps.microsoft.com/detail/9P750H35HR59). It is the same app as the
+download above, built in the same run from the same release, but the Store installs and updates it,
+and it opens without the "Windows protected your PC" screen. It is free to try for 30 days, then a
+one-off purchase (£0.79 in the UK; the Store shows the price in your currency). After a trial that
+ends unbought it no longer opens, so export your library first if you decide against it. Windows gives a Store app storage of its own, and
 that is the one difference to know about:
 
 - **On a PC that never had Whetprompt**, the Store version keeps its library, its settings and the
@@ -132,7 +134,7 @@ Store version removes is in [The Microsoft Store version](#the-microsoft-store-v
 
 There is no macOS build of Whetprompt yet. The newest is 0.4.0, from before the rename, so the disk
 images, the app and its folders below are all called PromptFixer, and it is 0.4.0 without the fixes
-of 0.5.0. When Whetprompt comes to macOS, it will take over PromptFixer's library and model the
+of 0.5.0 and later. When Whetprompt comes to macOS, it will take over PromptFixer's library and model the
 way the Windows version does.
 
 The macOS build is a disk image. There is one for each kind of Mac, and the wrong one still runs
