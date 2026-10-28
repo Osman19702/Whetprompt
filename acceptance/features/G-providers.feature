@@ -44,3 +44,23 @@ Feature: G — Providers and privacy
     Then it is not granted cross-origin access
     When a request arrives from a localhost origin
     Then it is
+    When a request to change or test a key is addressed to a name other than this machine's
+    Then it is refused, and the key is left as it was
+
+  Scenario: G7 — A key added in Settings works at once and stays on this computer
+    Given a cloud provider with no key
+    When I add a key for it in Settings
+    Then the provider is offered as ready at once, with no restart, and Settings says the key is its own
+    And no reply carries the key back
+    And the key is written to the app's own settings file, where an app started again finds it
+    When I remove the key
+    Then the provider needs a key again, and the file holds it no longer
+
+  Scenario: G8 — Settings refuses what is not a key, and leaves a key set elsewhere alone
+    Given a settings file that holds notes and settings of my own
+    When I add a key with a line break, a space or a quote in it, or one too short to be a key
+    Then it is refused without being repeated back, and the file is unchanged to the byte
+    When I add a key copied together with its name, the way it stands in a settings file
+    Then only the key is kept, and every other line of the file is as it was
+    Given a key set in the system environment
+    Then Settings says it is set elsewhere, and will neither replace nor remove it

@@ -22,7 +22,7 @@ const CONFIG = path.join(root, 'elastishot.config.mjs')
 const SCRIPTS = JSON.parse(fs.readFileSync(path.join(root, 'package.json'), 'utf8')).scripts
 
 /** The screens of elastishot.config.mjs and the two window sizes, by the names a developer types. */
-export const SCREENS = ['empty', 'issues', 'fixed', 'marked', 'diff', 'changes', 'library']
+export const SCREENS = ['empty', 'issues', 'fixed', 'marked', 'diff', 'changes', 'library', 'settings']
 export const SIZES = ['desktop', 'small']
 
 /** A folder under .elastishot/runs for one scenario's run or pictures. */

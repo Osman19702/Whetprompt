@@ -40,6 +40,9 @@ export const MODEL_DIR_PREFIX = 'whetprompt-acc-models-'
 export async function startApp({ stub, env = {}, netwatch = false } = {}) {
   const dataDir = fs.mkdtempSync(path.join(os.tmpdir(), 'whetprompt-acc-data-'))
   const modelDir = fs.mkdtempSync(path.join(os.tmpdir(), MODEL_DIR_PREFIX))
+  // Where Settings writes keys. Left to its default, a server run from the
+  // project writes the project's own .env, which is the developer's.
+  const envFile = path.join(dataDir, '.env')
   // Written by the child, read by the test; outside both temp dirs above so
   // cleanUp() cannot remove the evidence before a failure is reported.
   const netLog = netwatch ? path.join(os.tmpdir(), `whetprompt-acc-net-${process.pid}-${Date.now()}.jsonl`) : null
@@ -69,6 +72,7 @@ export async function startApp({ stub, env = {}, netwatch = false } = {}) {
     WHETPROMPT_DESKTOP: '0',
     WHETPROMPT_MODEL_DIR: modelDir,
     WHETPROMPT_DATA_DIR: dataDir,
+    WHETPROMPT_ENV_FILE: envFile,
     ...(netLog
       ? {
           WHETPROMPT_NETWATCH_LOG: netLog,
@@ -200,10 +204,13 @@ export async function startApp({ stub, env = {}, netwatch = false } = {}) {
       return netLog ? readAttempts(netLog) : []
     },
     libraryFile: path.join(dataDir, 'library.json'),
+    /** The settings file Settings writes keys to, unless the scenario named another. */
+    envFile: env.WHETPROMPT_ENV_FILE ?? envFile,
     raw,
     req,
     get: (route, opts) => req('GET', route, undefined, opts),
     post: (route, body, opts) => req('POST', route, body, opts),
+    put: (route, body, opts) => req('PUT', route, body, opts),
     del: (route) => req('DELETE', route),
     /** Convenience: POST /api/fix the way the interface does once a model is picked. */
     fix: (prompt, options = {}, extra = {}) =>

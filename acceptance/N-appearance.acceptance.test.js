@@ -30,7 +30,7 @@ const BAR = '[data-testid="feedback-bar"]'
 const FIX_BUTTON = /^role=button\[name="Fix prompt/
 
 /**
- * All seven screens at both sizes, as four runs side by side — a run's fixed
+ * All eight screens at both sizes, as four runs side by side — a run's fixed
  * cost is a browser launch, and this is the step every scenario waits for.
  * Each run has a server to itself: a capture begins by emptying the library.
  */

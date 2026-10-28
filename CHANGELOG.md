@@ -8,12 +8,56 @@ minor or a breaking change while the version starts with 0, is in
 
 ## [Unreleased]
 
+## [0.7.0] - 2026-10-28
+
+### Added
+
+- **Settings, where a cloud provider's API key goes.** A **Settings** button in the top bar opens a
+  drawer that lists Anthropic, OpenAI, OpenRouter and Google Gemini, each with the state of its
+  key: saved, missing, or set outside Whetprompt. A key pasted there and saved works at once, with
+  no restart; **Test** asks the provider whether it accepts the key, in one request and only when
+  pressed; **Replace** and **Remove** do what they say. Until now the only way in was a `.env` file
+  created by hand in a hidden folder and a restart, which a Microsoft Store customer could not be
+  expected to find, while the listing offers cloud models in its first sentence. Settings writes
+  that same file (`WHETPROMPT_ENV_FILE`: the user-data one in the desktop app, the project's when
+  run from source), so a key typed into it by hand shows as saved, and both survive a restart. It
+  changes the one key's line and keeps every other byte, and writes nothing unless the rest of the
+  file reads back exactly as before (`server/keys.js`, with tests). A key never goes back to the
+  interface. What is not a key — a line break, a space, a quote, a backslash, a `#`, fewer than
+  eight characters — is refused, so nothing else can be slipped into the file; a key set in the
+  system environment, or in a `.env` read before this one, is shown as set elsewhere and left
+  alone. The routes (`PUT` and `DELETE /api/keys/:provider`, `POST /api/keys/:provider/test`)
+  answer only a request addressed to this machine by name, which a web page that points a name of
+  its own at 127.0.0.1 cannot fake. Scenarios G7, G8 and H17, and G6 extended to these routes.
+- **A provider with no key says so.** Selecting one shows a banner in the results pane — "Anthropic
+  needs an API key" — with **Add key**, which opens Settings at that provider's field, and a link
+  to the page where the provider issues keys.
+
 ### Changed
 
+- **Fix stays off for a cloud provider with no key**, even with a model remembered from when it had
+  one: a key removed in Settings would otherwise have left Fix on, to fail when pressed. The
+  server's message for a missing key says to add it in Settings.
+- The acceptance harness and `server/e2e.test.js` give every server under test a settings file of
+  its own. Run from the project, a server's Settings writes the project's `.env`, which is the
+  developer's.
 - **The website moved to <https://www.whetprompt.com/>.** GitHub Pages serves it at the custom
   domain now, and the old address, osman19702.github.io/Whetprompt, redirects there, so the
   **What's new** link of 0.6.0 and earlier still arrives. `homepage` in `package.json`, which
   that link reads, names the new address.
+- **Anthropic's fallback model list names the current models** — Claude Opus 5.5, Sonnet 5.5,
+  Haiku 5.5 and Fable 5.1 — for when the live list cannot be read.
+
+### Fixed
+
+- **A fix through Anthropic works with the current Claude models.** Every request sent
+  `temperature: 0.3`, which Claude Opus 5.5 and the other current models refuse ("400
+  `temperature` is deprecated for this model"), so no fix with them could succeed. A model that
+  refuses it is now asked again without it, once — a refused request costs nothing — and is not
+  sent it again; older models that take a temperature keep theirs. A reply from Anthropic may now
+  run to 16,000 tokens instead of 4,000, because current Claude models think before they answer
+  and the thinking counts against that limit. A request a model's safeguards decline says so,
+  instead of failing as a reply with no answer in it.
 
 ## [0.6.0] - 2026-10-23
 
@@ -427,7 +471,8 @@ First public release: a Windows x64 installer.
   (`npm run test:acceptance`), a traceability matrix (`npm run test:trace`) and a results report
   (`npm run test:report`).
 
-[Unreleased]: https://github.com/Osman19702/Whetprompt/compare/v0.6.0...HEAD
+[Unreleased]: https://github.com/Osman19702/Whetprompt/compare/v0.7.0...HEAD
+[0.7.0]: https://github.com/Osman19702/Whetprompt/compare/v0.6.0...v0.7.0
 [0.6.0]: https://github.com/Osman19702/Whetprompt/compare/v0.5.0...v0.6.0
 [0.5.0]: https://github.com/Osman19702/Whetprompt/compare/v0.4.0...v0.5.0
 [0.4.0]: https://github.com/Osman19702/Whetprompt/compare/v0.3.0...v0.4.0

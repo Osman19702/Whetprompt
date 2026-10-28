@@ -68,6 +68,7 @@ Feature: H — The editor and the results interface
   Scenario: H13 — The window works at a small size
     Given a 1024 by 720 window
     Then nothing is clipped and no pane scrolls horizontally
+    And the same holds with the real provider names, down to the narrowest window the desktop app allows
 
   Scenario: H14 — Every action without a visible result reports itself
     When I save, import, export, copy and apply
@@ -88,3 +89,13 @@ Feature: H — The editor and the results interface
     And the form is filled in with the app's version, the provider and the model, and with nothing I wrote or the model wrote
     When I click it
     Then the form opens in a page of its own and the rewrite is still where I left it
+
+  Scenario: H17 — A provider without a key says so, and Settings takes the key
+    Given a cloud provider with no key is selected
+    Then the results pane says it needs a key and offers to add one, and Fix is disabled
+    When I press Add key, paste a key and save it
+    Then the provider is ready, the field is empty, and the key is nowhere on the page
+    When I test the key
+    Then I am told what the provider answered
+    When I remove the key in Settings
+    Then the provider needs a key again, and Fix is disabled

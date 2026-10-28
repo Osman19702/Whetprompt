@@ -4,6 +4,7 @@ import { IssueList } from './components/IssueList'
 import { Library } from './components/Library'
 import { MarkableOutput } from './components/MarkableOutput'
 import { Delta, ScorePanel } from './components/ScorePanel'
+import { Settings } from './components/Settings'
 import { api, ApiError } from './lib/api'
 import type { FixPayload } from './lib/api'
 import {
@@ -24,6 +25,7 @@ import {
   localIdle,
   localTierAction,
   marksAfterSelect,
+  needsKey,
   promptFit,
   readExamples,
   refinedNote,
@@ -117,6 +119,9 @@ export default function App() {
   const [toasts, setToasts] = useState<{ id: number; message: string; kind: string }[]>([])
   const [libraryOpen, setLibraryOpen] = useState(false)
   const [libraryKey, setLibraryKey] = useState(0)
+  const [settingsOpen, setSettingsOpen] = useState(false)
+  // The provider whose key field takes the focus when Settings opens to add one.
+  const [settingsFocus, setSettingsFocus] = useState<string | null>(null)
   const [showNotes, setShowNotes] = useState(false)
 
   const fixAbort = useRef<AbortController | null>(null)
@@ -273,10 +278,6 @@ export default function App() {
     () => config?.providers.find((p) => p.id === provider),
     [config, provider]
   )
-  const anyConfigured = useMemo(
-    () => !!config?.providers.some((p) => p.configured),
-    [config]
-  )
 
   // Once the editor diverges from the fix's original, the live analysis leads
   // and the old result waits behind "Show last fix".
@@ -312,10 +313,11 @@ export default function App() {
   )
 
   // The button and the keyboard shortcut share this gate.
-  const canFix = fixAllowed({ prompt, model, provider, fixing, cancelling, localStatus })
+  const configured = providerInfo?.configured
+  const canFix = fixAllowed({ prompt, model, provider, fixing, cancelling, localStatus, configured })
   // A refine is measured against the marked result's original, not the editor.
   const canRefine = refineAllowed(
-    { prompt: view.active?.original ?? '', model, provider, fixing, cancelling, localStatus },
+    { prompt: view.active?.original ?? '', model, provider, fixing, cancelling, localStatus, configured },
     marks
   )
 
@@ -402,8 +404,8 @@ export default function App() {
 
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
-      // The drawer's search box should not fire a fix.
-      if (libraryOpen) return
+      // A drawer's fields — the library search, a key — should not fire a fix.
+      if (libraryOpen || settingsOpen) return
       if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') {
         e.preventDefault()
         runFix()
@@ -411,7 +413,7 @@ export default function App() {
     }
     window.addEventListener('keydown', onKey)
     return () => window.removeEventListener('keydown', onKey)
-  }, [runFix, libraryOpen])
+  }, [runFix, libraryOpen, settingsOpen])
 
   const cancelFix = () => {
     fixAbort.current?.abort()
@@ -517,6 +519,21 @@ export default function App() {
   const closeLibrary = useCallback(() => setLibraryOpen(false), [])
   const onLibraryError = useCallback((m: string) => toast(m, 'error'), [toast])
   const onLibraryNotice = useCallback((m: string) => toast(m), [toast])
+
+  const openSettings = (focus: string | null = null) => {
+    setSettingsFocus(focus)
+    setSettingsOpen(true)
+  }
+  const closeSettings = useCallback(() => setSettingsOpen(false), [])
+  // A key saved or removed changes what a provider can do, and the config is
+  // where the whole interface reads that from: the provider list, the Fix
+  // gate, the banner and the model list all follow it.
+  const reloadConfig = useCallback(() => {
+    api
+      .config()
+      .then(setConfig)
+      .catch((err) => toast((err as Error).message, 'error'))
+  }, [toast])
 
   const set = <K extends keyof FixOptions>(key: K, value: FixOptions[K]) =>
     setOptions((o) => ({ ...o, [key]: value }))
@@ -658,6 +675,13 @@ export default function App() {
 
           <button className="btn" onClick={() => setLibraryOpen(true)}>
             Library
+          </button>
+
+          <button className="btn settings-button" onClick={() => openSettings()} title="Settings: API keys for cloud models">
+            <span className="settings-glyph" aria-hidden="true">
+              ⚙︎
+            </span>
+            <span className="settings-label">Settings</span>
           </button>
 
           {/* A link, not an update check. The website is where the latest
@@ -1174,14 +1198,24 @@ export default function App() {
               </div>
             )}
 
-            {!anyConfigured && !modelsError && !error && provider !== 'local' && (
-              <div className="banner warn">
+            {needsKey(providerInfo) && (
+              <div className="banner warn" data-testid="needs-key">
                 <span>◆</span>
                 <div className="banner-body">
-                  <strong>No provider key configured</strong>
-                  Linting and scoring work offline. For AI rewrites, copy <code>.env.example</code> to{' '}
-                  <code>.env</code>, add a key, and restart the server — or select{' '}
-                  <b>Ollama</b> to run fully local.
+                  <strong>{providerInfo.label} needs an API key</strong>
+                  Add your key in Settings to fix prompts with {providerInfo.label}. Scoring works without
+                  one.
+                  <div className="actions">
+                    <button className="btn primary sm" onClick={() => openSettings(provider)}>
+                      Add key
+                    </button>
+                    {providerInfo.docs.startsWith('https://') && (
+                      <a href={providerInfo.docs} target="_blank" rel="noreferrer">
+                        Get a key
+                        <span aria-hidden="true"> ↗</span>
+                      </a>
+                    )}
+                  </div>
                 </div>
               </div>
             )}
@@ -1440,6 +1474,17 @@ export default function App() {
           refreshKey={libraryKey}
           onError={onLibraryError}
           onNotice={onLibraryNotice}
+        />
+      )}
+
+      {settingsOpen && (
+        <Settings
+          providers={config.providers}
+          keysFile={config.keysFile}
+          focus={settingsFocus}
+          onClose={closeSettings}
+          onChanged={reloadConfig}
+          onNotice={toast}
         />
       )}
 

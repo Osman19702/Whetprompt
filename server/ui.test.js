@@ -13,6 +13,7 @@ import { api, ApiError } from '../src/lib/api.ts'
 import {
   addMark,
   applyExample,
+  canFix,
   canRefine,
   EMPTY_HISTORY,
   exportFilename,
@@ -25,6 +26,8 @@ import {
   historyStep,
   holdsFixShortcut,
   importSummary,
+  keyedProviders,
+  keyState,
   learnedNote,
   linkParts,
   markButton,
@@ -36,6 +39,7 @@ import {
   markSegments,
   marksAfterSelect,
   MAX_MARKS,
+  needsKey,
   NO_MARKS,
   parseImportFile,
   readExamples,
@@ -481,6 +485,35 @@ test("marks: canRefine is the Fix gate on the result's original, plus at least o
   assert.equal(canRefine({ ...gate, provider: 'local', localStatus: { ...ready, downloaded: false } }, marks), false, 'local model missing')
   assert.equal(canRefine({ ...gate, provider: 'local', localStatus: { ...ready, phase: 'downloading' } }, marks), false)
   assert.equal(canRefine({ ...gate, provider: 'local', localStatus: ready }, marks), true)
+  assert.equal(canRefine({ ...gate, configured: false }, marks), false, 'the key is gone')
+})
+
+// --- API keys in Settings ----------------------------------------------------------
+
+const provider = (id, more = {}) => ({ id, label: id, keyEnv: `${id.toUpperCase()}_API_KEY`, keyOptional: false, docs: '', fallbackModels: [], configured: false, ...more })
+
+test('keys: a cloud provider with no key cannot fix, whatever model was remembered for it', () => {
+  const gate = { prompt: 'a prompt', model: 'remembered-model', provider: 'anthropic', fixing: false, cancelling: false, localStatus: null }
+  assert.equal(canFix({ ...gate, configured: false }), false)
+  assert.equal(canFix({ ...gate, configured: true }), true)
+  assert.equal(canFix(gate), true, 'before the config has loaded, the server has the last word')
+  const ready = { downloaded: true, phase: 'ready', catalog: [] }
+  assert.equal(canFix({ ...gate, provider: 'local', localStatus: ready, configured: false }), true, 'the local model answers to its own status')
+})
+
+test('keys: Settings lists the providers that cannot work without a key, and says where each key came from', () => {
+  const providers = [
+    provider('local', { keyEnv: null, keyOptional: true, configured: true }),
+    provider('anthropic', { configured: true, keySource: 'settings' }),
+    provider('openai'),
+    provider('google', { configured: true, keySource: 'environment' }),
+    provider('ollama', { keyEnv: null, keyOptional: true, configured: true }),
+    provider('compatible', { keyEnv: 'COMPATIBLE_API_KEY', keyOptional: true }),
+  ]
+  assert.deepEqual(keyedProviders(providers).map((p) => p.id), ['anthropic', 'openai', 'google'])
+  assert.deepEqual(keyedProviders(providers).map(keyState), ['saved', 'missing', 'elsewhere'])
+  assert.deepEqual(providers.map(needsKey), [false, false, true, false, false, false])
+  assert.equal(needsKey(undefined), false, 'nothing selected yet')
 })
 
 test('marks: the What changed line reports a refine with the marks that were honoured', () => {

@@ -73,6 +73,9 @@ export const ui = {
   prev: (page) => page.getByRole('button', { name: 'Previous fix' }),
   next: (page) => page.getByRole('button', { name: 'Next fix' }),
   drawer: (page) => page.getByRole('dialog', { name: 'Prompt library' }),
+  settings: (page) => page.getByRole('dialog', { name: 'Settings' }),
+  /** One provider's part of Settings: its key, its buttons and what Test said. */
+  keyRow: (page, provider) => page.getByRole('dialog', { name: 'Settings' }).getByRole('group', { name: provider }),
   toast: (page, text) => page.locator('.toast', { hasText: text }),
 }
 
