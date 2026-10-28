@@ -6,7 +6,14 @@
  */
 
 import 'dotenv/config'
+import dotenv from 'dotenv'
 
 import { applyLegacyEnv } from './legacy-env.js'
+
+// The file Settings saves keys to, when something has named one (the desktop
+// app, a test harness): read it here too, or a key saved there would be gone
+// after a restart. After the working folder's .env, which wins, as the
+// project's does in the desktop app; dotenv never overrides.
+if (process.env.WHETPROMPT_ENV_FILE) dotenv.config({ path: process.env.WHETPROMPT_ENV_FILE })
 
 applyLegacyEnv()

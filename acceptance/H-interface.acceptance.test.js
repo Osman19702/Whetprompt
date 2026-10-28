@@ -350,27 +350,43 @@ test('H12 — Text meets contrast requirements', async () => {
 })
 
 test('H13 — The window works at a small size', async () => {
+  const check = async (page, width, when) => {
+    const overflow = await page.evaluate(() => {
+      const doc = document.documentElement
+      const panes = [...document.querySelectorAll('.pane, .pane-body')].filter((p) => p.scrollWidth > p.clientWidth + 1).length
+      return { page: doc.scrollWidth > doc.clientWidth, panes }
+    })
+    assert.equal(overflow.page, false, `${when}: the page scrolls horizontally`)
+    assert.equal(overflow.panes, 0, `${when}: a pane scrolls horizontally`)
+    for (const name of ['Library', 'Settings', 'Fix prompt']) {
+      const box = await page.getByRole('button', { name: new RegExp(`^${name}`) }).boundingBox()
+      assert.ok(box && box.x >= 0 && box.x + box.width <= width && box.y + box.height <= 720, `${when}: ${name} is on screen`)
+    }
+  }
   const { page, close } = await openApp(app, { viewport: { width: 1024, height: 720 } })
   try {
-    const check = async (when) => {
-      const overflow = await page.evaluate(() => {
-        const doc = document.documentElement
-        const panes = [...document.querySelectorAll('.pane, .pane-body')].filter((p) => p.scrollWidth > p.clientWidth + 1).length
-        return { page: doc.scrollWidth > doc.clientWidth, panes }
-      })
-      assert.equal(overflow.page, false, `${when}: the page scrolls horizontally`)
-      assert.equal(overflow.panes, 0, `${when}: a pane scrolls horizontally`)
-      for (const name of ['Library', 'Fix prompt']) {
-        const box = await page.getByRole('button', { name: new RegExp(`^${name}`) }).boundingBox()
-        assert.ok(box && box.x >= 0 && box.x + box.width <= 1024 && box.y + box.height <= 720, `${when}: ${name} is on screen`)
-      }
-    }
-    await check('empty')
+    await check(page, 1024, 'empty')
     await typePrompt(page, BLOG_PROMPT)
     await runFix(page)
-    await check('after a fix')
+    await check(page, 1024, 'after a fix')
   } finally {
     await close()
+  }
+
+  // The scripted provider is called "Stub". The real names are longer, and the
+  // provider list is as wide as its longest: "Local (built-in) — download needed".
+  const bare = await startApp()
+  try {
+    for (const width of [1024, 901]) {
+      const real = await openApp(bare, { viewport: { width, height: 720 } })
+      try {
+        await check(real.page, width, `${width}px with the real provider names`)
+      } finally {
+        await real.close()
+      }
+    }
+  } finally {
+    await bare.stop()
   }
 })
 
@@ -475,5 +491,72 @@ test('H16 — A rewrite can be reported, and the report leaves the app the safe 
     assert.equal(await ui.output(page).innerText(), FIX_RESPONSE.fixedPrompt, 'with the rewrite still there')
   } finally {
     await close()
+  }
+})
+
+test('H17 — A provider without a key says so, and Settings takes the key', async () => {
+  const KEY = 'sk-ant-h17-pasted-into-settings'
+  const TEST_REPLY = 'Anthropic did not accept the key (invalid x-api-key).'
+  // With a key, the app asks Anthropic for its models, and Test asks it about
+  // the key. Both are answered here, so the scenario never reaches the service.
+  let tests = 0
+  const { page, close } = await openApp(app, {
+    route: {
+      pattern: (url) =>
+        url.pathname === '/api/keys/anthropic/test' || (url.pathname === '/api/models' && url.searchParams.get('provider') === 'anthropic'),
+      handler: (r) => {
+        if (!new URL(r.request().url()).pathname.endsWith('/test')) return r.fulfill({ json: { models: ['claude-stub'], source: 'live' } })
+        tests++
+        return r.fulfill({ json: { ok: false, message: TEST_REPLY } })
+      },
+    },
+  })
+  const keyAnywhere = () =>
+    page.evaluate(
+      (key) =>
+        document.documentElement.outerHTML.includes(key) ||
+        [...document.querySelectorAll('input, textarea')].some((el) => el.value.includes(key)),
+      KEY
+    )
+  try {
+    await typePrompt(page, BLOG_PROMPT)
+    await page.locator('select[aria-label="Provider"]').selectOption('anthropic')
+    const needsKey = page.locator('.banner', { hasText: 'Anthropic needs an API key' })
+    await needsKey.waitFor()
+    assert.equal(await ui.fixButton(page).isDisabled(), true, 'Fix is disabled')
+
+    await needsKey.getByRole('button', { name: 'Add key', exact: true }).click()
+    const row = ui.keyRow(page, 'Anthropic')
+    const field = row.getByLabel('Anthropic API key')
+    await field.waitFor()
+    assert.equal(await field.evaluate((el) => el === document.activeElement), true, "the provider's field has the focus")
+    await field.fill(KEY)
+    await row.getByRole('button', { name: 'Save key', exact: true }).click()
+    await row.getByText('Key saved', { exact: true }).waitFor()
+    assert.equal(await row.getByLabel('Anthropic API key').count(), 0, 'the field is cleared away')
+    assert.equal(await keyAnywhere(), false, 'the key is nowhere on the page')
+
+    await row.getByRole('button', { name: 'Test', exact: true }).click()
+    await row.getByText(TEST_REPLY).waitFor()
+    assert.equal(tests, 1, 'Test asked the provider once')
+    assert.deepEqual(await contrastFailures(page), [], 'Settings meets AA contrast')
+
+    await page.keyboard.press('Escape')
+    await ui.settings(page).waitFor({ state: 'detached' })
+    await needsKey.waitFor({ state: 'detached' })
+    assert.equal(await page.locator('select[aria-label="Provider"] option[value="anthropic"]').textContent(), 'Anthropic', 'no longer "no key"')
+    await page.locator('select[aria-label="Model"]', { has: page.locator('option[value="claude-stub"]') }).waitFor()
+    assert.equal(await ui.fixButton(page).isDisabled(), false, 'the provider is ready')
+
+    await page.getByRole('button', { name: 'Settings', exact: true }).click()
+    await row.getByRole('button', { name: 'Remove', exact: true }).click()
+    await row.getByText('No key', { exact: true }).waitFor()
+    await page.keyboard.press('Escape')
+    await needsKey.waitFor()
+    assert.equal(await ui.fixButton(page).isDisabled(), true, 'the provider needs a key again')
+  } finally {
+    await close()
+    // Whatever happened on the page, the next scenario starts without the key.
+    await app.del('/api/keys/anthropic')
   }
 })

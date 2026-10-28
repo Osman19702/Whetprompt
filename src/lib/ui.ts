@@ -13,6 +13,7 @@ import type {
   ImportResult,
   LibraryEntry,
   LocalStatus,
+  ProviderInfo,
   WarningKind,
 } from '../types'
 
@@ -58,13 +59,37 @@ export interface FixGate {
   /** True between Cancel and the server confirming it dropped the generation. */
   cancelling: boolean
   localStatus: LocalStatus | null
+  /** Whether the server can use the provider: false for a cloud provider with no key. */
+  configured?: boolean
 }
 
 /** One source of truth for the Fix button and the Ctrl+Enter shortcut. */
 export function canFix(g: FixGate): boolean {
   if (!g.prompt.trim() || !g.model || g.fixing || g.cancelling) return false
   if (g.provider === 'local' && localBlocked(g.localStatus)) return false
+  // A model remembered from when the key was there is still no key.
+  if (g.provider !== 'local' && g.configured === false) return false
   return true
+}
+
+/** The providers whose key Settings keeps: cloud services that cannot work without one. */
+export function keyedProviders(providers: ProviderInfo[]): ProviderInfo[] {
+  return providers.filter((p) => !!p.keyEnv && !p.keyOptional)
+}
+
+/** A provider that cannot fix anything until somebody adds its key. */
+export function needsKey(p: ProviderInfo | undefined): p is ProviderInfo {
+  return !!p && !!p.keyEnv && !p.keyOptional && !p.configured
+}
+
+/**
+ * How Settings describes a provider's key. A key set somewhere that wins over
+ * Settings is shown but never offered for editing: a change made here would
+ * not be the key in use.
+ */
+export function keyState(p: ProviderInfo): 'saved' | 'missing' | 'elsewhere' {
+  if (p.configured && p.keySource === 'environment') return 'elsewhere'
+  return p.configured ? 'saved' : 'missing'
 }
 
 export type TierAction =

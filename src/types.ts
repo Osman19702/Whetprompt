@@ -120,6 +120,19 @@ export interface ProviderInfo {
   docs: string
   fallbackModels: string[]
   configured: boolean
+  /**
+   * Where the key in use came from, for the providers whose key Settings
+   * keeps: 'settings' when it is the one Settings saved, 'environment' when
+   * something that wins over Settings set it, null when there is none.
+   * Absent on servers that predate Settings.
+   */
+  keySource?: 'settings' | 'environment' | null
+}
+
+/** What Settings' Test button reports: whether the provider accepted the key, in a sentence. */
+export interface KeyCheck {
+  ok: boolean
+  message: string
 }
 
 export interface Preset {
@@ -207,6 +220,8 @@ export interface AppConfig {
    */
   report?: string
   providers: ProviderInfo[]
+  /** The file Settings saves keys to. Absent on servers that predate Settings. */
+  keysFile?: string
   defaultProvider: string
   defaultModel: string
   desktop: boolean

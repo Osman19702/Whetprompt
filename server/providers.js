@@ -19,12 +19,14 @@ import { MODELS, isDownloaded } from './models.js'
 const defaultTimeoutMs = () => Number(process.env.PROVIDER_TIMEOUT_MS) || 120_000
 
 class ProviderError extends Error {
-  constructor(message, { status, provider, retryable = false } = {}) {
+  constructor(message, { status, provider, retryable = false, detail } = {}) {
     super(message)
     this.name = 'ProviderError'
     this.status = status
     this.provider = provider
     this.retryable = retryable
+    // What the provider itself said, redacted: checkKey() words its own message around it.
+    this.detail = detail
   }
 }
 
@@ -93,6 +95,7 @@ async function request(url, init = {}, { provider, timeoutMs = defaultTimeoutMs(
       status: res.status,
       provider,
       retryable: res.status === 429 || res.status >= 500,
+      detail: redact(detail),
     })
   }
   return body
@@ -112,7 +115,17 @@ function paramsToDropFrom(message = '') {
 
 // --- OpenAI-compatible (OpenAI, OpenRouter, LM Studio, vLLM, Groq, Together) --
 
-function openAiCompatible({ id, label, baseUrl, keyEnv, docs, extraHeaders = {}, models = [], keyOptional = false }) {
+function openAiCompatible({
+  id,
+  label,
+  baseUrl,
+  keyEnv,
+  docs,
+  extraHeaders = {},
+  models = [],
+  keyOptional = false,
+  keyCheck = '/models',
+}) {
   return {
     id,
     label,
@@ -142,6 +155,10 @@ function openAiCompatible({ id, label, baseUrl, keyEnv, docs, extraHeaders = {},
         .map((m) => m.id || m.name)
         .filter(Boolean)
       return ids.sort()
+    },
+
+    async checkKey(cfg) {
+      await request(`${this.resolveBaseUrl(cfg)}${keyCheck}`, { headers: this.headers(cfg) }, { provider: label, timeoutMs: 20_000 })
     },
 
     async complete(cfg, { system, user, temperature, maxTokens, jsonMode, signal }) {
@@ -201,13 +218,21 @@ function openAiCompatible({ id, label, baseUrl, keyEnv, docs, extraHeaders = {},
 
 // --- Anthropic ---------------------------------------------------------------
 
+/**
+ * Models that refused `temperature`. Claude Opus 5.5 and the rest of the
+ * current models take no temperature but their own default ("400 `temperature`
+ * is deprecated for this model"), while older ones still honour it, so a model
+ * is asked without it once it has said no — and not asked with it again.
+ */
+const noTemperature = new Set()
+
 const anthropic = {
   id: 'anthropic',
   label: 'Anthropic',
   keyEnv: 'ANTHROPIC_API_KEY',
   docs: 'https://console.anthropic.com/settings/keys',
   baseUrl: 'https://api.anthropic.com/v1',
-  models: ['claude-opus-5', 'claude-sonnet-5', 'claude-fable-5-1', 'claude-haiku-4-5-20251001'],
+  models: ['claude-opus-5-5', 'claude-sonnet-5-5', 'claude-haiku-5-5', 'claude-fable-5-1'],
 
   headers(cfg) {
     return {
@@ -226,22 +251,38 @@ const anthropic = {
     return (body.data || []).map((m) => m.id).filter(Boolean)
   },
 
+  async checkKey(cfg) {
+    await request(`${this.baseUrl}/models?limit=1`, { headers: this.headers(cfg) }, { provider: this.label, timeoutMs: 20_000 })
+  },
+
   async complete(cfg, { system, user, temperature, maxTokens, signal }) {
-    const body = await request(
-      `${this.baseUrl}/messages`,
-      {
-        method: 'POST',
-        headers: this.headers(cfg),
-        body: JSON.stringify({
-          model: cfg.model,
-          max_tokens: maxTokens,
-          temperature,
-          system,
-          messages: [{ role: 'user', content: user }],
-        }),
-      },
-      { provider: this.label, signal }
-    )
+    const payload = { model: cfg.model, max_tokens: maxTokens, system, messages: [{ role: 'user', content: user }] }
+    if (temperature !== undefined && !noTemperature.has(cfg.model)) payload.temperature = temperature
+    const send = () =>
+      request(
+        `${this.baseUrl}/messages`,
+        { method: 'POST', headers: this.headers(cfg), body: JSON.stringify(payload) },
+        { provider: this.label, signal }
+      )
+    let body
+    try {
+      body = await send()
+    } catch (err) {
+      // Refused before anything was written, so the second request is the first that costs anything.
+      if (!('temperature' in payload) || err.status !== 400 || !/temperature/i.test(err.detail ?? '')) throw err
+      noTemperature.add(cfg.model)
+      delete payload.temperature
+      body = await send()
+    }
+    // A reply the model's safeguards declined carries no answer to read.
+    if (body.stop_reason === 'refusal') {
+      const category = body.stop_details?.category
+      throw new ProviderError(
+        `${this.label} declined this request${category ? ` (${category})` : ''}. Reword the prompt, or try another model.`,
+        { status: 502, provider: this.label }
+      )
+    }
+    // Current models think before they answer; the thinking comes as blocks of its own, and only text is the answer.
     const text = (body.content || [])
       .filter((block) => block.type === 'text')
       .map((block) => block.text)
@@ -275,6 +316,14 @@ const google = {
       .filter((m) => (m.supportedGenerationMethods || []).includes('generateContent'))
       .map((m) => String(m.name || '').replace(/^models\//, ''))
       .filter(Boolean)
+  },
+
+  async checkKey(cfg) {
+    await request(
+      `${this.baseUrl}/models?key=${encodeURIComponent(cfg.apiKey)}&pageSize=1`,
+      {},
+      { provider: this.label, timeoutMs: 20_000 }
+    )
   },
 
   async complete(cfg, { system, user, temperature, maxTokens, jsonMode, signal }) {
@@ -414,6 +463,8 @@ export const PROVIDERS = {
     docs: 'https://openrouter.ai/keys',
     extraHeaders: { 'HTTP-Referer': 'http://localhost:5173', 'X-Title': 'Whetprompt' },
     models: ['anthropic/claude-sonnet-4.5', 'openai/gpt-4.1', 'google/gemini-2.5-pro'],
+    // Its model list is served to anyone, so only this one says anything about a key.
+    keyCheck: '/key',
   }),
   google,
   ollama,
@@ -467,7 +518,7 @@ export function resolveConfig(providerId, overrides = {}) {
 
   if (!apiKey && !provider.keyOptional) {
     throw new ProviderError(
-      `${provider.label} needs an API key. Set ${provider.keyEnv} in your .env file and restart the server.`,
+      `${provider.label} needs an API key. Add it in Settings, or set ${provider.keyEnv} in your .env file and restart.`,
       { status: 400, provider: provider.label }
     )
   }
@@ -516,6 +567,33 @@ export async function listModels(providerId, overrides = {}) {
     if (!cfg.provider.models.length) throw err
   }
   return { models: cfg.provider.models, source: 'fallback' }
+}
+
+/**
+ * Settings' Test button: does the provider accept the key it has? One
+ * request, the cheapest that needs the key; a model list is no proof by
+ * itself, since OpenRouter shows its list to anyone, so each adapter names its
+ * own. The answer is a result rather than a failure: a rejected key and an
+ * unreachable provider both come back as `{ ok: false, message }` to be read.
+ */
+export async function checkKey(providerId) {
+  const cfg = resolveConfig(providerId)
+  const { label } = cfg.provider
+  if (!cfg.provider.checkKey) {
+    throw new ProviderError(`${label} has no key to test.`, { status: 400, provider: label })
+  }
+  try {
+    await cfg.provider.checkKey(cfg)
+    return { ok: true, message: `${label} accepted the key.` }
+  } catch (err) {
+    if (!(err instanceof ProviderError)) throw err
+    // Google answers a key it does not know with 400, the others with 401 or 403.
+    if ([400, 401, 403].includes(err.status)) {
+      const said = String(err.detail ?? '').trim().replace(/\.+$/, '')
+      return { ok: false, message: `${label} did not accept the key${said ? ` (${said})` : ''}.` }
+    }
+    return { ok: false, message: `Could not check the key: ${err.message}` }
+  }
 }
 
 export async function complete(providerId, overrides, args) {

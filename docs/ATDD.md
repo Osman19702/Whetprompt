@@ -6,10 +6,11 @@
 > groups have been added since: Group M (marking a rewrite and fixing it again) and Group N (the
 > visual check with Elastishot); F11 (nothing leaves the machine) became a test in 0.3.0, H15
 > (the link to the website) was added in 0.4.0, and H16 (the Report link beside a rewrite, which the
-> Microsoft Store asks for) in 0.6.0. That makes 115 scenarios in fourteen groups — 105
-> automated, 10 waiting on the nightly machine, the packaged installer or a person;
-> `npm run test:trace` prints the list. Parts 1 and 2 describe the conversion as it was planned
-> and are kept as written, apart from the counts and the visual seam.
+> Microsoft Store asks for) in 0.6.0. 0.7.0 brought G7, G8 and H17 (API keys in Settings), and
+> extended G6 to the routes that change a key and H13 to the real provider names. That makes 118
+> scenarios in fourteen groups — 108 automated, 10 waiting on the nightly machine, the packaged
+> installer or a person; `npm run test:trace` prints the list. Parts 1 and 2 describe the
+> conversion as it was planned and are kept as written, apart from the counts and the visual seam.
 
 This document converts Whetprompt's development strategy to ATDD. It has three parts: an honest
 read of where the test strategy stands today, the target shape and the way of working that gets us
@@ -593,8 +594,28 @@ guard behaviour and the before-and-after comparison are identical; only the run 
 fails if any provider has a special path through the fix flow.
 
 **G6 — The API is reachable only from this machine.** Given the server running, when a request
-arrives from a non-local origin, then it is refused. It fails if the app is reachable from the
-network, since it holds the user's keys.
+arrives from a non-local origin, then it is refused. And a request to change or test a key that is
+addressed to any name but this machine's is refused as well: a web page that points a name of its
+own at 127.0.0.1 is its own origin to the browser, so the origin check never sees it, and a key it
+could set would decide whose account the user's next prompt goes to. It fails if the app is
+reachable from the network, since it holds the user's keys.
+
+**G7 — A key added in Settings works at once and stays on this computer.** Given a cloud provider
+with no key, when the user adds one in Settings, then the provider is offered as ready straight
+away, with no restart, and Settings says the key is its own; no reply carries the key back; and the
+key is written to the app's own settings file, where an app started again finds it. When the user
+removes the key, then the provider needs one again and the file no longer holds it. It fails if a
+saved key needs a restart, does not survive one, or ever comes back out of the server.
+
+**G8 — Settings refuses what is not a key, and leaves a key set elsewhere alone.** Given a settings
+file that holds the user's own notes and settings, when a key with a line break, a space or a quote
+in it, or one too short to be a key, is added, then it is refused without being repeated back and
+the file is unchanged to the byte — a line break in a key is a second line in the file, and a
+second line can be any setting at all. A key pasted together with its name, the way it stands in a
+settings file, keeps only the key, and every other line is as it was. Given a key set in the system
+environment, then Settings says it is set elsewhere and will neither replace nor remove it, because
+the one in the environment would still be the key in use. It fails if the file ever changes in a
+line the user did not ask about.
 
 ### Group H — The editor and the results interface
 
@@ -661,13 +682,24 @@ measured, then every pair meets the AA threshold. It fails on a single pairing, 
 enumerates the surfaces rather than sampling them.
 
 **H13 — The window works at a small size.** Given a window of 1024 by 720, when the app is used, then
-nothing is clipped, no pane scrolls horizontally, and every control remains reachable. It fails if
-any content requires horizontal scrolling of the page body.
+nothing is clipped, no pane scrolls horizontally, and every control remains reachable. The same
+holds with the real provider names, whose longest sets the width of the provider list, and down to
+900 pixels, the narrowest the desktop window goes: a scripted provider called "Stub" once hid a top
+bar 47 pixels too wide for a 1024-pixel window. It fails if any content requires horizontal
+scrolling of the page body.
 
 **H14 — Every action without a visible result reports itself.** Given saving to the library,
 importing, exporting, copying and applying, when each completes, then a short confirmation appears
 stating the outcome — including the counts for an import. It fails if any of them completes silently,
 leaving the user unsure whether it worked.
+
+**H17 — A provider without a key says so, and Settings takes the key.** Given a cloud provider with
+no key selected, then the results pane says it needs a key and offers to add one, and Fix is
+disabled; when the user presses Add key, pastes a key and saves it, then the provider is ready, the
+field is cleared and the key is nowhere on the page; when they test it, they are told what the
+provider answered; and when they remove it, the provider needs a key again and Fix is disabled. It
+fails if someone who installed the app from the Microsoft Store — with no hidden folder they know
+to edit, and no reason to restart — cannot get from "no key" to a working provider inside the app.
 
 ### Group I — Showing what changed
 
@@ -956,8 +988,9 @@ what it did to the interface. The check is Elastishot: every screen is reached b
 app the way a user would, against the scripted model, and compared with a picture that was approved
 on the same machine. The scenarios run the real command-line tool and the two npm scripts around it,
 and read the report they write. Their background is that every screen — the empty editor, the
-Issues tab, the Fixed tab, the Fixed tab with marks on it, the Diff tab, the Changes tab and the
-Library drawer — has been captured and approved at the desktop and the small window size.
+Issues tab, the Fixed tab, the Fixed tab with marks on it, the Diff tab, the Changes tab, the
+Library drawer and the Settings drawer — has been captured and approved at the desktop and the
+small window size.
 
 **N1 — Every screen, captured again, matches its approved picture.** Given the approved pictures,
 when every screen is captured again at both window sizes, then the check passes and no screen
@@ -965,7 +998,7 @@ reports a changed, added or removed region at either size. This is the scenario 
 group stands on: a visual check that cries wolf gets switched off within the week, so the first
 thing it has to prove is that it can look at the same interface twice and see the same thing —
 with a model list that arrives late, a score that appears after a pause, a text cursor that blinks
-and a mouse that has to be somewhere. It fails if any of fourteen pictures differs from itself.
+and a mouse that has to be somewhere. It fails if any of sixteen pictures differs from itself.
 
 **N2 — A rewrite that came back different is reported on the Fixed screen, by name.** Given a model
 that now words one line of the rewrite differently — same sections, same scores, same list of

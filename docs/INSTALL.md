@@ -95,6 +95,7 @@ that is the one difference to know about:
 - **Cloud provider keys** go in a `.env` file as described below, in the folder the Store version
   uses: `%APPDATA%\Whetprompt\` when it shares the download version's, and otherwise
   `%LOCALAPPDATA%\Packages\TuralioLabs.Whetprompt_7a4rf7jk3z6yp\LocalCache\Roaming\whetprompt\`.
+  From 0.7.0, **Settings** writes that file for you.
 
 Both versions can be installed at once; they are then two entries called Whetprompt in the Start
 menu. To move to the Store version, install it, check that your library is there, and uninstall
@@ -102,10 +103,15 @@ the download version: its library and model stay behind, and the Store version g
 
 ### Optional: cloud providers
 
-If you would rather use Claude, OpenAI, Gemini, OpenRouter or Ollama, create a text file named
-`.env` in `%APPDATA%\Whetprompt\` containing your key, for example `ANTHROPIC_API_KEY=sk-ant-…`,
-and restart the app. The provider appears in the selector. Keys stay on your machine; the app never
-displays them.
+If you would rather use Claude, OpenAI, Gemini or OpenRouter, you need an API key from that
+provider. From 0.7.0, press **Settings** in the top bar, paste the key next to the
+provider and press **Save key**: the provider is ready at once, and **Test** asks it whether it
+accepts the key. Settings saves the key in the `.env` file described next, and never shows it again.
+
+Up to 0.6.0, create that file yourself: a text file named `.env` in `%APPDATA%\Whetprompt\`
+containing your key, for example `ANTHROPIC_API_KEY=sk-ant-…`, then restart the app. The provider
+appears in the selector. Ollama needs no key. Keys stay on your machine; the app never displays
+them.
 
 ### Uninstall
 

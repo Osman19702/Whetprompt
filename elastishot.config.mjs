@@ -7,8 +7,9 @@
 // `targets` and name the steps that lead to it.
 //
 // What would differ between two honest captures is kept off the picture:
-//   hide  toasts (they carry elapsed seconds and leave on a timer) and the
-//         date of a library entry
+//   hide  toasts (they carry elapsed seconds and leave on a timer), the
+//         date of a library entry and the settings file's folder (a new
+//         temp folder for every server the harness starts)
 //   mask  the run details of the Changes tab (elapsed time, token counts)
 //   and every driver ends `atRest`: mouse parked, nothing focused or selected,
 //   panes scrolled to the top, no spinner. Elastishot itself stops animations
@@ -105,6 +106,12 @@ const saveAndOpenLibrary = async (page) => {
   await ui.drawer(page).locator('.lib-entry').waitFor()
 }
 
+/** Settings from the top bar: every cloud provider, none with a key on the harness's server. */
+const openSettings = async (page) => {
+  await page.getByRole('button', { name: 'Settings', exact: true }).click()
+  await ui.keyRow(page, 'Google Gemini').waitFor()
+}
+
 /** Leave nothing of the driver on the picture. */
 const atRest = async (page) => {
   await page.mouse.move(0, 0)
@@ -143,7 +150,7 @@ export default {
   capture: {
     waitUntil: 'load',
     timeoutMs: 60_000,
-    hide: ['[data-testid="toasts"]', '[data-testid="library-entry-date"]'],
+    hide: ['[data-testid="toasts"]', '[data-testid="library-entry-date"]', '[data-testid="keys-file"]'],
     mask: ['[data-testid="run-details"]'],
   },
   report: { title: 'Whetprompt visual check' },
@@ -155,5 +162,6 @@ export default {
     screen('diff', typeSample, fix, openTab('Diff')),
     screen('changes', typeSample, fix, openTab('Changes')),
     screen('library', typeSample, fix, saveAndOpenLibrary),
+    screen('settings', openSettings),
   ],
 }

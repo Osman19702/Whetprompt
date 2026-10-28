@@ -7,9 +7,11 @@ import type {
   FixOptions,
   FixResult,
   ImportResult,
+  KeyCheck,
   LibraryEntry,
   LibraryExport,
   LocalStatus,
+  ProviderInfo,
 } from '../types'
 
 export interface FixPayload {
@@ -190,6 +192,19 @@ export const api = {
         `/local/model/${encodeURIComponent(tier)}`,
         { method: 'DELETE' }
       ),
+  },
+
+  /** A cloud provider's API key: written by the server, never read back. */
+  keys: {
+    save: (provider: string, key: string) =>
+      call<{ provider: ProviderInfo }>(`/keys/${encodeURIComponent(provider)}`, {
+        method: 'PUT',
+        body: JSON.stringify({ key }),
+      }),
+    remove: (provider: string) =>
+      call<{ provider: ProviderInfo }>(`/keys/${encodeURIComponent(provider)}`, { method: 'DELETE' }),
+    /** Asks the provider itself, so only ever on a press of Test. */
+    test: (provider: string) => call<KeyCheck>(`/keys/${encodeURIComponent(provider)}/test`, { method: 'POST' }),
   },
 
   library: {

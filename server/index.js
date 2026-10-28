@@ -25,7 +25,8 @@ import {
   STREAMED_FIELD,
   validateRewrite,
 } from './metaprompt.js'
-import { ProviderError, complete, listModels, providerStatus, redact } from './providers.js'
+import * as keys from './keys.js'
+import { ProviderError, checkKey, complete, listModels, providerStatus, redact } from './providers.js'
 import * as store from './store.js'
 import { HOMEPAGE, REPORT_URL, VERSION } from './version.js'
 
@@ -177,7 +178,9 @@ app.get('/api/config', (_req, res) => {
     // Where the Report link beside a rewrite goes: the issue tracker's form
     // for reporting harmful output. Linked the same way, never fetched.
     report: REPORT_URL,
-    providers: providerStatus(),
+    providers: keys.providersWithKeys(),
+    // Where Settings keeps keys, so it can say so. Never what is in it.
+    keysFile: keys.keysFile(),
     defaultProvider: DEFAULT_PROVIDER,
     desktop: process.env.WHETPROMPT_DESKTOP === '1',
     defaultModel: process.env.DEFAULT_MODEL || '',
@@ -325,7 +328,9 @@ app.post(
           user: buildUserPrompt({ prompt, analysis: before, options, examples, retry, feedback }),
           temperature: 0.3,
           // The local model shares an 8k context between input and output.
-          maxTokens: providerId === 'local' ? 2048 : 4000,
+          // Current Claude models think before they answer, and the thinking
+          // counts against this limit as well.
+          maxTokens: providerId === 'local' ? 2048 : providerId === 'anthropic' ? 16_000 : 4000,
           jsonMode: true,
           jsonSchema: OUTPUT_SCHEMA,
           signal: controller.signal,
@@ -552,6 +557,48 @@ app.delete(
   })
 )
 
+// --- API keys ----------------------------------------------------------------
+
+/**
+ * The key routes decide where the next prompt goes, so they answer only a
+ * request addressed to this machine by name. CORS keeps other sites' pages
+ * out, but a page that points a name of its own at 127.0.0.1 is its own
+ * origin to the browser, so CORS never comes into it; the Host header it
+ * sends still names that page.
+ */
+const THIS_MACHINE = /^(?:localhost|127\.0\.0\.1)(?::\d+)?$/i
+const thisMachineOnly = (req, _res, next) => {
+  if (THIS_MACHINE.test(String(req.headers.host ?? ''))) return next()
+  const err = new Error('API keys can only be managed from this computer.')
+  err.status = 403
+  next(err)
+}
+
+app.put(
+  '/api/keys/:provider',
+  thisMachineOnly,
+  wrap(async (req, res) => {
+    res.json({ provider: await keys.saveKey(String(req.params.provider), req.body?.key) })
+  })
+)
+
+app.delete(
+  '/api/keys/:provider',
+  thisMachineOnly,
+  wrap(async (req, res) => {
+    res.json({ provider: await keys.removeKey(String(req.params.provider)) })
+  })
+)
+
+// Settings' Test button. It asks the provider, so it runs when pressed and never on its own.
+app.post(
+  '/api/keys/:provider/test',
+  thisMachineOnly,
+  wrap(async (req, res) => {
+    res.json(await checkKey(keys.keyedProvider(String(req.params.provider)).id))
+  })
+)
+
 // An unknown API path is an API error like any other — JSON, through the
 // handler below — not Express's HTML "Cannot GET" page.
 app.use('/api', (req, _res, next) => {
@@ -619,7 +666,7 @@ export function start({ port = PORT, preload = process.env.WHETPROMPT_PRELOAD ==
       const configured = providerStatus().filter((p) => p.configured)
       console.log(`\n  Whetprompt API  →  http://localhost:${actualPort}`)
       console.log(
-        `  Providers ready  →  ${configured.length ? configured.map((p) => p.label).join(', ') : 'none (download the local model or add a key to .env)'}\n`
+        `  Providers ready  →  ${configured.length ? configured.map((p) => p.label).join(', ') : 'none (download the local model, or add a key in Settings)'}\n`
       )
       if (preload) local.preload()
       resolve({ port: actualPort, server })

@@ -345,6 +345,8 @@ function startServer() {
         // A private library per test run, so a dev server or a second test
         // process writing to server/data/library.json can never flake this.
         WHETPROMPT_DATA_DIR: dataDir,
+        // And private settings: by default a key saved in Settings goes to the project's .env.
+        WHETPROMPT_ENV_FILE: path.join(dataDir, '.env'),
       },
       stdio: ['ignore', 'pipe', 'pipe'],
     })

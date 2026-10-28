@@ -161,9 +161,9 @@ test('the config without a server URL says how to run the check', async () => {
   await assert.rejects(loadConfig({}), /WHETPROMPT_VISUAL_URL is not set.*npm run visual/s)
 })
 
-test('the config: seven screens at two sizes, each reached by a driver, against the given server', async () => {
+test('the config: eight screens at two sizes, each reached by a driver, against the given server', async () => {
   const config = await loadConfig({ WHETPROMPT_VISUAL_URL: 'http://127.0.0.1:4321/' })
-  assert.deepEqual(config.targets.map((t) => t.name), ['empty', 'issues', 'fixed', 'marked', 'diff', 'changes', 'library'])
+  assert.deepEqual(config.targets.map((t) => t.name), ['empty', 'issues', 'fixed', 'marked', 'diff', 'changes', 'library', 'settings'])
   for (const t of config.targets) {
     assert.equal(t.url, 'http://127.0.0.1:4321/')
     assert.equal(typeof t.capture.waitFor, 'function', `${t.name} is driven, not slept for`)
@@ -178,6 +178,7 @@ test('the config: seven screens at two sizes, each reached by a driver, against 
   // what differs between two honest captures stays off the picture
   assert.ok(config.capture.hide.some((s) => s.includes('toasts')))
   assert.ok(config.capture.hide.some((s) => s.includes('library-entry-date')))
+  assert.ok(config.capture.hide.some((s) => s.includes('keys-file')))
   assert.ok(config.capture.mask.some((s) => s.includes('run-details')))
 })
 

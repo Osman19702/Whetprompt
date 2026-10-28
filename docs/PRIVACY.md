@@ -4,7 +4,7 @@ This page is for whoever approves software where you work. It states exactly wha
 sends, where it stores what you write, and which of those statements is checked automatically on
 every build. It is also the privacy policy that Whetprompt's Microsoft Store listing links to.
 
-As of version 0.6.0.
+As of version 0.7.0.
 
 ## The short version
 
@@ -34,11 +34,12 @@ not the app's.
 | Your prompt library (originals, rewrites, scores) | `%APPDATA%\Whetprompt\data\library.json` on Windows; `~/Library/Application Support/Whetprompt/data/library.json` on macOS; `~/.config/Whetprompt/data/library.json` on Linux. Override with `WHETPROMPT_DATA_DIR`. |
 | The model file | `~/.whetprompt/models`. Override with `WHETPROMPT_MODEL_DIR`. |
 | Your settings and the draft in the editor | Your browser profile's local storage for this app, on your machine. |
-| API keys, if you add any | A `.env` file you create, read on the server side only. Keys are never sent to the interface. |
+| API keys, if you add any | A `.env` file next to the library's `data` folder (`%APPDATA%\Whetprompt\.env` on Windows), read on the server side only. Up to 0.6.0 you create it yourself; from 0.7.0 **Settings** writes it for you and names it. Keys are never sent to the interface: Settings says whether a key is saved, never what it is. |
 | All of the above, in the Microsoft Store version | The same places, as the app sees them, but on a PC without the download version Windows keeps them in the app's own storage, `%LOCALAPPDATA%PackagesTuralioLabs.Whetprompt_7a4rf7jk3z6ypLocalCache`, and deletes them when the app is uninstalled. A model it downloads goes to `%LOCALAPPDATA%Whetpromptmodels` as the app sees it, in that storage too. Where the download version is installed, the two share its files, and uninstalling the Store version leaves them. [INSTALL.md](INSTALL.md#the-microsoft-store-version) has the details. |
 
-Nothing is encrypted at rest: these are ordinary files with your account's permissions on them.
-Treat the library the way you would treat a folder of documents.
+Nothing is encrypted at rest: these are ordinary files with your account's permissions on them,
+and that includes the API keys in `.env`. Treat the library the way you would treat a folder of
+documents, and the `.env` file the way you would treat a password written down.
 
 ## The hosts the app can reach
 
@@ -55,6 +56,10 @@ This is the complete list. Every one is in the source and nothing else is.
 | A host you type yourself | Only if you configure `COMPATIBLE_BASE_URL` | Your prompt, wherever you pointed it |
 
 With no key configured and the built-in model selected — the default — none of these is contacted.
+
+Saving a key in **Settings** (from 0.7.0) contacts nothing; it writes the file. Pressing **Test**
+beside a key asks that provider whether it accepts the key: one request to the host above,
+carrying the key and nothing you wrote, made only when you press it.
 
 The **What's new** link in the top bar opens
 [www.whetprompt.com](https://www.whetprompt.com/) in your own browser when you click it (up

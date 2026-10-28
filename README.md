@@ -22,7 +22,8 @@ gets reworded — and the result is still scored against the prompt you wrote, s
 stays comparable.
 
 Cloud providers (Anthropic, OpenAI, OpenRouter, Gemini, Ollama, any OpenAI-compatible endpoint)
-remain available as an optional switch — but nothing requires them.
+remain available as an optional switch — but nothing requires them. A key goes in **Settings**,
+in the top bar, and works at once.
 
 ## Download (Windows)
 
@@ -117,6 +118,7 @@ Whetprompt/
 │   ├── models.js          Model catalog (3 tiers), RAM-based selection, on-disk resolution
 │   ├── vcruntime.js       Why llama.cpp cannot start on Windows: the Visual C++ runtime check and its message
 │   ├── providers.js       Provider registry: local + cloud adapters, plain fetch, no SDKs
+│   ├── keys.js            API keys from Settings: written to the .env file, one line at a time
 │   ├── store.js           Library persistence (atomic JSON writes)
 │   ├── e2e.test.js        End-to-end tests against a stub provider (no key, no model needed)
 │   ├── ui.test.js         Unit tests for src/lib/ui.ts, the marks arithmetic included
@@ -133,7 +135,8 @@ Whetprompt/
 │   └── visual.test.js     Tests for the runner's arguments, approve step and exit codes, and the config's shape
 ├── src/                   React UI (Vite + TypeScript)
 │   ├── App.tsx            State, layout, local-model banner and status
-│   ├── components/        ScorePanel, IssueList, DiffView, Library, MarkableOutput (the rewrite and its marks)
+│   ├── components/        ScorePanel, IssueList, DiffView, Library, MarkableOutput (the rewrite and its marks),
+│   │                      Settings (the API keys)
 │   └── lib/               api.ts (client), diff.ts (word-level LCS diff), ui.ts (view logic and marks, no React)
 ├── acceptance/            Acceptance scenarios, Groups A–N (npm run test:acceptance; see docs/ATDD.md)
 │   ├── features/          The scenarios as Gherkin, one file per group
@@ -154,7 +157,7 @@ Whetprompt/
 │                          icon.svg, whetprompt.png, README.md; releases.json is written by npm run site:releases
 │                          and git-ignored
 ├── dist/                  Built frontend (npm run build) — served by the server
-├── elastishot.config.mjs  Visual check targets: seven screens, each at two window sizes
+├── elastishot.config.mjs  Visual check targets: eight screens, each at two window sizes
 ├── .elastishot/           Approved pictures and run reports of the visual check (per machine, git-ignored)
 ├── CHANGELOG.md           What changed in each version, for users (Keep a Changelog)
 ├── .env.example           Optional configuration
@@ -223,7 +226,7 @@ most of the way for free.
 | `npm run test:acceptance` | The acceptance scenarios in `acceptance/` (see `docs/ATDD.md`) — API, CLI, browser (Playwright), Electron and the visual check (Elastishot, with pictures it approves for itself); needs `npm run build` first and takes about four minutes |
 | `npm run test:trace` | Traceability matrix: every scenario in `acceptance/features/` against its automated test |
 | `npm run test:report` | Run the acceptance suite and print the results to `docs/ATDD-RESULTS.pdf` |
-| `npm run visual` | Visual check with Elastishot: build the UI, start the stub provider and the real server, capture seven screens at two window sizes and compare them with the approved pictures (`-- fixed` for one screen, `-- --no-build` to reuse `dist/`) — see [Visual checks with Elastishot](#visual-checks-with-elastishot) |
+| `npm run visual` | Visual check with Elastishot: build the UI, start the stub provider and the real server, capture eight screens at two window sizes and compare them with the approved pictures (`-- fixed` for one screen, `-- --no-build` to reuse `dist/`) — see [Visual checks with Elastishot](#visual-checks-with-elastishot) |
 | `npm run visual:approve` | Approve the current look as the new baseline — every screen, or only the named ones |
 | `npm run typecheck` | TypeScript, no emit |
 
@@ -301,7 +304,7 @@ the UI (`-- --no-build` reuses `dist/`), start the scripted stub provider and th
 `acceptance/support/` on OS-assigned ports with throwaway data and model folders, run Elastishot
 over the targets in `elastishot.config.mjs`, and shut everything down again — so no key, no model
 and no network are needed, and the rewrite on screen is the same one on every run. A full run of
-the fourteen pictures takes 70–80 s on the development machine.
+the sixteen pictures takes about 20 s on the development machine.
 
 Every screen is reached by driving the page the way a user would, never by sleeping, and is
 captured at two window sizes: `desktop` (1360×880, the size the browser scenarios run at) and
@@ -316,6 +319,7 @@ captured at two window sizes: `desktop` (1360×880, the size the browser scenari
 | `diff` | The Diff tab |
 | `changes` | The Changes tab |
 | `library` | The result saved, and the Library drawer open on that one entry |
+| `settings` | The Settings drawer, every cloud provider without a key |
 
 A screen fails when Elastishot finds a changed, added, removed or moved region on it, or when its
 overall similarity drops below 0.98. After changing the look on purpose, run
@@ -373,15 +377,16 @@ Exit codes are Elastishot's, passed through:
 
 **What is hidden or masked, and why.** Anything that honestly differs between two runs is kept off
 the picture, or every run would fail. Toasts are hidden: they carry elapsed seconds ("Fixed in
-1.2s") and leave on a timer. The date on a Library entry is hidden. The Run details strip of the
-Changes tab — elapsed time and token counts — is masked, so it shows as a solid block in the
-pictures and its contents are not checked. Every capture also ends at rest: mouse parked, nothing
-focused or selected, panes scrolled to the top, no spinner on screen; Elastishot itself stops
-animations and hides the text caret. And each capture starts by emptying the server's library, so
-a prompt saved for the `library` screen cannot turn up in the next one or be learned from by a
-later fix. That is the one destructive thing the check does, so the config refuses any server that
-was not started by the acceptance harness (it recognises the throwaway model folder) — it cannot
-empty a library somebody is using.
+1.2s") and leave on a timer. The date on a Library entry is hidden, and so is the settings file's
+folder in the Settings drawer, a new temp folder for every server the harness starts. The Run
+details strip of the Changes tab — elapsed time and token counts — is masked, so it shows as a
+solid block in the pictures and its contents are not checked. Every capture also ends at rest:
+mouse parked, nothing focused or selected, panes scrolled to the top, no spinner on screen;
+Elastishot itself stops animations and hides the text caret. And each capture starts by emptying
+the server's library, so a prompt saved for the `library` screen cannot turn up in the next one or
+be learned from by a later fix. That is the one destructive thing the check does, so the config
+refuses any server that was not started by the acceptance harness (it recognises the throwaway
+model folder) — it cannot empty a library somebody is using.
 
 **Adding a screen.** A screen is a name and a list of steps in `elastishot.config.mjs`. Copy a line
 of `targets` and name the steps that lead to it — the Diff tab is
@@ -402,8 +407,9 @@ Three environment variables belong to the check, none of them to the app:
 ## Configuration (optional)
 
 Everything has a working default. Configuration is a plain `.env` file (see `.env.example`); create
-it only if you want to change something, and restart the app afterwards. Where it lives depends
-on how you run Whetprompt:
+it only if you want to change something, and restart the app afterwards. API keys need neither:
+**Settings**, in the top bar, saves a key to this file, and the provider works at once. Where the
+file lives depends on how you run Whetprompt:
 
 | How you run it | `.env` location |
 | --- | --- |
@@ -422,10 +428,17 @@ on how you run Whetprompt:
 | `DEFAULT_PROVIDER` | Provider selected on first load (default `local`) |
 | `DEFAULT_MODEL` | Force a specific model id instead of the provider's default |
 | `PORT` | Browser-mode port (default `8787`; `npm run dev` proxies to it; the desktop app picks a free one) |
-| `ANTHROPIC_API_KEY`, `OPENAI_API_KEY`, `OPENROUTER_API_KEY`, `GOOGLE_API_KEY` | Enable a cloud provider |
+| `ANTHROPIC_API_KEY`, `OPENAI_API_KEY`, `OPENROUTER_API_KEY`, `GOOGLE_API_KEY` | Enable a cloud provider; Settings writes these |
+| `WHETPROMPT_ENV_FILE` | The `.env` file Settings saves keys to. The desktop app sets it to its user-data `.env`; unset, it is the `.env` in the working folder, the one the server read |
 | `OLLAMA_BASE_URL`, `COMPATIBLE_BASE_URL`, `COMPATIBLE_API_KEY`, `COMPATIBLE_LABEL` | Other local/compatible endpoints (and the name the UI shows for the compatible one) |
 
-Keys stay on the server side and are never sent to the UI.
+Keys stay on the server side and are never sent to the UI: Settings shows whether a key is saved,
+never what it is. Settings changes the key's own line and keeps every other line of the file as it
+was, and it refuses anything that is not a key (a space, a line break, a quote, a backslash, a `#`,
+fewer than eight characters). A key set in the system environment, or in a `.env` read before the
+user-data one (the project's, in `npm run desktop`), wins over the file, so Settings shows it as
+set outside Whetprompt and leaves it alone. **Test** beside a key asks the provider whether it
+accepts it — one request, the only one Settings ever makes, and only when pressed.
 
 ## How it works
 
