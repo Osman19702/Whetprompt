@@ -50,8 +50,8 @@ shape this listing:
 
 - **Category:** Developer tools. If a subcategory is asked for: Utilities.
 - **Privacy policy URL:** <https://github.com/Osman19702/Whetprompt/blob/master/docs/PRIVACY.md>
-- **Website:** <https://www.whetprompt.com/>. Submission 1 (0.6.0) went in with the old address,
-  https://osman19702.github.io/Whetprompt/, which redirects here; the next update changes it.
+- **Website:** <https://www.whetprompt.com/>, from submission 2 (0.7.0). Submission 1 (0.6.0) went
+  in with the old address, https://osman19702.github.io/Whetprompt/, which redirects here.
 - **Support contact info:** <https://github.com/Osman19702/Whetprompt/issues>
 - **Personal information:** "Yes, my product uses personal information". Policy 10.5.1 counts
   every desktop app as having access to it, and the prompts people type can hold it. The privacy
@@ -106,7 +106,7 @@ package carries the manifest and its images, and the Store signs it.
 **Description**
 
 ```text
-Whetprompt uses generative AI: a language model that runs on your own PC rewrites the prompts you give it. To do that, it downloads the model the first time you press Fix: 2.5 GB, or 1 GB for the lite version. After that it works offline. Cloud models are optional and use your own API key (Anthropic, OpenAI, Google Gemini or OpenRouter), or a model you run yourself with Ollama.
+Whetprompt uses generative AI: a language model that runs on your own PC rewrites the prompts you give it. To do that, it downloads the model the first time you press Fix: 2.5 GB, or 1 GB for the lite version. After that it works offline. Cloud models are optional: add your own API key in Settings (Anthropic, OpenAI, Google Gemini or OpenRouter), or use a model you run yourself with Ollama.
 
 Whetprompt checks and improves the prompts you write for AI models, before you send them. A clearer prompt means a better first answer and fewer wasted tokens.
 
@@ -115,6 +115,7 @@ Whetprompt checks and improves the prompts you write for AI models, before you s
 • See every change: a word-level diff and a change log explain each edit.
 • Keep or change: select any passage of the rewrite, mark it "Keep it" or "Change it", and fix again. The model revises its own rewrite, and a check makes sure what you kept comes back word for word.
 • Library: save the prompts that work, and export or import them.
+• Settings: add an API key for a cloud model, test it, and use it at once. It is saved on your PC and never shown again.
 • Private by default: the built-in model runs on your PC, and an automated test fails every build in which the app connects to anything but your own machine. No account, no telemetry, no ads.
 • Report: if a rewrite is ever harmful or inappropriate, the Report link beside it opens a report form in your browser.
 
@@ -127,7 +128,13 @@ Uninstalling Whetprompt removes your library and the model it downloaded. To kee
 Whetprompt is open source, under the MIT licence: https://github.com/Osman19702/Whetprompt
 ```
 
-**What's new in this version** (for the first submission)
+**What's new in this version**, for submission 2 (0.7.0):
+
+```text
+New in 0.7.0: Settings, in the top bar. Add your own API key for Anthropic, OpenAI, OpenRouter or Google Gemini, test it, and fix prompts with that provider at once, with no file to edit and no restart. Fixing with the newest Claude models works, and the top bar fits small windows.
+```
+
+For the first submission (0.6.0) it was:
 
 ```text
 The first release in the Microsoft Store. New in 0.6.0: a Report link beside every rewrite.
@@ -141,14 +148,14 @@ Rewrites prompts with a built-in AI model that runs on your PC, offline after on
 Re-scores the rewrite and shows a word-level diff and a change log for every edit
 Mark passages to keep or to change, and fix again
 A library of your prompts, with export and import
-Optional cloud models with your own API key
+Optional cloud models: add your own API key in Settings
 No account, no telemetry, no ads
 ```
 
 **Screenshots:** four PNGs of the real app with the real local model, 2560 × 1440, made by
 `scripts/capture-screenshot.mjs` into `release/store-listing/` (its header has the commands; a
-new release with a changed interface takes new ones). Upload them in this order, with these
-captions:
+new release with a changed interface takes new ones, as 0.7.0 did for Settings in the top bar).
+Upload them in this order, with these captions:
 
 1. `A weak prompt scored 42 out of 100, rewritten to 93, with what changed and why.`
 2. `Every edit, word by word.`
@@ -196,7 +203,7 @@ release, the website and the portfolio, and only once the tax and payout profile
 Information**, not on Submission options:
 
 ```text
-Whetprompt uses live generative AI (policy 11.16): a language model, built in and running on the user's PC, rewrites the prompt the user typed. Cloud models are optional and use the user's own API key.
+Whetprompt uses live generative AI (policy 11.16): a language model, built in and running on the user's PC, rewrites the prompt the user typed. Cloud models are optional and use the user's own API key, added in Settings in the top bar; nothing in this test needs one.
 No account or sign-in is needed.
 Scoring works at once: paste any prompt, for example "explain how machine learning works", and the score and the issues appear with no download.
 To test Fix: pick the lite model in the tier selector next to "Local (built-in)" (1 GB, the quickest to download), press Download in the results pane, and wait until it has downloaded and loaded. Then press "Fix prompt". The rewrite appears in the Fixed tab.

@@ -17,15 +17,15 @@ install first, no Node.js, no command line, no account.
 
 ### Install
 
-1. Download **Whetprompt-0.6.0-win-x64.exe**: press **Download** on
+1. Download **Whetprompt-0.7.0-win-x64.exe**: press **Download** on
    [www.whetprompt.com](https://www.whetprompt.com/), or take it from
-   the [v0.6.0 release page](https://github.com/Osman19702/Whetprompt/releases/tag/v0.6.0) or the
+   the [v0.7.0 release page](https://github.com/Osman19702/Whetprompt/releases/tag/v0.7.0) or the
    download button on [osmanturalioglu.com](https://www.osmanturalioglu.com/).
 2. Double-click it. Windows may show a blue **"Windows protected your PC"** screen because the
    installer is not yet code-signed. Click **More info**, then **Run anyway**. (To check the file
    first, compare its SHA-256 with the line in `SHA256SUMS.txt` on the same release page. In
-   PowerShell: `(Get-FileHash .\Whetprompt-0.6.0-win-x64.exe).Hash.ToLower()`, which for 0.6.0
-   must print `4f08e8cd18c4ba4589d4b9807bcff6aee3ad0ff413e3c508128db93b42aca907`.)
+   PowerShell: `(Get-FileHash .\Whetprompt-0.7.0-win-x64.exe).Hash.ToLower()`, which for 0.7.0
+   must print `c11bff46a8298a16cb26ea1b9c307e0327e3be82f1fe2994b137575bf8319e41`.)
 3. Choose an install folder or accept the default, and finish. Whetprompt opens by itself and adds a
    Start menu entry.
 
