@@ -11,6 +11,7 @@ later one starts from what the last one said. How a release gets its package is 
 | Store page | <https://apps.microsoft.com/detail/9P750H35HR59> |
 | Developer account | Turalio Labs, an individual account |
 | Package identity | `TuralioLabs.Whetprompt`, publisher `CN=2983B22E-31A1-4704-9688-153EBAC48AD9`, family name `TuralioLabs.Whetprompt_7a4rf7jk3z6yp` |
+| Published | 0.6.0 on 25 October 2026 (submission 1), 0.7.0 on 28 October 2026 (submission 2) |
 
 Store policies are quoted by number from version 7.20, current since 22 October 2026. Four of them
 shape this listing:
@@ -100,6 +101,13 @@ questionnaire again.
 Upload `Whetprompt-x.y.z-win-x64.appx`, from the Release workflow's artifact
 `Whetprompt-vx.y.z-store`. Device family: Windows 10/11 Desktop. Nothing else is uploaded: the
 package carries the manifest and its images, and the Store signs it.
+
+On an update, as with submission 2 (0.7.0), Partner Center strikes through the previous package,
+because the new one is a higher version for the same devices, and **Save** removes it: let it, as
+every customer gets the new one. Every upload shows a validation warning that `runFullTrust` needs
+approval; that is the restricted capability the justification under **Submission options**
+answers. Leave **Roll out update gradually** and **Make this update mandatory** unticked: the first
+holds the update back from some customers, and the second applies to UWP apps only.
 
 ## Store listing (English)
 
@@ -198,6 +206,9 @@ MIT on GitHub, and the description says so.
 **Publishing hold options:** "Don't publish this submission until I select Publish now". A
 certified version then waits for **Publish now**, so that it goes live together with the GitHub
 release, the website and the portfolio, and only once the tax and payout profiles are validated.
+An update inherits the hold: submission 2 (0.7.0) went in with it, its GitHub release already out.
+Change it under **Modify publishing time** on the overview while the update is in certification,
+or press **Publish now** once it has passed.
 
 **Notes for certification** go on their own page, **Supplemental info → Additional Testing
 Information**, not on Submission options:

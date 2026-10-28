@@ -222,6 +222,13 @@ days; then the Store publishes the version, at once or when chosen under **Submi
 After the first one, add the Store link to the README and `docs/INSTALL.md` (step 11 of every
 release after it has nothing more to change for the Store).
 
+To see which version the Store serves, without signing in, ask its public catalogue for the
+package's name; once 0.7.0 was out, it was `TuralioLabs.Whetprompt_0.7.0.0_x64__7a4rf7jk3z6yp`:
+
+```bash
+curl -s "https://displaycatalog.mp.microsoft.com/v7.0/products?bigIds=9P750H35HR59&market=GB&languages=en-GB" | grep -o '"PackageFullName":"[^"]*"'
+```
+
 ## Choosing the number
 
 [Semantic Versioning](https://semver.org/), as applied here while the version starts with 0:
